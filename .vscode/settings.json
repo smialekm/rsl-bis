@@ -1,0 +1,13 @@
+{
+    "antlr4.generation": {
+        "mode": "external",
+        "language": "CSharp",
+        "listeners": false,
+        "visitors": true
+    },
+    "antlr4.debug": {
+        "startRule": "usecase",
+        "visualParseTreeHorizontal": true,
+        "visualParseTreeClustered": false
+    }
+}
