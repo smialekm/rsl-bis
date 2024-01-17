@@ -16,7 +16,15 @@ conditions:
     ;
 
 condition:
-    STRING+ ('?' STRING+)?
+    valuecondition | contextcondition
+    ;
+
+contextcondition:
+    notion
+    ;
+
+valuecondition:
+    ('user' | notion) '?' value
     ;
 
 mainscenario:
@@ -62,7 +70,7 @@ resultsentence:
     ;
 
 rejoinsentence:
-    'rejoin' NUMBER
+    'rejoin' (label | altlabel)
     ;
 
 result:
@@ -107,7 +115,7 @@ tosystempredicate:
     readpredicate
     | updatepredicate
     | deletepredicate
-    | validatepredicate
+    | checkpredicate
     | executepredicate
     ;
 
@@ -123,8 +131,8 @@ deletepredicate:
     '<delete>' notion
     ;
 
-validatepredicate:
-    '<validate>' notion
+checkpredicate:
+    '<check>' notion
     ;
 
 executepredicate:
@@ -164,6 +172,10 @@ actor:
     ;
 
 notion:
+    STRING+
+    ;
+
+value:
     STRING+
     ;
 

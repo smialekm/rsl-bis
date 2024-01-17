@@ -62,6 +62,18 @@ public interface IRslBisVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitCondition([NotNull] RslBisParser.ConditionContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="RslBisParser.contextcondition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitContextcondition([NotNull] RslBisParser.ContextconditionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="RslBisParser.valuecondition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitValuecondition([NotNull] RslBisParser.ValueconditionContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="RslBisParser.mainscenario"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -206,11 +218,11 @@ public interface IRslBisVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitDeletepredicate([NotNull] RslBisParser.DeletepredicateContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="RslBisParser.validatepredicate"/>.
+	/// Visit a parse tree produced by <see cref="RslBisParser.checkpredicate"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitValidatepredicate([NotNull] RslBisParser.ValidatepredicateContext context);
+	Result VisitCheckpredicate([NotNull] RslBisParser.CheckpredicateContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="RslBisParser.executepredicate"/>.
 	/// </summary>
@@ -271,6 +283,12 @@ public interface IRslBisVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitNotion([NotNull] RslBisParser.NotionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="RslBisParser.value"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitValue([NotNull] RslBisParser.ValueContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="RslBisParser.name"/>.
 	/// </summary>
