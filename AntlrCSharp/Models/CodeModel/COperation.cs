@@ -15,7 +15,7 @@ namespace CodeModel {
 
 		public CodeModel.DataAggregate data;
 		public CodeModel.UCOperation invoked;
-		public CodeModel.UCOperation return;
+		public CodeModel.UCOperation returnTo;
 
 		public COperation(){
 

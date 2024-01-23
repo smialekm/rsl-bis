@@ -1,0 +1,15 @@
+c:\Users\smial\MyRepos\rsl-bis\AntlrCSharp\obj\Debug\netcoreapp3.1\AntlrCSharp.csprojAssemblyReference.cache
+c:\Users\smial\MyRepos\rsl-bis\AntlrCSharp\obj\Debug\netcoreapp3.1\AntlrCSharp.AssemblyInfoInputs.cache
+c:\Users\smial\MyRepos\rsl-bis\AntlrCSharp\obj\Debug\netcoreapp3.1\AntlrCSharp.AssemblyInfo.cs
+c:\Users\smial\MyRepos\rsl-bis\AntlrCSharp\obj\Debug\netcoreapp3.1\AntlrCSharp.csproj.CoreCompileInputs.cache
+c:\Users\smial\MyRepos\rsl-bis\AntlrCSharp\bin\Debug\netcoreapp3.1\AntlrCSharp.exe
+c:\Users\smial\MyRepos\rsl-bis\AntlrCSharp\bin\Debug\netcoreapp3.1\AntlrCSharp.deps.json
+c:\Users\smial\MyRepos\rsl-bis\AntlrCSharp\bin\Debug\netcoreapp3.1\AntlrCSharp.runtimeconfig.json
+c:\Users\smial\MyRepos\rsl-bis\AntlrCSharp\bin\Debug\netcoreapp3.1\AntlrCSharp.runtimeconfig.dev.json
+c:\Users\smial\MyRepos\rsl-bis\AntlrCSharp\bin\Debug\netcoreapp3.1\AntlrCSharp.dll
+c:\Users\smial\MyRepos\rsl-bis\AntlrCSharp\bin\Debug\netcoreapp3.1\AntlrCSharp.pdb
+c:\Users\smial\MyRepos\rsl-bis\AntlrCSharp\bin\Debug\netcoreapp3.1\Antlr4.Runtime.Standard.dll
+c:\Users\smial\MyRepos\rsl-bis\AntlrCSharp\obj\Debug\netcoreapp3.1\AntlrCSharp.csproj.CopyComplete
+c:\Users\smial\MyRepos\rsl-bis\AntlrCSharp\obj\Debug\netcoreapp3.1\AntlrCSharp.dll
+c:\Users\smial\MyRepos\rsl-bis\AntlrCSharp\obj\Debug\netcoreapp3.1\AntlrCSharp.pdb
+c:\Users\smial\MyRepos\rsl-bis\AntlrCSharp\obj\Debug\netcoreapp3.1\AntlrCSharp.genruntimeconfig.cache

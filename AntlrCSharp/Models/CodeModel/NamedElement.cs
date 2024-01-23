@@ -11,6 +11,7 @@
 
 namespace CodeModel {
 	public class NamedElement {
+		public string name;
 
 		public NamedElement(){
 
