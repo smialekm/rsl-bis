@@ -66,7 +66,7 @@ endsentence:
     ;
 
 resultsentence:
-    '{' result '}'
+    'end' '!' value
     ;
 
 rejoinsentence:

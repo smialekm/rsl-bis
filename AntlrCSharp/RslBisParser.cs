@@ -39,8 +39,8 @@ public partial class RslBisParser : Parser {
 		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, T__8=9, 
 		T__9=10, T__10=11, T__11=12, T__12=13, T__13=14, T__14=15, T__15=16, T__16=17, 
 		T__17=18, T__18=19, T__19=20, T__20=21, T__21=22, T__22=23, T__23=24, 
-		T__24=25, T__25=26, T__26=27, T__27=28, T__28=29, NUMBER=30, STRING=31, 
-		CHAR=32, WS=33;
+		T__24=25, T__25=26, T__26=27, T__27=28, T__28=29, T__29=30, T__30=31, 
+		NUMBER=32, STRING=33, CHAR=34, WS=35;
 	public const int
 		RULE_start = 0, RULE_usecase = 1, RULE_ucconditions = 2, RULE_conditions = 3, 
 		RULE_condition = 4, RULE_contextcondition = 5, RULE_valuecondition = 6, 
@@ -69,15 +69,16 @@ public partial class RslBisParser : Parser {
 
 	private static readonly string[] _LiteralNames = {
 		null, "'Use case'", "'{'", "'}'", "';'", "'user'", "'?'", "'Main scenario'", 
-		"'Scenario'", "'['", "']'", "'->'", "'rejoin'", "'-\"-'", "'System'", 
-		"'<show>'", "'<close>'", "'<read>'", "'<update>'", "'<delete>'", "'<check>'", 
-		"'<execute>'", "'<select>'", "'<enter>'", "'<invoke>'", "'Frame'", "'Trigger'", 
-		"'Data'", "':'", "','"
+		"'Scenario'", "'['", "']'", "'->'", "'end'", "'!'", "'rejoin'", "'-\"-'", 
+		"'System'", "'<show>'", "'<close>'", "'<read>'", "'<update>'", "'<delete>'", 
+		"'<check>'", "'<execute>'", "'<select>'", "'<enter>'", "'<invoke>'", "'Frame'", 
+		"'Trigger'", "'Data'", "':'", "','"
 	};
 	private static readonly string[] _SymbolicNames = {
 		null, null, null, null, null, null, null, null, null, null, null, null, 
 		null, null, null, null, null, null, null, null, null, null, null, null, 
-		null, null, null, null, null, null, "NUMBER", "STRING", "CHAR", "WS"
+		null, null, null, null, null, null, null, null, "NUMBER", "STRING", "CHAR", 
+		"WS"
 	};
 	public static readonly IVocabulary DefaultVocabulary = new Vocabulary(_LiteralNames, _SymbolicNames);
 
@@ -163,7 +164,7 @@ public partial class RslBisParser : Parser {
 			State = 100;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 234881024L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 939524096L) != 0)) {
 				{
 				{
 				State = 97;
@@ -962,13 +963,13 @@ public partial class RslBisParser : Parser {
 			State = 172;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
-			case T__1:
+			case T__11:
 				{
 				State = 170;
 				resultsentence();
 				}
 				break;
-			case T__11:
+			case T__13:
 				{
 				State = 171;
 				rejoinsentence();
@@ -991,8 +992,8 @@ public partial class RslBisParser : Parser {
 	}
 
 	public partial class ResultsentenceContext : ParserRuleContext {
-		[System.Diagnostics.DebuggerNonUserCode] public ResultContext result() {
-			return GetRuleContext<ResultContext>(0);
+		[System.Diagnostics.DebuggerNonUserCode] public ValueContext value() {
+			return GetRuleContext<ValueContext>(0);
 		}
 		public ResultsentenceContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
@@ -1015,11 +1016,11 @@ public partial class RslBisParser : Parser {
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 174;
-			Match(T__1);
+			Match(T__11);
 			State = 175;
-			result();
+			Match(T__12);
 			State = 176;
-			Match(T__2);
+			value();
 			}
 		}
 		catch (RecognitionException re) {
@@ -1061,7 +1062,7 @@ public partial class RslBisParser : Parser {
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 178;
-			Match(T__11);
+			Match(T__13);
 			State = 181;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
@@ -1157,7 +1158,7 @@ public partial class RslBisParser : Parser {
 			State = 185;
 			label();
 			State = 186;
-			Match(T__12);
+			Match(T__14);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1294,7 +1295,7 @@ public partial class RslBisParser : Parser {
 				userstep();
 				}
 				break;
-			case T__13:
+			case T__15:
 				EnterOuterAlt(_localctx, 2);
 				{
 				State = 195;
@@ -1347,28 +1348,28 @@ public partial class RslBisParser : Parser {
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 198;
-			Match(T__13);
+			Match(T__15);
 			State = 202;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
-			case T__16:
-			case T__17:
 			case T__18:
 			case T__19:
 			case T__20:
+			case T__21:
+			case T__22:
 				{
 				State = 199;
 				tosystempredicate();
 				}
 				break;
-			case T__14:
-			case T__15:
+			case T__16:
+			case T__17:
 				{
 				State = 200;
 				toactorpredicate();
 				}
 				break;
-			case T__23:
+			case T__25:
 				{
 				State = 201;
 				invoke();
@@ -1418,14 +1419,14 @@ public partial class RslBisParser : Parser {
 			State = 206;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
-			case T__14:
+			case T__16:
 				EnterOuterAlt(_localctx, 1);
 				{
 				State = 204;
 				showpredicate();
 				}
 				break;
-			case T__15:
+			case T__17:
 				EnterOuterAlt(_localctx, 2);
 				{
 				State = 205;
@@ -1472,7 +1473,7 @@ public partial class RslBisParser : Parser {
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 208;
-			Match(T__14);
+			Match(T__16);
 			State = 209;
 			notion();
 			}
@@ -1513,7 +1514,7 @@ public partial class RslBisParser : Parser {
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 211;
-			Match(T__15);
+			Match(T__17);
 			State = 212;
 			notion();
 			}
@@ -1566,35 +1567,35 @@ public partial class RslBisParser : Parser {
 			State = 219;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
-			case T__16:
+			case T__18:
 				EnterOuterAlt(_localctx, 1);
 				{
 				State = 214;
 				readpredicate();
 				}
 				break;
-			case T__17:
+			case T__19:
 				EnterOuterAlt(_localctx, 2);
 				{
 				State = 215;
 				updatepredicate();
 				}
 				break;
-			case T__18:
+			case T__20:
 				EnterOuterAlt(_localctx, 3);
 				{
 				State = 216;
 				deletepredicate();
 				}
 				break;
-			case T__19:
+			case T__21:
 				EnterOuterAlt(_localctx, 4);
 				{
 				State = 217;
 				checkpredicate();
 				}
 				break;
-			case T__20:
+			case T__22:
 				EnterOuterAlt(_localctx, 5);
 				{
 				State = 218;
@@ -1641,7 +1642,7 @@ public partial class RslBisParser : Parser {
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 221;
-			Match(T__16);
+			Match(T__18);
 			State = 222;
 			notion();
 			}
@@ -1682,7 +1683,7 @@ public partial class RslBisParser : Parser {
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 224;
-			Match(T__17);
+			Match(T__19);
 			State = 225;
 			notion();
 			}
@@ -1723,7 +1724,7 @@ public partial class RslBisParser : Parser {
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 227;
-			Match(T__18);
+			Match(T__20);
 			State = 228;
 			notion();
 			}
@@ -1764,7 +1765,7 @@ public partial class RslBisParser : Parser {
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 230;
-			Match(T__19);
+			Match(T__21);
 			State = 231;
 			notion();
 			}
@@ -1805,7 +1806,7 @@ public partial class RslBisParser : Parser {
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 233;
-			Match(T__20);
+			Match(T__22);
 			State = 234;
 			notion();
 			}
@@ -1859,19 +1860,19 @@ public partial class RslBisParser : Parser {
 			State = 240;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
-			case T__21:
+			case T__23:
 				{
 				State = 237;
 				selectpredicate();
 				}
 				break;
-			case T__22:
+			case T__24:
 				{
 				State = 238;
 				enterpredicate();
 				}
 				break;
-			case T__23:
+			case T__25:
 				{
 				State = 239;
 				invoke();
@@ -1918,7 +1919,7 @@ public partial class RslBisParser : Parser {
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 242;
-			Match(T__21);
+			Match(T__23);
 			State = 243;
 			notion();
 			}
@@ -1959,7 +1960,7 @@ public partial class RslBisParser : Parser {
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 245;
-			Match(T__22);
+			Match(T__24);
 			State = 246;
 			notion();
 			}
@@ -2000,7 +2001,7 @@ public partial class RslBisParser : Parser {
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 248;
-			Match(T__23);
+			Match(T__25);
 			State = 249;
 			name();
 			}
@@ -2047,7 +2048,7 @@ public partial class RslBisParser : Parser {
 			{
 			State = 251;
 			_la = TokenStream.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 234881024L) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 939524096L) != 0)) ) {
 			ErrorHandler.RecoverInline(this);
 			}
 			else {
@@ -2071,11 +2072,11 @@ public partial class RslBisParser : Parser {
 			State = 263;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
-			case T__27:
+			case T__29:
 				{
 				{
 				State = 257;
-				Match(T__27);
+				Match(T__29);
 				State = 258;
 				Match(STRING);
 				}
@@ -2142,10 +2143,10 @@ public partial class RslBisParser : Parser {
 			State = 268;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			if (_la==T__28) {
+			if (_la==T__30) {
 				{
 				State = 266;
-				Match(T__28);
+				Match(T__30);
 				State = 267;
 				attributes();
 				}
@@ -2205,7 +2206,7 @@ public partial class RslBisParser : Parser {
 				_la = TokenStream.LA(1);
 			} while ( _la==STRING );
 			State = 275;
-			Match(T__27);
+			Match(T__29);
 			State = 276;
 			Match(STRING);
 			}
@@ -2442,7 +2443,7 @@ public partial class RslBisParser : Parser {
 			State = 295;
 			Match(NUMBER);
 			State = 296;
-			Match(T__27);
+			Match(T__29);
 			}
 		}
 		catch (RecognitionException re) {
@@ -2484,7 +2485,7 @@ public partial class RslBisParser : Parser {
 			State = 299;
 			Match(NUMBER);
 			State = 300;
-			Match(T__27);
+			Match(T__29);
 			}
 		}
 		catch (RecognitionException re) {
@@ -2499,7 +2500,7 @@ public partial class RslBisParser : Parser {
 	}
 
 	private static int[] _serializedATN = {
-		4,1,33,303,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,
+		4,1,35,303,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,
 		7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,2,14,7,14,
 		2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,20,7,20,2,21,7,21,
 		2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,26,2,27,7,27,2,28,7,28,
@@ -2523,7 +2524,7 @@ public partial class RslBisParser : Parser {
 		1,42,4,42,287,8,42,11,42,12,42,288,1,43,4,43,292,8,43,11,43,12,43,293,
 		1,44,1,44,1,44,1,45,1,45,1,45,1,45,1,45,0,0,46,0,2,4,6,8,10,12,14,16,18,
 		20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,
-		68,70,72,74,76,78,80,82,84,86,88,90,0,1,1,0,25,27,287,0,93,1,0,0,0,2,105,
+		68,70,72,74,76,78,80,82,84,86,88,90,0,1,1,0,27,29,287,0,93,1,0,0,0,2,105,
 		1,0,0,0,4,111,1,0,0,0,6,115,1,0,0,0,8,122,1,0,0,0,10,124,1,0,0,0,12,128,
 		1,0,0,0,14,133,1,0,0,0,16,140,1,0,0,0,18,144,1,0,0,0,20,149,1,0,0,0,22,
 		153,1,0,0,0,24,159,1,0,0,0,26,163,1,0,0,0,28,165,1,0,0,0,30,169,1,0,0,
@@ -2555,40 +2556,40 @@ public partial class RslBisParser : Parser {
 		1,0,0,0,163,162,1,0,0,0,164,27,1,0,0,0,165,166,5,9,0,0,166,167,3,6,3,0,
 		167,168,5,10,0,0,168,29,1,0,0,0,169,172,5,11,0,0,170,173,3,32,16,0,171,
 		173,3,34,17,0,172,170,1,0,0,0,172,171,1,0,0,0,173,31,1,0,0,0,174,175,5,
-		2,0,0,175,176,3,36,18,0,176,177,5,3,0,0,177,33,1,0,0,0,178,181,5,12,0,
-		0,179,182,3,88,44,0,180,182,3,90,45,0,181,179,1,0,0,0,181,180,1,0,0,0,
-		182,35,1,0,0,0,183,184,5,31,0,0,184,37,1,0,0,0,185,186,3,88,44,0,186,187,
-		5,13,0,0,187,39,1,0,0,0,188,189,3,88,44,0,189,190,3,44,22,0,190,41,1,0,
-		0,0,191,192,3,90,45,0,192,193,3,44,22,0,193,43,1,0,0,0,194,197,3,66,33,
-		0,195,197,3,46,23,0,196,194,1,0,0,0,196,195,1,0,0,0,197,45,1,0,0,0,198,
-		202,5,14,0,0,199,203,3,54,27,0,200,203,3,48,24,0,201,203,3,72,36,0,202,
-		199,1,0,0,0,202,200,1,0,0,0,202,201,1,0,0,0,203,47,1,0,0,0,204,207,3,50,
-		25,0,205,207,3,52,26,0,206,204,1,0,0,0,206,205,1,0,0,0,207,49,1,0,0,0,
-		208,209,5,15,0,0,209,210,3,82,41,0,210,51,1,0,0,0,211,212,5,16,0,0,212,
-		213,3,82,41,0,213,53,1,0,0,0,214,220,3,56,28,0,215,220,3,58,29,0,216,220,
-		3,60,30,0,217,220,3,62,31,0,218,220,3,64,32,0,219,214,1,0,0,0,219,215,
-		1,0,0,0,219,216,1,0,0,0,219,217,1,0,0,0,219,218,1,0,0,0,220,55,1,0,0,0,
-		221,222,5,17,0,0,222,223,3,82,41,0,223,57,1,0,0,0,224,225,5,18,0,0,225,
-		226,3,82,41,0,226,59,1,0,0,0,227,228,5,19,0,0,228,229,3,82,41,0,229,61,
-		1,0,0,0,230,231,5,20,0,0,231,232,3,82,41,0,232,63,1,0,0,0,233,234,5,21,
-		0,0,234,235,3,82,41,0,235,65,1,0,0,0,236,240,3,80,40,0,237,241,3,68,34,
-		0,238,241,3,70,35,0,239,241,3,72,36,0,240,237,1,0,0,0,240,238,1,0,0,0,
-		240,239,1,0,0,0,241,67,1,0,0,0,242,243,5,22,0,0,243,244,3,82,41,0,244,
-		69,1,0,0,0,245,246,5,23,0,0,246,247,3,82,41,0,247,71,1,0,0,0,248,249,5,
-		24,0,0,249,250,3,86,43,0,250,73,1,0,0,0,251,253,7,0,0,0,252,254,5,31,0,
+		12,0,0,175,176,5,13,0,0,176,177,3,84,42,0,177,33,1,0,0,0,178,181,5,14,
+		0,0,179,182,3,88,44,0,180,182,3,90,45,0,181,179,1,0,0,0,181,180,1,0,0,
+		0,182,35,1,0,0,0,183,184,5,33,0,0,184,37,1,0,0,0,185,186,3,88,44,0,186,
+		187,5,15,0,0,187,39,1,0,0,0,188,189,3,88,44,0,189,190,3,44,22,0,190,41,
+		1,0,0,0,191,192,3,90,45,0,192,193,3,44,22,0,193,43,1,0,0,0,194,197,3,66,
+		33,0,195,197,3,46,23,0,196,194,1,0,0,0,196,195,1,0,0,0,197,45,1,0,0,0,
+		198,202,5,16,0,0,199,203,3,54,27,0,200,203,3,48,24,0,201,203,3,72,36,0,
+		202,199,1,0,0,0,202,200,1,0,0,0,202,201,1,0,0,0,203,47,1,0,0,0,204,207,
+		3,50,25,0,205,207,3,52,26,0,206,204,1,0,0,0,206,205,1,0,0,0,207,49,1,0,
+		0,0,208,209,5,17,0,0,209,210,3,82,41,0,210,51,1,0,0,0,211,212,5,18,0,0,
+		212,213,3,82,41,0,213,53,1,0,0,0,214,220,3,56,28,0,215,220,3,58,29,0,216,
+		220,3,60,30,0,217,220,3,62,31,0,218,220,3,64,32,0,219,214,1,0,0,0,219,
+		215,1,0,0,0,219,216,1,0,0,0,219,217,1,0,0,0,219,218,1,0,0,0,220,55,1,0,
+		0,0,221,222,5,19,0,0,222,223,3,82,41,0,223,57,1,0,0,0,224,225,5,20,0,0,
+		225,226,3,82,41,0,226,59,1,0,0,0,227,228,5,21,0,0,228,229,3,82,41,0,229,
+		61,1,0,0,0,230,231,5,22,0,0,231,232,3,82,41,0,232,63,1,0,0,0,233,234,5,
+		23,0,0,234,235,3,82,41,0,235,65,1,0,0,0,236,240,3,80,40,0,237,241,3,68,
+		34,0,238,241,3,70,35,0,239,241,3,72,36,0,240,237,1,0,0,0,240,238,1,0,0,
+		0,240,239,1,0,0,0,241,67,1,0,0,0,242,243,5,24,0,0,243,244,3,82,41,0,244,
+		69,1,0,0,0,245,246,5,25,0,0,246,247,3,82,41,0,247,71,1,0,0,0,248,249,5,
+		26,0,0,249,250,3,86,43,0,250,73,1,0,0,0,251,253,7,0,0,0,252,254,5,33,0,
 		0,253,252,1,0,0,0,254,255,1,0,0,0,255,253,1,0,0,0,255,256,1,0,0,0,256,
-		263,1,0,0,0,257,258,5,28,0,0,258,264,5,31,0,0,259,260,5,2,0,0,260,261,
+		263,1,0,0,0,257,258,5,30,0,0,258,264,5,33,0,0,259,260,5,2,0,0,260,261,
 		3,76,38,0,261,262,5,3,0,0,262,264,1,0,0,0,263,257,1,0,0,0,263,259,1,0,
-		0,0,264,75,1,0,0,0,265,268,3,78,39,0,266,267,5,29,0,0,267,269,3,76,38,
-		0,268,266,1,0,0,0,268,269,1,0,0,0,269,77,1,0,0,0,270,272,5,31,0,0,271,
+		0,0,264,75,1,0,0,0,265,268,3,78,39,0,266,267,5,31,0,0,267,269,3,76,38,
+		0,268,266,1,0,0,0,268,269,1,0,0,0,269,77,1,0,0,0,270,272,5,33,0,0,271,
 		270,1,0,0,0,272,273,1,0,0,0,273,271,1,0,0,0,273,274,1,0,0,0,274,275,1,
-		0,0,0,275,276,5,28,0,0,276,277,5,31,0,0,277,79,1,0,0,0,278,279,5,31,0,
-		0,279,81,1,0,0,0,280,282,5,31,0,0,281,280,1,0,0,0,282,283,1,0,0,0,283,
-		281,1,0,0,0,283,284,1,0,0,0,284,83,1,0,0,0,285,287,5,31,0,0,286,285,1,
+		0,0,0,275,276,5,30,0,0,276,277,5,33,0,0,277,79,1,0,0,0,278,279,5,33,0,
+		0,279,81,1,0,0,0,280,282,5,33,0,0,281,280,1,0,0,0,282,283,1,0,0,0,283,
+		281,1,0,0,0,283,284,1,0,0,0,284,83,1,0,0,0,285,287,5,33,0,0,286,285,1,
 		0,0,0,287,288,1,0,0,0,288,286,1,0,0,0,288,289,1,0,0,0,289,85,1,0,0,0,290,
-		292,5,31,0,0,291,290,1,0,0,0,292,293,1,0,0,0,293,291,1,0,0,0,293,294,1,
-		0,0,0,294,87,1,0,0,0,295,296,5,30,0,0,296,297,5,28,0,0,297,89,1,0,0,0,
-		298,299,5,32,0,0,299,300,5,30,0,0,300,301,5,28,0,0,301,91,1,0,0,0,26,95,
+		292,5,33,0,0,291,290,1,0,0,0,292,293,1,0,0,0,293,291,1,0,0,0,293,294,1,
+		0,0,0,294,87,1,0,0,0,295,296,5,32,0,0,296,297,5,30,0,0,297,89,1,0,0,0,
+		298,299,5,34,0,0,299,300,5,32,0,0,300,301,5,30,0,0,301,91,1,0,0,0,26,95,
 		100,109,118,122,128,135,142,151,155,159,163,172,181,196,202,206,219,240,
 		255,263,268,273,283,288,293
 	};
