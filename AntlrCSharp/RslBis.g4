@@ -78,7 +78,7 @@ result:
     ;
 
 repsentence:
-    label '-"-'
+    (label | altlabel) '-"-'
     ;
 
 svosentence:

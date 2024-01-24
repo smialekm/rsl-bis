@@ -6,25 +6,13 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
-using CodeModel;
+using System.Collections.Generic;
 namespace CodeModel {
 	public class UseCaseClass : NamedElement {
+		public List<UCOperation> methods = new List<UCOperation>();
+		public List<PresenterClass> presenters = new List<PresenterClass>();
+		public List<ServiceInterface> services = new List<ServiceInterface>();
 
-		public CodeModel.UCOperation methods;
-		public CodeModel.PresenterClass presenters;
-		public CodeModel.ServiceInterface services;
-
-		public UseCaseClass(){
-
-		}
-
-		~UseCaseClass(){
-
-		}
-
-	}//end UseCaseClass
-
-}//end namespace CodeModel
+		public UseCaseClass(){}
+	}
+}

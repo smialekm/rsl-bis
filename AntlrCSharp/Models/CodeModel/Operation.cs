@@ -6,24 +6,13 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
+using System.Collections.Generic;
 
-
-
-using CodeModel;
 namespace CodeModel {
 	public class Operation : NamedElement {
-
 		public string returnType;
-		public CodeModel.DataItem parameters;
+		public List<DataItem> parameters = new List<DataItem>();
 
-		public Operation(){
-
-		}
-
-		~Operation(){
-
-		}
-
-	}//end Operation
-
-}//end namespace CodeModel
+		public Operation(){}
+	}
+}

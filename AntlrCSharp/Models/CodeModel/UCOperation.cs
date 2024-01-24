@@ -6,23 +6,11 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
-using CodeModel;
+using System.Collections.Generic;
 namespace CodeModel {
 	public class UCOperation : Operation {
+		public List<Instruction> instructions = new List<Instruction>();
 
-		public CodeModel.Instruction instructions;
-
-		public UCOperation(){
-
-		}
-
-		~UCOperation(){
-
-		}
-
-	}//end UCOperation
-
-}//end namespace CodeModel
+		public UCOperation(){}
+	}
+}

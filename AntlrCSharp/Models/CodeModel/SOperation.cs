@@ -6,21 +6,8 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
-using CodeModel;
 namespace CodeModel {
 	public class SOperation : UCCallableOperation {
-
-		public SOperation(){
-
-		}
-
-		~SOperation(){
-
-		}
-
-	}//end SOperation
-
-}//end namespace CodeModel
+		public SOperation(){}
+	}
+}

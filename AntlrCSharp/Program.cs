@@ -10,7 +10,7 @@ namespace AntlrCSharp
             Console.WriteLine("RSL BiS Translator, (C) M. Śmiałek, K. Rybiński");
             try
             {
-                string input = "Use case Find client Main scenario\n00: Cashier <select> find client\n01: System <show> client search form\n-> end ! OK";
+                string input = "Use case Find client Main scenario\n{role ? cashier; client type}\n00: Cashier <select> find client\n01: System <show> client search form\n-> end ! OK";
 
                 AntlrInputStream inputStream = new AntlrInputStream(input);
                 RslBisLexer rslBisLexer = new RslBisLexer(inputStream);

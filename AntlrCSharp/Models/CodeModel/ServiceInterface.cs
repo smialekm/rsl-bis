@@ -6,23 +6,11 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
-using CodeModel;
+using System.Collections.Generic;
 namespace CodeModel {
 	public class ServiceInterface : NamedElement {
+		public List<SOperation> signatures = new List<SOperation>();
 
-		public CodeModel.SOperation signatures;
-
-		public ServiceInterface(){
-
-		}
-
-		~ServiceInterface(){
-
-		}
-
-	}//end ServiceInterface
-
-}//end namespace CodeModel
+		public ServiceInterface(){}
+	}
+}

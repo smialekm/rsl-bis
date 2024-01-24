@@ -6,23 +6,11 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
-using CodeModel;
+using System.Collections.Generic;
 namespace CodeModel {
-	public class Enumeration : NamedElement {
+	public class CheckEnumeration : NamedElement {
+		public List<Value> values = new List<Value>();
 
-		public CodeModel.Value values;
-
-		public Enumeration(){
-
-		}
-
-		~Enumeration(){
-
-		}
-
-	}//end Enumeration
-
-}//end namespace CodeModel
+		public CheckEnumeration(){}
+	}
+}

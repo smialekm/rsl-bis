@@ -6,24 +6,12 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
-using CodeModel;
+using System.Collections.Generic;
 namespace CodeModel {
 	public class ViewModel {
+		public List<DataAggregate> items = new List<DataAggregate>();
+		public List<CheckEnumeration> enums = new List<CheckEnumeration>();
 
-		public CodeModel.DataAggregate items;
-		public CodeModel.Enumeration enums;
-
-		public ViewModel(){
-
-		}
-
-		~ViewModel(){
-
-		}
-
-	}//end ViewModel
-
-}//end namespace CodeModel
+		public ViewModel(){}
+	}
+}
