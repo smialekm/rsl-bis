@@ -6,25 +6,14 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
-using CodeModel;
+using System.Collections.Generic;
 namespace CodeModel {
 	public class COperation : Operation {
 
-		public CodeModel.DataAggregate data;
-		public CodeModel.UCOperation invoked;
-		public CodeModel.UCOperation returnTo;
+		public List<DataAggregate> data = new List<DataAggregate>();
+		public UCOperation invoked;
+		public UCOperation returnTo;
 
-		public COperation(){
-
-		}
-
-		~COperation(){
-
-		}
-
-	}//end COperation
-
-}//end namespace CodeModel
+		public COperation(){}
+	}
+}

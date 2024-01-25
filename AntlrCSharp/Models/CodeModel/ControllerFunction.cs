@@ -6,24 +6,12 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
-using CodeModel;
+using System.Collections.Generic;
 namespace CodeModel {
 	public class ControllerFunction : NamedElement {
+		public List<COperation> functions = new List<COperation>();
+		public List<UseCaseClass> useCases = new List<UseCaseClass>();
 
-		public CodeModel.COperation functions;
-		public CodeModel.UseCaseClass useCases;
-
-		public ControllerFunction(){
-
-		}
-
-		~ControllerFunction(){
-
-		}
-
-	}//end ControllerFunction
-
-}//end namespace CodeModel
+		public ControllerFunction(){}
+	}
+}

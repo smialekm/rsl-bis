@@ -6,26 +6,14 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
-using CodeModel;
+using System.Collections.Generic;
 namespace CodeModel {
 	public class ViewFunction : NamedElement {
+		public List<DataAggregate> data = new List<DataAggregate>();
+		public ControllerFunction controller;
+		public PresenterClass presenter;
+		public List<Trigger> triggers = new List<Trigger>();
 
-		public CodeModel.DataAggregate data;
-		public CodeModel.ControllerFunction controller;
-		public CodeModel.PresenterClass presenter;
-		public CodeModel.Trigger triggers;
-
-		public ViewFunction(){
-
-		}
-
-		~ViewFunction(){
-
-		}
-
-	}//end ViewFunction
-
-}//end namespace CodeModel
+		public ViewFunction(){}
+	}
+}

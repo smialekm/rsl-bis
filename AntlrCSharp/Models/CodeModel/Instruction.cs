@@ -12,7 +12,7 @@
 namespace CodeModel {
 	public abstract class Instruction {
 
-		private string label;
+		public string label;
 
 		public Instruction(){
 

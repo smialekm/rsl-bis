@@ -6,23 +6,11 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
-using CodeModel;
+using System.Collections.Generic;
 namespace CodeModel {
 	public class PresenterClass : NamedElement {
+		public List<POperation> methods = new List<POperation>();
 
-		public CodeModel.POperation methods;
-
-		public PresenterClass(){
-
-		}
-
-		~PresenterClass(){
-
-		}
-
-	}//end PresenterClass
-
-}//end namespace CodeModel
+		public PresenterClass(){}
+	}
+}

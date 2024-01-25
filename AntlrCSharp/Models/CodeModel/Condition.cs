@@ -6,24 +6,14 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
-using CodeModel;
+using System.Collections.Generic;
 namespace CodeModel {
 	public class Condition {
 
-		public CodeModel.Instruction instructions;
-		public CodeModel.Expression expressions;
+		public List<Instruction> instructions = new List<Instruction>();
+		public List<Expression> expressions = new List<Expression>();
 
-		public Condition(){
+		public Condition(){}
+	}
 
-		}
-
-		~Condition(){
-
-		}
-
-	}//end Condition
-
-}//end namespace CodeModel
+}
