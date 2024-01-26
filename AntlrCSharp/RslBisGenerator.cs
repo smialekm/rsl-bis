@@ -176,6 +176,20 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         return base.VisitRepsentence(context);
     }
 
+    private void CreateCall(UCCallableOperation uop){
+        // 1. Create ‘Call’; attach ‘SOperation’ to it; ; set ‘Call.label’ as CurrentLabel
+        Call call = new Call(){label = CurrentLabel, operation = uop};
+        // 2. If ‘CurrentCondition’ empty ->  append ‘Call’ to ‘CurrentUCO’ else append ‘Call’ to ‘CurrentCondition’ 
+        if (null == CurrentCondition) CurrentUCO.instructions.Add(call);
+        else CurrentCondition.instructions.Add(call);
+        // TODO - error when CurrentUCO is null
+    }
+
+    private void SetLastPredicateTypes(PredicateType ptype){
+        LastPredicateType = ptype;
+        LastNonInvokePT = ptype;
+    }
+
     //*****************************************************************************************************
     // 4. SYSTEM-TO-DATA (READ) SENTENCE
     //*****************************************************************************************************  
@@ -200,24 +214,20 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             CurrentUCC.services.Add(si);
         }
         // 3. Create ‘SOperation’ (if does not exist) based on ‘notion’; set ‘returnType’ based on ‘DataAggregate’; add ‘SOperation’ to ‘ServiceInterface’
-        if (null == sop) {
+        if (null == sop) { // TODO - handle overloaded methods
             sop = new SOperation(){name = "read! " + notionName, returnType = da.name};
             // 4. For each ‘DataAggregate’ in ‘CurrentDAD’+’InheritedDAD’ create a ‘DataItem’ (‘parameter’; type as ‘DataAggregate’ name);
             //    add the ‘DataItems’ to the ‘SOperation’
             foreach (DataAggregate xd in Enumerable.Concat(CurrentDAD,InheritedDAD)){
-                DataItem di = new DataItem() {type = notionName};
+                DataItem di = new DataItem() {type = xd.name};
                 sop.parameters.Add(di);
             }
             si.signatures.Add(sop);
         }
-        // 5. Create ‘Call’; attach ‘SOperation’ to it; ; set ‘Call.label’ as CurrentLabel
-        Call call = new Call(){label = CurrentLabel, operation = sop};
-        // 6. If ‘CurrentCondition’ empty ->  append ‘Call’ to ‘CurrentUCO’ else append ‘Call’ to ‘CurrentCondition’ 
-        if (null == CurrentCondition) CurrentUCO.instructions.Add(call);
-        else CurrentCondition.instructions.Add(call);
-        // TODO - error when CurrentUCO is null
-        LastPredicateType = PredicateType.Read;
-        LastNonInvokePT = PredicateType.Read;
+        // 5. Create ‘Call’ etc.
+        CreateCall(sop);
+
+        SetLastPredicateTypes(PredicateType.Read);
         return result;
     }
 
@@ -254,19 +264,15 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         POperation ppop = vf.presenter.methods.Find(x => pop.Equals(x)); // TODO - implement POperation.Equals
         if (null != ppop) pop = ppop;
         else vf.presenter.methods.Add(pop);
-        // 7. Create ‘Call’; attach ‘POperation’ to it; set ‘Call.label’ as CurrentLabel
-        Call cl = new Call(){operation = pop, label = CurrentLabel};
-        // 8. If ‘CurrentCondition’ empty -> append ‘Call’ to ‘CurrentUCO’ else append ‘Call’ to ‘CurrentCondition’
-        if (null == CurrentCondition) CurrentUCO.instructions.Add(cl);
-        else CurrentCondition.instructions.Add(cl);
+        // 7., 8. Create ‘Call’ etc.
+        CreateCall(pop);
         // 9. Reset ‘CurrentDAD’ and ‘CurrentDAP’ (empty the lists)
         CurrentDAD.Clear();
         CurrentDAP.Clear();
         // 10. Append ‘label’-to-‘CurrentVF’ to ‘LabelToVF’
         LabelToVF.Add(CurrentLabel,vf);
 
-        LastPredicateType = PredicateType.Show;
-        LastNonInvokePT = PredicateType.Show;
+        SetLastPredicateTypes(PredicateType.Show);
         return result;
     }
 
@@ -289,8 +295,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         // 2. Append ‘label’-to-‘CurrentVF’ to ‘LabelToVF’
         LabelToVF.Add(CurrentLabel,CurrentVF);
 
-        LastPredicateType = PredicateType.Enter;
-        LastNonInvokePT = PredicateType.Enter;
+        SetLastPredicateTypes(PredicateType.Enter);
         return result;
     }
 
@@ -330,8 +335,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         // 9. Set ‘UCOperation’ as ‘CurrentUCO’
         CurrentUCO = ucop;
 
-        LastPredicateType = PredicateType.Select;
-        LastNonInvokePT = PredicateType.Select;
+        SetLastPredicateTypes(PredicateType.Select);
         return result;
 
     }
@@ -373,6 +377,68 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     //*****************************************************************************************************
     // 9. SYSTEM-TO-DATA (CUD/CHECK) SENTENCE
     //*****************************************************************************************************
+
+    public override IntermediaryRepresentation VisitUpdatepredicate([NotNull] RslBisParser.UpdatepredicateContext context)
+    {
+        if (Verbose) Console.WriteLine("System-to-Data (update) predicate: " + context.GetText());
+        ProcessDataSentence("update", context.notion());
+        SetLastPredicateTypes(PredicateType.Update);
+        return result;
+    }
+
+    public override IntermediaryRepresentation VisitDeletepredicate([NotNull] RslBisParser.DeletepredicateContext context)
+    {
+        if (Verbose) Console.WriteLine("System-to-Data (delete) predicate: " + context.GetText());
+        ProcessDataSentence("delete", context.notion());
+        SetLastPredicateTypes(PredicateType.Delete);
+        return result;
+    }
+
+    public override IntermediaryRepresentation VisitCheckpredicate([NotNull] RslBisParser.CheckpredicateContext context)
+    {
+        if (Verbose) Console.WriteLine("System-to-Data (check) predicate: " + context.GetText());
+        ProcessDataSentence("check", context.notion());
+        SetLastPredicateTypes(PredicateType.Check);
+        return result;
+    }
+
+    private void ProcessDataSentence(string verb, RslBisParser.NotionContext notion){
+        string notionName = ObtainName(notion);
+        // 1. Create ‘ServiceInterface’ (if does not exist) based on ‘notion’; attach it to ‘CurrentUCC’
+        ServiceInterface si = result.ServiceInterfaces.Find(x => notionName == x.name);
+        SOperation sop = si?.signatures.Find(x => verb +"! " + notionName == x.name);
+        if (null == si) {
+            si = new ServiceInterface(){name = notionName};
+            result.ServiceInterfaces.Add(si);
+            CurrentUCC.services.Add(si);
+        }
+        // 2. Create ‘SOperation’ (if does not exist) based on ‘notion’; add ‘SOperation’ to ‘ServiceInterface’
+        if (null == sop) { // TODO - handle overloaded methods
+            sop = new SOperation(){name = verb + "! " + notionName};
+            // 3. Create ‘DataItem’ based on ‘notion’; add it to ‘SOperation’
+            DataItem di = new DataItem() {type = notionName};
+            sop.parameters.Add(di);
+            // 4. For each ‘DataAggregate’ in ‘InheritedDAD’ create a ‘DataItem’ (‘parameter’; type as ‘DataAggregate’ name);
+            //    add the ‘DataItems’ to the ‘SOperation’
+            foreach (DataAggregate xd in InheritedDAD){
+                di = new DataItem() {type = xd.name};
+                sop.parameters.Add(di);
+            }
+            si.signatures.Add(sop);
+        }
+        // 5. If sentence has a ‘checkpredicate’ (“check” sentence) -> create ‘Enumeration’ based on ‘notion’; add it to ‘ViewModel’;
+        //    set ‘SOperation.returnType’ to “short” or ‘Enumeration.name’
+        if ("check" == verb) {
+            CheckEnumeration en = result.ViewModel.enums.Find(x => notionName == x.name);
+            if (null == en) {
+                en = new CheckEnumeration(){name = notionName + " !enum"};
+                result.ViewModel.enums.Add(en);
+            }
+            sop.returnType = en.name;
+        } else sop.returnType = "short";
+        // 6. Create ‘Call’ etc.
+        CreateCall(sop);
+    }
 
     //*****************************************************************************************************
     // 10. SYSTEM-TO-DATA (EXECUTE) SENTENCE
