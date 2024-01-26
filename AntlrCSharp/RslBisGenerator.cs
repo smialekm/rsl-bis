@@ -21,6 +21,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     List<DataAggregate> CurrentDAP {get; set;} = new List<DataAggregate>();
     List<DataAggregate> CurrentDAD {get; set;} = new List<DataAggregate>();
     string CurrentLabel {get; set;} = null;
+    bool FirstSentence {get; set;} = true;
     PredicateType LastPredicateType {get; set;} = PredicateType.None;
     PredicateType LastNonInvokePT {get; set;} = PredicateType.None;
     Boolean StartOfAltScenario {get; set;} = false;
@@ -66,6 +67,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         /*TMP ucC.methods.Add(ucO); CurrentUCO = ucO; */
         result.UseCaseClasses.Add(ucC);
         CurrentUCC = ucC;
+        FirstSentence = true;
         object childResult = base.VisitUsecase(context);
         return result;
     }
@@ -177,6 +179,8 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     }
 
     private void CreateCall(UCCallableOperation uop){
+        // ERROR HANDLING
+        if (null == CurrentUCO) throw new Exception("Actor sentence expected");
         // 1. Create ‘Call’; attach ‘SOperation’ to it; ; set ‘Call.label’ as CurrentLabel
         Call call = new Call(){label = CurrentLabel, operation = uop};
         // 2. If ‘CurrentCondition’ empty ->  append ‘Call’ to ‘CurrentUCO’ else append ‘Call’ to ‘CurrentCondition’ 
@@ -266,9 +270,11 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         else vf.presenter.methods.Add(pop);
         // 7., 8. Create ‘Call’ etc.
         CreateCall(pop);
-        // 9. Reset ‘CurrentDAD’ and ‘CurrentDAP’ (empty the lists)
+        // 9. Reset ‘CurrentDAD’ and ‘CurrentDAP’ (empty the lists); reset 'CurrentUCO'
         CurrentDAD.Clear();
         CurrentDAP.Clear();
+        CurrentUCO = null; // TODO - asynchronous "execute" (reset only before the first Actor-to-... sentence)
+        CurrentCondition = null;
         // 10. Append ‘label’-to-‘CurrentVF’ to ‘LabelToVF’
         LabelToVF.Add(CurrentLabel,vf);
 
@@ -326,9 +332,11 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         // 6. Add ‘UCOperation’ to the ‘CurrentUCC’; attach it to ‘COperation’ (as ‘invoked’)
         CurrentUCC.methods.Add(ucop); cop.invoked = ucop;
         // 7. If ‘CurrentUCO’ empty -> Algorithm for initial trigger sentence
-        if (null == CurrentUCO) ProcessInitialSentence(context, trg);
+        if (FirstSentence) {
+            ProcessInitialSentence(context, trg);
+            FirstSentence = false;
         // 8. else -> Add the ‘COperation’ to ‘ControllerFuntion’ attached to ‘CurrentVF’; attach ‘CurrentUCC’ to ‘ControllerFunction’
-        else {
+        } else {
             CurrentVF.controller.functions.Add(cop);
             CurrentVF.controller.useCases.Add(CurrentUCC);
         }
@@ -337,7 +345,6 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
 
         SetLastPredicateTypes(PredicateType.Select);
         return result;
-
     }
 
     private void ProcessInitialSentence(RslBisParser.SelectpredicateContext context, Trigger trg){
@@ -416,11 +423,14 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         if (null == sop) { // TODO - handle overloaded methods
             sop = new SOperation(){name = verb + "! " + notionName};
             // 3. Create ‘DataItem’ based on ‘notion’; add it to ‘SOperation’
-            DataItem di = new DataItem() {type = notionName};
-            sop.parameters.Add(di);
+            DataItem di;
+            if ("execute" != verb) {
+                di = new DataItem() {type = notionName};
+                sop.parameters.Add(di);
+            }
             // 4. For each ‘DataAggregate’ in ‘InheritedDAD’ create a ‘DataItem’ (‘parameter’; type as ‘DataAggregate’ name);
             //    add the ‘DataItems’ to the ‘SOperation’
-            foreach (DataAggregate xd in InheritedDAD){
+            foreach (DataAggregate xd in "execute" != verb ? InheritedDAD : Enumerable.Concat(CurrentDAD,InheritedDAD)){
                 di = new DataItem() {type = xd.name};
                 sop.parameters.Add(di);
             }
@@ -444,6 +454,14 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     // 10. SYSTEM-TO-DATA (EXECUTE) SENTENCE
     //*****************************************************************************************************
 
+    public override IntermediaryRepresentation VisitExecutepredicate([NotNull] RslBisParser.ExecutepredicateContext context)
+    {
+        if (Verbose) Console.WriteLine("System-to-Data (execute) predicate: " + context.GetText());
+        ProcessDataSentence("execute", context.notion());
+        SetLastPredicateTypes(PredicateType.Execute);
+        return result;
+    }
+
     //*****************************************************************************************************
     // 11. REPETITION SENTENCE
     //*****************************************************************************************************
@@ -460,4 +478,52 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     // 14. REJOIN SENTENCE
     //*****************************************************************************************************
 
+    //*****************************************************************************************************
+    // ERROR HANDLING
+    //*****************************************************************************************************
+
+    public override IntermediaryRepresentation VisitSentence([NotNull] RslBisParser.SentenceContext context)
+    {
+        try {
+            return base.VisitSentence(context);
+        } catch (Exception e) {
+            WriteErrorMessage(e);
+            return result;
+        }
+    }
+
+    public override IntermediaryRepresentation VisitAltsentence([NotNull] RslBisParser.AltsentenceContext context)
+    {
+        try {
+            return base.VisitAltsentence(context);
+        } catch (Exception e) {
+            WriteErrorMessage(e);
+            return result;
+        }
+    }
+
+    public override IntermediaryRepresentation VisitCondition([NotNull] RslBisParser.ConditionContext context)
+    {
+        try {
+            return base.VisitCondition(context);
+        } catch (Exception e) {
+            WriteErrorMessage(e);
+            return result;
+        }
+    }
+
+    public override IntermediaryRepresentation VisitEndsentence([NotNull] RslBisParser.EndsentenceContext context)
+    {
+        try {
+            return base.VisitEndsentence(context);
+        } catch (Exception e) {
+            WriteErrorMessage(e);
+            return result;
+        }
+    }
+
+    private void WriteErrorMessage(Exception e){
+        Console.WriteLine("Error: " + e.Message + " in use case \"" + CurrentUCC.name + "\", sentence - " +
+                         (CurrentLabel ?? "precondition"));
+    }
 }
