@@ -6,23 +6,12 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
-using CodeModel;
+using System.Collections.Generic;
 namespace CodeModel {
 	public class Decision : Instruction {
 
-		public CodeModel.Condition conditions;
+		public List<Condition> conditions = new List<Condition>();
 
-		public Decision(){
-
-		}
-
-		~Decision(){
-
-		}
-
-	}//end Decision
-
-}//end namespace CodeModel
+		public Decision(){}
+	}
+}

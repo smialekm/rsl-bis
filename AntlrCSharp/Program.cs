@@ -22,10 +22,15 @@ namespace AntlrCSharp
                                "[client search ? valid]\n" +
                                "07: System <read> client\n" +
                                "08: System <show> client window\n" +
-                               "09: System <execute> finite element method algoritm\n" +
-                               "10: Cashier <select> close\n" +
+                               "09: Cashier <select> close\n" +
+                               "10: System <execute> finite element method algoritm\n" +
                                "11: System <close> client window\n" +
-                               "-> end ! OK";
+                               "-> end ! OK\n" +
+                               "Scenario\n" +
+                               "06: -\"-\n" +
+                               "[client search ? invalid]\n" +
+                               "A1: System <show> error message\n" +
+                               "-> end ! notOK";
 
                 AntlrInputStream inputStream = new AntlrInputStream(input);
                 RslBisLexer rslBisLexer = new RslBisLexer(inputStream);

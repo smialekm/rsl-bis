@@ -21,10 +21,10 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     List<DataAggregate> CurrentDAP {get; set;} = new List<DataAggregate>();
     List<DataAggregate> CurrentDAD {get; set;} = new List<DataAggregate>();
     string CurrentLabel {get; set;} = null;
-    bool FirstSentence {get; set;} = true;
     PredicateType LastPredicateType {get; set;} = PredicateType.None;
     PredicateType LastNonInvokePT {get; set;} = PredicateType.None;
-    Boolean StartOfAltScenario {get; set;} = false;
+    bool FirstSentence {get; set;}
+    bool StartOfAltScenario {get; set;}
     Dictionary<string,ViewFunction> LabelToVF {get; set;} = new Dictionary<string, ViewFunction>();
     Dictionary<string,Trigger> UcNameToTrigger {get; set;} = new Dictionary<string, Trigger>();
     Dictionary<string,List<ViewFunction>> UcNameToVF {get; set;} = new Dictionary<string, List<ViewFunction>>();
@@ -68,6 +68,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         result.UseCaseClasses.Add(ucC);
         CurrentUCC = ucC;
         FirstSentence = true;
+        StartOfAltScenario = false;
         object childResult = base.VisitUsecase(context);
         return result;
     }
@@ -78,13 +79,16 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
 
     public override IntermediaryRepresentation VisitUcconditions([NotNull] RslBisParser.UcconditionsContext context)
     {
-        if (Verbose) Console.WriteLine("Precondition sentence: " + context.GetText());
-        ProcessConditions(context.conditions());
-        // TODO (remove) object childResult = base.VisitUcconditions(context);
+        try {
+            if (Verbose) Console.WriteLine("Precondition sentence: " + context.GetText());
+            ProcessPreconditions(context.conditions());
+        } catch (Exception e) {
+            WriteErrorMessage(e);
+        }
         return result;
     }
 
-    private void ProcessConditions(RslBisParser.ConditionsContext context)
+    private void ProcessPreconditions(RslBisParser.ConditionsContext context)
     {
         if (null == context) return;
         RslBisParser.ContextconditionContext ccondition = context.condition().contextcondition();
@@ -113,7 +117,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             // 4. For each ‘valuecondition’ -> Algorithm for value condition
             ProcessValueCondition(vcondition);
         }
-        ProcessConditions(context.conditions());
+        ProcessPreconditions(context.conditions());
     }
 
     private void ProcessValueCondition(RslBisParser.ValueconditionContext context){
@@ -170,14 +174,6 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         return base.VisitAltsvosentence(context);
     }
 
-    public override IntermediaryRepresentation VisitRepsentence([NotNull] RslBisParser.RepsentenceContext context)
-    {
-        CurrentLabel = null != context.label() ?
-                               context.label().NUMBER().GetText() : 
-                               context.altlabel().CHAR().GetText() + context.altlabel().NUMBER().GetText();
-        return base.VisitRepsentence(context);
-    }
-
     private void CreateCall(UCCallableOperation uop){
         // ERROR HANDLING
         if (null == CurrentUCO) throw new Exception("Actor sentence expected");
@@ -231,6 +227,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         // 5. Create ‘Call’ etc.
         CreateCall(sop);
 
+        LabelToVF.Add(CurrentLabel,null);
         SetLastPredicateTypes(PredicateType.Read);
         return result;
     }
@@ -389,6 +386,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     {
         if (Verbose) Console.WriteLine("System-to-Data (update) predicate: " + context.GetText());
         ProcessDataSentence("update", context.notion());
+        LabelToVF.Add(CurrentLabel,null);
         SetLastPredicateTypes(PredicateType.Update);
         return result;
     }
@@ -397,6 +395,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     {
         if (Verbose) Console.WriteLine("System-to-Data (delete) predicate: " + context.GetText());
         ProcessDataSentence("delete", context.notion());
+        LabelToVF.Add(CurrentLabel,null);
         SetLastPredicateTypes(PredicateType.Delete);
         return result;
     }
@@ -405,6 +404,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     {
         if (Verbose) Console.WriteLine("System-to-Data (check) predicate: " + context.GetText());
         ProcessDataSentence("check", context.notion());
+        LabelToVF.Add(CurrentLabel,null);
         SetLastPredicateTypes(PredicateType.Check);
         return result;
     }
@@ -458,6 +458,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     {
         if (Verbose) Console.WriteLine("System-to-Data (execute) predicate: " + context.GetText());
         ProcessDataSentence("execute", context.notion());
+        LabelToVF.Add(CurrentLabel,null);
         SetLastPredicateTypes(PredicateType.Execute);
         return result;
     }
@@ -466,9 +467,86 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     // 11. REPETITION SENTENCE
     //*****************************************************************************************************
 
+    public override IntermediaryRepresentation VisitRepsentence([NotNull] RslBisParser.RepsentenceContext context)
+    {
+        CurrentLabel = null != context.label() ?
+                               context.label().NUMBER().GetText() : 
+                               context.altlabel().CHAR().GetText() + context.altlabel().NUMBER().GetText();
+        // 1. Set ‘StartOfAltScenario’ as true
+        StartOfAltScenario = true;
+        // 2. Clear ‘CurrentCondition’
+        CurrentCondition = null;
+        // 3. Search for ‘label’ in ‘LabelToVF’; if ‘label’ found -> set ‘CurrentVF’ to associated ‘ViewFunction’
+        if (LabelToVF.ContainsKey(CurrentLabel)) CurrentVF = LabelToVF[CurrentLabel];
+        else throw new Exception("Incorrect repetition sentence label");
+        return result;
+    }
+
     //*****************************************************************************************************
     // 12. CONDITION SENTENCE
     //*****************************************************************************************************
+
+    public override IntermediaryRepresentation VisitCondsentence([NotNull] RslBisParser.CondsentenceContext context)
+    {
+        try {
+            if (Verbose) Console.WriteLine("Condition sentence: " + context.GetText());
+            // 1. If ‘StartOfAltScenario’ is false -> Create ‘Decision’ (set ‘Decision.label’ as ‘CurrentLabel’);
+            //    set ‘StartOfAltScenario’ as false;
+            //    if ‘CurrentCondition’ empty ->  append ‘Decision’ to ‘CurrentUCO’ else append ‘Decision’ to ‘CurrentCondition’
+            Decision dec;
+            if (!StartOfAltScenario) {
+                dec = new Decision(){label = CurrentLabel};
+                if (null == CurrentCondition) CurrentUCO.instructions.Add(dec);
+                else CurrentCondition.instructions.Add(dec);
+                StartOfAltScenario = false;
+            // 2. If ‘StartOfAltScenario’ is true -> find ‘Decision’ where ‘Decision.label’ == ‘CurrentLabel’
+            } else {
+                dec = (Decision) CurrentUCC.methods.SelectMany(x => x.instructions).ToList().Find(x => x is Decision && CurrentLabel == x.label);
+                // ERROR HANDLING
+                if (null == dec) throw new Exception("Unexpected condition");
+            }
+            // 3. Create ‘Condition’; add it to ‘Decision’
+            Condition cond = new Condition(){};
+            dec.conditions.Add(cond);
+            // 4. Set ‘Condition’ as ‘CurrentCondition’
+            CurrentCondition = cond;
+            ProcessConditions(context.conditions());
+        } catch (Exception e) {
+            WriteErrorMessage(e);
+        }
+        return result;
+    }
+
+    private void ProcessConditions(RslBisParser.ConditionsContext context){
+        // 5. For each ‘condition’ -> create ‘Expression’; add it to ‘Condition’;
+        //    attach it to ‘DataAggregate’ based on ‘notion’; if ‘condition’ is ‘valuecondition’ -> create ‘Value’ based on ‘value’;
+        //    add it to ‘Enumeration’ based on ‘notion’; attach it to ‘Expression’
+        if (null == context) return;
+        RslBisParser.ContextconditionContext ccondition = context.condition().contextcondition();
+        RslBisParser.ValueconditionContext vcondition = context.condition().valuecondition();
+        string notionName = null != ccondition ? ObtainName(ccondition.notion()) : ObtainName(vcondition.notion());
+        
+        Expression expr = new Expression();
+        CurrentCondition.expressions.Add(expr);
+        DataAggregate da = result.ViewModel.items.Find(x => notionName == x.name);
+
+        if (null != da) expr.data = da;
+        // ERROR HANDLING
+        else throw new Exception("Notion not found");
+
+        if (null != vcondition) {
+            CheckEnumeration en = result.ViewModel.enums.Find(x => notionName + " !enum" == x.name);
+            if (null == en) throw new Exception("Notion not checked");
+            string valueName = ObtainName(vcondition.value());
+            Value val = en.values.Find(x => valueName == x.name);
+            if (null == val){
+                val = new Value(){name = valueName};
+                en.values.Add(val);
+            }
+            expr.value = val;
+        }
+        ProcessConditions(context.conditions());
+    }
 
     //*****************************************************************************************************
     // 13. END SENTENCE
@@ -496,16 +574,6 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     {
         try {
             return base.VisitAltsentence(context);
-        } catch (Exception e) {
-            WriteErrorMessage(e);
-            return result;
-        }
-    }
-
-    public override IntermediaryRepresentation VisitCondition([NotNull] RslBisParser.ConditionContext context)
-    {
-        try {
-            return base.VisitCondition(context);
         } catch (Exception e) {
             WriteErrorMessage(e);
             return result;
