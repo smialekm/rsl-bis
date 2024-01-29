@@ -35,7 +35,18 @@ namespace AntlrCSharp
                                "Scenario\n" +
                                "A1: -\"-\n" +
                                "B1: Cashier <select> repeat\n" +
-                               "-> rejoin 07";
+                               "-> rejoin 07\n" +
+                               "Use case Show client list Main scenario\n" +
+                               "{role ? cashier}\n" +
+                               "00: Cashier <select> show client list\n" +
+                               "01: System <read> client list\n" +
+                               "02: System <show> client list form\n" +
+                               "03: Cashier <select> close\n" +
+                               "-> end ! OK\n" +
+                               "Scenario\n" +
+                               "02: -\"-" +
+                               "A1: Cachier <invoke> Find client\n" +
+                               "-> rejoin 01";
 
                 AntlrInputStream inputStream = new AntlrInputStream(input);
                 RslBisLexer rslBisLexer = new RslBisLexer(inputStream);

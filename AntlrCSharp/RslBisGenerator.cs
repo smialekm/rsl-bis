@@ -68,10 +68,24 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         /*TMP ucC.methods.Add(ucO); CurrentUCO = ucO; */
         result.UseCaseClasses.Add(ucC);
         CurrentUCC = ucC;
+        CleanupUseCaseGenerator();
+        return base.VisitUsecase(context);
+    }
+
+    private void CleanupUseCaseGenerator(){
+        CurrentVF = null;
+        CurrentUCO = null;
+        CurrentCondition = null;
+        ConditionCO = null;
+        InheritedDAD = new List<DataAggregate>();
+        CurrentDAP = new List<DataAggregate>();
+        CurrentDAD = new List<DataAggregate>();
+        CurrentLabel = null;
+        LastPredicateType = PredicateType.None;
+        LastNonInvokePT = PredicateType.None;
         FirstSentence = true;
         StartOfAltScenario = false;
-        object childResult = base.VisitUsecase(context);
-        return result;
+        LabelToVF = new Dictionary<string, ViewFunction>();
     }
 
     //*****************************************************************************************************
@@ -305,7 +319,66 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
 
     //*****************************************************************************************************
     // 7. ACTOR-INVOKE SENTENCE
-    //*****************************************************************************************************  
+    //*****************************************************************************************************
+
+    public override IntermediaryRepresentation VisitInvoke([NotNull] RslBisParser.InvokeContext context)
+    {
+        if (context.Parent is RslBisParser.UserstepContext) ProcessUserInvoke(context); 
+        else throw new NotImplementedException("System-Invoke");
+        LastPredicateType = PredicateType.Invoke;
+        return result;
+    }
+
+    private void ProcessUserInvoke(RslBisParser.InvokeContext context){
+        if (Verbose) Console.WriteLine(CurrentLabel + ": Actor-Invoke sentence: " + context.GetText());
+        // 1. Create ‘UCOperation’ based on ‘name’ and ‘CurrentVF.name’ (‘invoked…’); add it to ‘CurrentUCC’; set it as ‘CurrentUCO’
+        string ucName = ObtainName(context.name());
+        UCOperation ucop = new UCOperation(){name = "invoked " + ucName + " @ " + CurrentVF.name};
+        CurrentUCC.methods.Add(ucop);
+        CurrentUCO = ucop;
+        // 2. Create ‘Enumeration’ (if does not exist) based on ‘name’; add it to ‘ViewModel’
+        CheckEnumeration en = result.ViewModel.enums.Find(x => CurrentUCC.name + " !result !enum" == x.name);
+        if (null == en) {
+            en = new CheckEnumeration(){name = CurrentUCC.name + " !result !enum"};
+            result.ViewModel.enums.Add(en);
+        }
+        // 3. Create ‘DataItem’ (‘parameter’; type as ‘Enumeration’); add it to 'UCOperation’
+        ucop.parameters.Add(new DataItem(){type = en.name});
+        // 4. If ‘CurrentUCC.name’ is in ‘UcNameToTrigger’  -> 
+        if (UcNameToTrigger.ContainsKey(CurrentUCC.name)){
+            Trigger trg = UcNameToTrigger[CurrentUCC.name];
+            // add ‘Trigger.action’ (copy and attach if necessary) to ‘ControllerFuntion’ attached to ‘CurrentVF’;
+            COperation cop = trg.action;
+            COperation newcop = new COperation(){invoked = cop.invoked, name = cop.name};
+            newcop.data.AddRange(cop.data);
+            CurrentVF.controller.functions.Add(newcop);
+            // add ‘Trigger.condition’ (if not empty, copy and attach if necessary) to ‘ControllerFuntion’ attached to ‘CurrentVF’;
+            COperation condcop = trg.condition;
+            COperation newCondcop = null;
+            if (null != condcop){
+                newCondcop = new COperation(){invoked = condcop.invoked, name = condcop.name,
+                                                  returnType = condcop.returnType};
+                newCondcop.data.AddRange(condcop.data);
+                CurrentVF.controller.functions.Add(newCondcop);
+            }
+           // add the ‘Trigger’ (copy if necessary) from the map entry to ‘CurrentVF’;
+           Trigger newtrg = new Trigger(){name = trg.name, action = newcop, condition = newCondcop};
+            CurrentVF.triggers.Add(newtrg);
+            // attach ‘Trigger.action.invoked.uc’ to ‘ControllerFuntion’ attached to ‘CurrentVF’;
+            CurrentVF.controller.useCases.Add(CurrentUCC);
+            // attach ‘UCOperation’ to ‘Trigger.action’ as ‘returnTo’
+            cop.returnTo = ucop;
+        // 5. else -> add use case ‘name’-to-‘CurrentVF’ to ‘UcNameToViewFunction’;
+        } else {
+            if (!UcNameToVF.ContainsKey(ucName)) UcNameToVF.Add(ucName, new List<ViewFunction>());
+            if (!UcNameToVF[ucName].Contains(CurrentVF)) {
+                UcNameToVF[ucName].Add(CurrentVF);
+                // add use case ‘name’&’CurrentVF.name’-to-‘UCOperation’ to ‘UcVFToUCOperation’
+                UcVFToUCOperation.Add((ucName, CurrentVF.name), ucop);
+            }
+            else throw new Exception("Duplicate use case invocation");
+        }
+    }
 
     //*****************************************************************************************************
     // 8. ACTOR-TO-TRIGGER SENTENCE
@@ -476,18 +549,22 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
 
     public override IntermediaryRepresentation VisitRepsentence([NotNull] RslBisParser.RepsentenceContext context)
     {
-        CurrentLabel = null != context.label() ?
-                               context.label().NUMBER().GetText() : 
-                               context.altlabel().CHAR().GetText() + context.altlabel().NUMBER().GetText();
-        if (Verbose) Console.WriteLine(CurrentLabel + ": repetition sentence");
-        // 1. Set ‘StartOfAltScenario’ as true
-        StartOfAltScenario = true;
-        // 2. Clear ‘CurrentCondition’
-        CurrentCondition = null;
-        // 3. Search for ‘label’ in ‘LabelToVF’; if ‘label’ found -> set ‘CurrentVF’ to associated ‘ViewFunction’
-        if (LabelToVF.ContainsKey(CurrentLabel)) CurrentVF = LabelToVF[CurrentLabel];
-        else throw new Exception("Incorrect repetition sentence label");
-        SetLastPredicateTypes(PredicateType.Repetition);
+        try {
+            CurrentLabel = null != context.label() ?
+                                   context.label().NUMBER().GetText() :
+                                   context.altlabel().CHAR().GetText() + context.altlabel().NUMBER().GetText();
+            if (Verbose) Console.WriteLine(CurrentLabel + ": repetition sentence");
+            // 1. Set ‘StartOfAltScenario’ as true
+            StartOfAltScenario = true;
+            // 2. Clear ‘CurrentCondition’
+            CurrentCondition = null;
+            // 3. Search for ‘label’ in ‘LabelToVF’; if ‘label’ found -> set ‘CurrentVF’ to associated ‘ViewFunction’
+            if (LabelToVF.ContainsKey(CurrentLabel)) CurrentVF = LabelToVF[CurrentLabel];
+            else throw new Exception("Incorrect repetition sentence label");
+            SetLastPredicateTypes(PredicateType.Repetition);
+        } catch (Exception e) {
+            WriteErrorMessage(e);
+        }
         return result;
     }
 
