@@ -13,7 +13,6 @@ public class IntermediaryRepresentation {
 public enum PredicateType {
     None,
     Show,
-    Create, 
     Read,
     Update,
     Delete,
@@ -21,5 +20,6 @@ public enum PredicateType {
     Execute,
     Select,
     Enter,
-    Invoke
+    Invoke,
+    Repetition
 }

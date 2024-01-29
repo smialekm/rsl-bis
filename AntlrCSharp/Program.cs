@@ -30,7 +30,12 @@ namespace AntlrCSharp
                                "06: -\"-\n" +
                                "[client search ? invalid]\n" +
                                "A1: System <show> error message\n" +
-                               "-> end ! notOK";
+                               "A2: Cachier <select> close\n" +
+                               "-> end ! notOK\n" +
+                               "Scenario\n" +
+                               "A1: -\"-\n" +
+                               "B1: Cashier <select> repeat\n" +
+                               "-> rejoin 07";
 
                 AntlrInputStream inputStream = new AntlrInputStream(input);
                 RslBisLexer rslBisLexer = new RslBisLexer(inputStream);

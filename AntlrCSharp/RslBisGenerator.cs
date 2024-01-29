@@ -8,6 +8,7 @@ using System.Reflection.Metadata;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using System.Runtime.Intrinsics.X86;
+using System.ComponentModel.Design;
 
 public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     private IntermediaryRepresentation result = new IntermediaryRepresentation();
@@ -196,7 +197,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
 
     public override IntermediaryRepresentation VisitReadpredicate([NotNull] RslBisParser.ReadpredicateContext context)
     {
-        if (Verbose) Console.WriteLine("System-to-Data (read) predicate: " + context.GetText());
+        if (Verbose) Console.WriteLine(CurrentLabel + ": System-to-Data (read) predicate: " + context.GetText());
         // 1. Create ‘DataAggregate’ (if does not exist) based on ‘notion’; add it to ‘CurrentDAP’; attach it to ‘ViewModel’
         string notionName = ObtainName(context.notion());
         DataAggregate da = result.ViewModel.items.Find(x => notionName == x.name);
@@ -238,7 +239,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
 
     public override IntermediaryRepresentation VisitShowpredicate([NotNull] RslBisParser.ShowpredicateContext context)
     {
-        if (Verbose) Console.WriteLine("System-to-Screen predicate: " + context.GetText());
+        if (Verbose) Console.WriteLine(CurrentLabel + ": System-to-Screen predicate: " + context.GetText());
         // 1. Create ‘ViewFunction’ (if does not exist) based on ‘notion’; set it as ‘CurrentVF’
         string notionName = ObtainName(context.notion());
         ViewFunction vf = result.ViewFunctions.Find(x => notionName == x.name);
@@ -285,7 +286,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
 
     public override IntermediaryRepresentation VisitEnterpredicate([NotNull] RslBisParser.EnterpredicateContext context)
     {
-        if (Verbose) Console.WriteLine("Actor-to-Data predicate: " + context.GetText());
+        if (Verbose) Console.WriteLine(CurrentLabel + ": Actor-to-Data predicate: " + context.GetText());
         // 1. Create ‘DataAggregate’ (if does not exist) based on ‘notion’; add it to ‘CurrentDAD’; 
         // attach it to ‘ViewModel’; attach it to ‘CurrentVF’
         string notionName = ObtainName(context.notion());
@@ -312,7 +313,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
 
     public override IntermediaryRepresentation VisitSelectpredicate([NotNull] RslBisParser.SelectpredicateContext context)
     {
-        if (Verbose) Console.WriteLine("Actor-to-Trigger predicate: " + context.GetText());
+        if (Verbose) Console.WriteLine(CurrentLabel + ": Actor-to-Trigger predicate: " + context.GetText());
         // 1. Create a ‘Trigger’ based on ‘notion’; If ‘CurrentVF’ exists -> add it to ‘CurrentVF’
         Trigger trg = new Trigger(){name = ObtainName(context.notion())};
         if (null != CurrentVF) CurrentVF.triggers.Add(trg);
@@ -322,7 +323,13 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         // 3. Attach all ‘DataAggregate’s in ‘CurrentDAD’ to the ‘COperation’
         cop.data.AddRange(CurrentDAD);
         // 4. Create ‘UCOperation’ based on ‘COperation’
-        UCOperation ucop = new UCOperation(){name = cop.name}; // TODO - set 'name' with ViewFunction name as prefix
+        int counter = 0;
+        string ucopName = cop.name;
+        while (CurrentUCC.methods.Exists(x => ucopName == x.name)){
+            ucopName = cop.name + (0 == counter ? "" : " "+counter);
+            counter++;
+        }
+        UCOperation ucop = new UCOperation(){name = ucopName};
         // 5. For each ‘DataAggregate’ in ‘CurrentDAD’ create a ‘DataItem’ (‘parameters’; type as ‘DataAggregate’ name);
         //    add the ‘DataItems’ to the ‘UCOperation’
         foreach (DataAggregate da in CurrentDAD) ucop.parameters.Add(new DataItem(){type = da.name});
@@ -384,7 +391,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
 
     public override IntermediaryRepresentation VisitUpdatepredicate([NotNull] RslBisParser.UpdatepredicateContext context)
     {
-        if (Verbose) Console.WriteLine("System-to-Data (update) predicate: " + context.GetText());
+        if (Verbose) Console.WriteLine(CurrentLabel + ": System-to-Data (update) predicate: " + context.GetText());
         ProcessDataSentence("update", context.notion());
         LabelToVF.Add(CurrentLabel,null);
         SetLastPredicateTypes(PredicateType.Update);
@@ -393,7 +400,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
 
     public override IntermediaryRepresentation VisitDeletepredicate([NotNull] RslBisParser.DeletepredicateContext context)
     {
-        if (Verbose) Console.WriteLine("System-to-Data (delete) predicate: " + context.GetText());
+        if (Verbose) Console.WriteLine(CurrentLabel + ": System-to-Data (delete) predicate: " + context.GetText());
         ProcessDataSentence("delete", context.notion());
         LabelToVF.Add(CurrentLabel,null);
         SetLastPredicateTypes(PredicateType.Delete);
@@ -402,7 +409,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
 
     public override IntermediaryRepresentation VisitCheckpredicate([NotNull] RslBisParser.CheckpredicateContext context)
     {
-        if (Verbose) Console.WriteLine("System-to-Data (check) predicate: " + context.GetText());
+        if (Verbose) Console.WriteLine(CurrentLabel + ": System-to-Data (check) predicate: " + context.GetText());
         ProcessDataSentence("check", context.notion());
         LabelToVF.Add(CurrentLabel,null);
         SetLastPredicateTypes(PredicateType.Check);
@@ -456,7 +463,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
 
     public override IntermediaryRepresentation VisitExecutepredicate([NotNull] RslBisParser.ExecutepredicateContext context)
     {
-        if (Verbose) Console.WriteLine("System-to-Data (execute) predicate: " + context.GetText());
+        if (Verbose) Console.WriteLine(CurrentLabel + ": System-to-Data (execute) predicate: " + context.GetText());
         ProcessDataSentence("execute", context.notion());
         LabelToVF.Add(CurrentLabel,null);
         SetLastPredicateTypes(PredicateType.Execute);
@@ -472,6 +479,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         CurrentLabel = null != context.label() ?
                                context.label().NUMBER().GetText() : 
                                context.altlabel().CHAR().GetText() + context.altlabel().NUMBER().GetText();
+        if (Verbose) Console.WriteLine(CurrentLabel + ": repetition sentence");
         // 1. Set ‘StartOfAltScenario’ as true
         StartOfAltScenario = true;
         // 2. Clear ‘CurrentCondition’
@@ -479,6 +487,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         // 3. Search for ‘label’ in ‘LabelToVF’; if ‘label’ found -> set ‘CurrentVF’ to associated ‘ViewFunction’
         if (LabelToVF.ContainsKey(CurrentLabel)) CurrentVF = LabelToVF[CurrentLabel];
         else throw new Exception("Incorrect repetition sentence label");
+        SetLastPredicateTypes(PredicateType.Repetition);
         return result;
     }
 
@@ -552,9 +561,72 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     // 13. END SENTENCE
     //*****************************************************************************************************
 
+    public override IntermediaryRepresentation VisitResultsentence([NotNull] RslBisParser.ResultsentenceContext context)
+    {
+        if (Verbose) Console.WriteLine("End sentence ");
+        if (null == CurrentUCO) throw new Exception("Unexpected end of scenario");
+        // 1. Create ‘End’; append it to ‘CurrentUCO.instructions’ or ‘CurrentCondition.instructions’
+        End end = new End();
+        if (null == CurrentCondition) CurrentUCO.instructions.Add(end);
+        else CurrentCondition.instructions.Add(end);
+        // 2. Create ‘Enumeration’ (if does not exist) based on ‘CUCC.name’; add it to ‘ViewModel’
+        CheckEnumeration en = result.ViewModel.enums.Find(x => CurrentUCC.name + " !result !enum" == x.name);
+        string valueName = ObtainName(context.value());
+        Value value = en?.values.Find(x => valueName == x.name);
+        if (null == en) {
+            en = new CheckEnumeration(){name = CurrentUCC.name + " !result !enum"};
+            result.ViewModel.enums.Add(en);
+        }
+        // 3. Create ‘Value’ based on ‘value’; add it to ‘Enumeration’
+        if (null == value) {
+            value = new Value(){name = valueName};
+            en.values.Add(value);
+        }
+        return result;
+    }
+
     //*****************************************************************************************************
     // 14. REJOIN SENTENCE
     //*****************************************************************************************************
+
+    public override IntermediaryRepresentation VisitRejoinsentence([NotNull] RslBisParser.RejoinsentenceContext context)
+    {
+        if (Verbose) Console.WriteLine("Rejoin sentence ");
+        // Error In 1: ‘LastPredicateType’ empty or ‘System-to-Screen’ or ‘Actor-to-Data’(TODO) or ‘Repetition sentence’
+        if (new List<PredicateType>{PredicateType.Show,PredicateType.Enter,PredicateType.Repetition}.Contains(LastPredicateType))
+            throw new Exception("Unexpected rejoin sentence");
+        // 1. Find ‘Call’ with ‘Call.label’ == ‘label’; if not found -> finish
+        string rejoinLabel = context.labelref().GetText();
+        List<Instruction> rejoinList = null;
+        foreach (UCOperation ucop in CurrentUCC.methods){
+            rejoinList = GetRejoinedInstructionList(ucop.instructions,rejoinLabel);
+            if (null != rejoinList) break;
+        }
+        if (null == rejoinList){
+            if (LabelToVF.ContainsKey(rejoinLabel)) return result;
+            else throw new Exception("Incorrect rejoin label");
+        }
+        Call call = (Call) rejoinList.Find(x => x is Call && rejoinLabel == x.label);
+        // 2. For each further ‘Instruction’ in ‘Call.parent.instructions’ following and including the current ‘Call’ ->
+        //    { If ‘CurrentCondition’ empty ->  append further ‘Instruction’ to ‘CurrentUCO’ 
+        //      else append further ‘Instruction’ to ‘CurrentCondition’ }
+        List<Instruction> instructions = null == CurrentCondition ? CurrentUCO.instructions : CurrentCondition.instructions;
+        for (int i = rejoinList.IndexOf(call); i < rejoinList.Count(); i++)
+            instructions.Add(rejoinList[i]);
+        return result;
+    }
+    
+    private List<Instruction> GetRejoinedInstructionList(List<Instruction> instructions, string rejoinLabel){
+        foreach (Instruction instr in instructions){
+            if (instr is Call && rejoinLabel == instr.label) return instructions;
+            else if (instr is Decision dec) 
+                foreach (Condition cond in dec.conditions){
+                    List<Instruction> decList = GetRejoinedInstructionList(cond.instructions, rejoinLabel);
+                    if (null != decList) return decList;
+                }
+        }
+        return null;
+    }
 
     //*****************************************************************************************************
     // ERROR HANDLING
@@ -585,13 +657,13 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         try {
             return base.VisitEndsentence(context);
         } catch (Exception e) {
-            WriteErrorMessage(e);
+            WriteErrorMessage(e, "after " + CurrentLabel);
             return result;
         }
     }
 
-    private void WriteErrorMessage(Exception e){
-        Console.WriteLine("Error: " + e.Message + " in use case \"" + CurrentUCC.name + "\", sentence - " +
-                         (CurrentLabel ?? "precondition"));
+    private void WriteErrorMessage(Exception e, string altlabel = null){
+        string label = altlabel ?? CurrentLabel ?? "precondition";
+        Console.WriteLine(">>>>> Error: " + e.Message + " in use case \"" + CurrentUCC.name + "\", sentence - " + label);
     }
 }

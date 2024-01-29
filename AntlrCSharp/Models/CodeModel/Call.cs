@@ -6,23 +6,11 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
-using CodeModel;
 namespace CodeModel {
 	public class Call : Instruction {
 
-		public CodeModel.UCCallableOperation operation;
+		public UCCallableOperation operation;
 
-		public Call(){
-
-		}
-
-		~Call(){
-
-		}
-
-	}//end Call
-
-}//end namespace CodeModel
+		public Call(){}
+	}
+}

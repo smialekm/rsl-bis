@@ -70,7 +70,7 @@ resultsentence:
     ;
 
 rejoinsentence:
-    'rejoin' (label | altlabel)
+    'rejoin' labelref
     ;
 
 result:
@@ -191,16 +191,20 @@ altlabel:
     CHAR NUMBER ':'
     ;
 
+labelref:
+    CHAR? NUMBER
+    ;
+
 NUMBER:
     [0-9]+
     ;
 
-STRING:
-    CHAR+
-    ;
-
 CHAR:
     [a-zA-Z]
+    ;
+
+STRING:
+    CHAR+
     ;
 
 WS:

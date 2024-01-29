@@ -307,4 +307,10 @@ public interface IRslBisVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitAltlabel([NotNull] RslBisParser.AltlabelContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="RslBisParser.labelref"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitLabelref([NotNull] RslBisParser.LabelrefContext context);
 }
