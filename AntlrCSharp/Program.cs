@@ -1,5 +1,6 @@
 ﻿using System;
 using Antlr4.Runtime;
+using CodeModel;
 
 namespace AntlrCSharp
 {
@@ -54,7 +55,10 @@ namespace AntlrCSharp
                 RslBisParser rslBisParser = new RslBisParser(commonTokenStream);
                 RslBisParser.StartContext startContext = rslBisParser.start();
                 RslBisGenerator visitor = new RslBisGenerator(){Verbose = true};
-                visitor.Visit(startContext);
+                IntermediaryRepresentation result = visitor.Visit(startContext);
+                foreach (FileGenerator file in result.ServiceInterfaces){
+                    file.ToFile("C:\\Users\\smial\\Desktop\\code");
+                }
             }
             catch (Exception ex)
             {

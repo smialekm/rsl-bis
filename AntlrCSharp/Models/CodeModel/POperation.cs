@@ -6,21 +6,13 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
 using CodeModel;
 namespace CodeModel {
 	public class POperation : UCCallableOperation {
-
-		public POperation(){
-
-		}
-
-		~POperation(){
-
-		}
-
-	}//end POperation
-
-}//end namespace CodeModel
+		public POperation(){}
+		
+		public override string ToCode(){
+            throw new System.NotImplementedException();
+        }
+	}
+}

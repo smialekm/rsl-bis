@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////
 
 namespace CodeModel {
-	public class UCCallableOperation : Operation {
+	public abstract class UCCallableOperation : Operation {
 		public UCCallableOperation(){}
 	}
 }

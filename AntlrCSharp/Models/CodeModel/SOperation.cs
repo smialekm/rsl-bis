@@ -9,5 +9,10 @@
 namespace CodeModel {
 	public class SOperation : UCCallableOperation {
 		public SOperation(){}
+
+		public override string ToCode(){
+			string code = Utils.ToCamelCase(name.Replace("!", "")) + GetParametersCode();
+			return code;
+        }
 	}
 }

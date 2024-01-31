@@ -7,6 +7,7 @@
 ///////////////////////////////////////////////////////////
 
 using System.Collections.Generic;
+using System.Linq;
 namespace CodeModel {
 	public class ServiceInterface : FileGenerator {
 		public List<SOperation> signatures = new List<SOperation>();
@@ -14,7 +15,10 @@ namespace CodeModel {
 		public ServiceInterface(){}
 
         public override string ToCode(){
-            throw new System.NotImplementedException();
+            string code = "export interface I" + Utils.ToPascalCase(name) + " {\n";
+            code += string.Join(";\n",signatures.Select(x => x.ToCode()));
+            code += ";\n}";
+            return code;
         }
     }
 }

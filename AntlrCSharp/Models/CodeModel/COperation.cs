@@ -15,5 +15,9 @@ namespace CodeModel {
 		public UCOperation returnTo;
 
 		public COperation(){}
+
+		public override string ToCode(){
+            throw new System.NotImplementedException();
+        }
 	}
 }

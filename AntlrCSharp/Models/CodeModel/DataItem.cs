@@ -6,23 +6,17 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
 using CodeModel;
 namespace CodeModel {
 	public class DataItem : NamedElement {
-
 		public string type;
 
-		public DataItem(){
+		public DataItem(){}
 
+		public string ToCode(int i = 0){
+			string code = Utils.ToCamelCase(type) + (i>0 ? i.ToString() : "");
+			code += " : " + Utils.ToPascalCase(type);
+			return code;
 		}
-
-		~DataItem(){
-
-		}
-
-	}//end DataItem
-
-}//end namespace CodeModel
+	}
+}

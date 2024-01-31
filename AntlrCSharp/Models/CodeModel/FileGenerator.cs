@@ -13,7 +13,7 @@ namespace CodeModel {
 		public FileGenerator(){}
 
 		public void ToFile(string path){
-			File.WriteAllText(path + "\\" + name,ToCode());
+			File.WriteAllText(path + "\\" + Utils.ToPascalCase(name) + ".ts", ToCode());
 		}
 	}
 }

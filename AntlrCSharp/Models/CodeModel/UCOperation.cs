@@ -12,5 +12,9 @@ namespace CodeModel {
 		public List<Instruction> instructions = new List<Instruction>();
 
 		public UCOperation(){}
+		
+		public override string ToCode(){
+            throw new System.NotImplementedException();
+        }
 	}
 }
