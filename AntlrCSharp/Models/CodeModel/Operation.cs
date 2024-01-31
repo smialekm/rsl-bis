@@ -8,11 +8,15 @@
 
 using System.Collections.Generic;
 
-namespace CodeModel {
-	public class Operation : NamedElement {
+namespace CodeModel{
+	public class Operation : Generator {
 		public string returnType;
 		public List<DataItem> parameters = new List<DataItem>();
 
 		public Operation(){}
-	}
+
+        public override string ToCode(){
+            throw new System.NotImplementedException();
+        }
+    }
 }

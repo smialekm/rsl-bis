@@ -8,12 +8,16 @@
 
 using System.Collections.Generic;
 namespace CodeModel {
-	public class ViewFunction : NamedElement {
+	public class ViewFunction : FileGenerator {
 		public List<DataAggregate> data = new List<DataAggregate>();
 		public ControllerFunction controller;
 		public PresenterClass presenter;
 		public List<Trigger> triggers = new List<Trigger>();
 
 		public ViewFunction(){}
-	}
+
+        public override string ToCode(){
+            throw new System.NotImplementedException();
+        }
+    }
 }

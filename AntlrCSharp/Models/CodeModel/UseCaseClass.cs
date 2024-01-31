@@ -8,11 +8,15 @@
 
 using System.Collections.Generic;
 namespace CodeModel {
-	public class UseCaseClass : NamedElement {
+	public class UseCaseClass : FileGenerator {
 		public List<UCOperation> methods = new List<UCOperation>();
 		public List<PresenterClass> presenters = new List<PresenterClass>();
 		public List<ServiceInterface> services = new List<ServiceInterface>();
 
 		public UseCaseClass(){}
-	}
+
+        public override string ToCode(){
+            throw new System.NotImplementedException();
+        }
+    }
 }

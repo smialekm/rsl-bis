@@ -8,10 +8,14 @@
 
 using System.Collections.Generic;
 namespace CodeModel {
-	public class ControllerFunction : NamedElement {
+	public class ControllerFunction : FileGenerator {
 		public List<COperation> functions = new List<COperation>();
 		public List<UseCaseClass> useCases = new List<UseCaseClass>();
 
 		public ControllerFunction(){}
-	}
+
+        public override string ToCode(){
+            throw new System.NotImplementedException();
+        }
+    }
 }

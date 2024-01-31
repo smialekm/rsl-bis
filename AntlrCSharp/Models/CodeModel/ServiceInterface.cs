@@ -8,9 +8,13 @@
 
 using System.Collections.Generic;
 namespace CodeModel {
-	public class ServiceInterface : NamedElement {
+	public class ServiceInterface : FileGenerator {
 		public List<SOperation> signatures = new List<SOperation>();
 
 		public ServiceInterface(){}
-	}
+
+        public override string ToCode(){
+            throw new System.NotImplementedException();
+        }
+    }
 }

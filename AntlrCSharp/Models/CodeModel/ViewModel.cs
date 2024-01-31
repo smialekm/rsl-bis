@@ -8,10 +8,14 @@
 
 using System.Collections.Generic;
 namespace CodeModel {
-	public class ViewModel {
+	public class ViewModel : FileGenerator {
 		public List<DataAggregate> items = new List<DataAggregate>();
 		public List<CheckEnumeration> enums = new List<CheckEnumeration>();
 
 		public ViewModel(){}
-	}
+
+        public override string ToCode(){
+            throw new System.NotImplementedException();
+        }
+    }
 }

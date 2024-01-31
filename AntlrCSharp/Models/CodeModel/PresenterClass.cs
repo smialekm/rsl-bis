@@ -8,9 +8,13 @@
 
 using System.Collections.Generic;
 namespace CodeModel {
-	public class PresenterClass : NamedElement {
+	public class PresenterClass : FileGenerator {
 		public List<POperation> methods = new List<POperation>();
 
 		public PresenterClass(){}
-	}
+
+        public override string ToCode(){
+            throw new System.NotImplementedException();
+        }
+    }
 }
