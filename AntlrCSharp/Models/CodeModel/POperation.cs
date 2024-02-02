@@ -11,7 +11,8 @@ namespace CodeModel {
 	public class POperation : UCCallableOperation {
 		public POperation(){}
 		
-		public override string ToCode(){
+		public override string ToCode(int tabs){
+			string ts = GetTabString(tabs);
             throw new System.NotImplementedException();
         }
 	}

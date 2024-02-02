@@ -7,6 +7,7 @@
 ///////////////////////////////////////////////////////////
 
 using System.Collections.Generic;
+using System.Linq;
 namespace CodeModel {
 	public class ControllerFunction : FileGenerator {
 		public List<COperation> functions = new List<COperation>();
@@ -14,8 +15,20 @@ namespace CodeModel {
 
 		public ControllerFunction(){}
 
-        public override string ToCode(){
-            throw new System.NotImplementedException();
+        public override string ToCode(int tabs){
+            string ts = GetTabString(tabs);
+            string code = ts + "export function C" + Utils.ToPascalCase(name) + "(\n";
+            code += ts + "\tstate: " + Utils.ToPascalCase(name) + "Data,\n\t" + ts;
+            code += string.Join(",\n\t" + ts, useCases.Select(x => Utils.ToCamelCase(x.name) + ": UC" + Utils.ToPascalCase(x.name)));
+            code += "\n) {\n" + ts;
+            code += string.Join("\n" + ts,functions.Select(x => x.ToCode(tabs + 1)));
+            code += "\n\t" + ts + "return [" + string.Join(", ", functions.Select(x => Utils.ToCamelCase(x.name.Replace("!","")))) + "];\n" + ts + "}";
+            return code;
         }
+
+        protected override string GetFileName(){
+            return "C " + name;
+        }
+
     }
 }

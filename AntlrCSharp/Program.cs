@@ -56,8 +56,12 @@ namespace AntlrCSharp
                 RslBisParser.StartContext startContext = rslBisParser.start();
                 RslBisGenerator visitor = new RslBisGenerator(){Verbose = true};
                 IntermediaryRepresentation result = visitor.Visit(startContext);
+                string mainPath = "C:\\Users\\smial\\Desktop\\code\\";
+                foreach (ControllerFunction func in result.ControllerFunctions){
+                    func.ToFile(mainPath + "view\\controllers");
+                }
                 foreach (FileGenerator file in result.ServiceInterfaces){
-                    file.ToFile("C:\\Users\\smial\\Desktop\\code");
+                    file.ToFile(mainPath + "services");
                 }
             }
             catch (Exception ex)

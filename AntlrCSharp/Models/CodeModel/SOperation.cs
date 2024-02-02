@@ -10,8 +10,9 @@ namespace CodeModel {
 	public class SOperation : UCCallableOperation {
 		public SOperation(){}
 
-		public override string ToCode(){
-			string code = Utils.ToCamelCase(name.Replace("!", "")) + GetParametersCode();
+		public override string ToCode(int tabs){
+			string ts = GetTabString(tabs);
+			string code = ts + Utils.ToCamelCase(name.Replace("!", "")) + GetParametersCode();
 			return code;
         }
 	}

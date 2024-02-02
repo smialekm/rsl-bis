@@ -13,7 +13,10 @@ namespace CodeModel {
 		public FileGenerator(){}
 
 		public void ToFile(string path){
-			File.WriteAllText(path + "\\" + Utils.ToPascalCase(name) + ".ts", ToCode());
+			if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+			File.WriteAllText(path + "\\" + Utils.ToPascalCase(GetFileName()) + ".ts", ToCode());
 		}
+
+		protected abstract string GetFileName();
 	}
 }

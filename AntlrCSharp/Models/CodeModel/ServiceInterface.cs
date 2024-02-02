@@ -14,11 +14,17 @@ namespace CodeModel {
 
 		public ServiceInterface(){}
 
-        public override string ToCode(){
-            string code = "export interface I" + Utils.ToPascalCase(name) + " {\n";
-            code += string.Join(";\n",signatures.Select(x => x.ToCode()));
-            code += ";\n}";
+        public override string ToCode(int tabs){
+            string ts = GetTabString(tabs);
+            string code = ts + "export interface I" + Utils.ToPascalCase(name) + " {\n";
+            code += string.Join(";\n", signatures.Select(x => x.ToCode(tabs + 1)));
+            code += ";\n" + ts + "}";
             return code;
+        }
+
+        protected override string GetFileName()
+        {
+            return "I " + name;
         }
     }
 }

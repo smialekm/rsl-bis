@@ -63,9 +63,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         // 1. Create ‘UseCaseClass’ based on ‘name’ and set as ‘CurrentUCC’
         string name = ObtainName(context.name());
         if (Verbose) Console.WriteLine("Parsing Use Case: {0}", name);
-        /*TMP UCOperation ucO = new UCOperation(){name = "op " + name}; */
         UseCaseClass ucC = new UseCaseClass(){name = name};
-        /*TMP ucC.methods.Add(ucO); CurrentUCO = ucO; */
         result.UseCaseClasses.Add(ucC);
         CurrentUCC = ucC;
         CleanupUseCaseGenerator();
@@ -124,22 +122,24 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             //    create ‘UCOperation’; add it to ‘CurrentUCC’; attach it to ‘COperation’;
             //    set ‘UCOperation.returnType’ as ‘boolean’
             if (null == ConditionCO) {
-                UCOperation ucop = new UCOperation(){returnType = "boolean"};
+                UCOperation ucop = new UCOperation(){returnType = "boolean", uc = CurrentUCC, name = "precondition check!"};
                 CurrentUCC.methods.Add(ucop);
-                COperation cop = new COperation(){name = "invoke! " + CurrentUCC.name, invoked = ucop};
+                COperation cop = new COperation(){returnType = "boolean", name = "invoke check! " + CurrentUCC.name, invoked = ucop};
                 ConditionCO = cop;
             }
             // 4. For each ‘valuecondition’ -> Algorithm for value condition
-            ProcessValueCondition(vcondition);
+            ProcessValueCondition(vcondition, da);
         }
         ProcessPreconditions(context.conditions());
     }
 
-    private void ProcessValueCondition(RslBisParser.ValueconditionContext context){
+    private void ProcessValueCondition(RslBisParser.ValueconditionContext context, DataAggregate da){
         string notionName = ObtainName(context.notion());
-        // 1. Create ‘DataItem’ (‘parameter’; type as ‘notion’); add ‘DataItem’ to ‘ConditionCO.invoked’ ('UCOperation')
+        // 1. Create ‘DataItem’ (‘parameter’; type as ‘notion’); add ‘DataItem’ to ‘ConditionCO.invoked’ ('UCOperation');
+        // attach ‘DataAggregate’ to ‘ConditionCO’ (as ‘data’)
         DataItem di = new DataItem() {type = notionName};
         ConditionCO.invoked.parameters.Add(di);
+        ConditionCO.data.Add(da);
         // 2. Create ‘ServiceInterface’ (if does not exist) based on ‘notion’; attach it to ‘CurrentUCC’
         ServiceInterface si = result.ServiceInterfaces.Find(x => notionName == x.name);
         SOperation sop = si?.signatures.Find(x => "check! " + notionName == x.name);
@@ -260,7 +260,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         if (null == vf) {
             // 2. If (does not exist) -> create ‘ControllerFunction’; attach it to ‘ViewFunction’; attach ‘CurrentUCC’ to the ‘ControllerFunction’
             ControllerFunction cf = new ControllerFunction(){name = notionName};
-            cf.useCases.Add(CurrentUCC);
+            if (!cf.useCases.Contains(CurrentUCC)) cf.useCases.Add(CurrentUCC);
             // 3. If (does not exist) -> create ‘PresenterClass’; attach it to ‘ViewFunction’; attach it to the ‘CurrentUCC’
             PresenterClass pc = new PresenterClass(){name = notionName};
             CurrentUCC.presenters.Add(pc);
@@ -333,7 +333,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         if (Verbose) Console.WriteLine(CurrentLabel + ": Actor-Invoke sentence: " + context.GetText());
         // 1. Create ‘UCOperation’ based on ‘name’ and ‘CurrentVF.name’ (‘invoked…’); add it to ‘CurrentUCC’; set it as ‘CurrentUCO’
         string ucName = ObtainName(context.name());
-        UCOperation ucop = new UCOperation(){name = "invoked " + ucName + " @ " + CurrentVF.name};
+        UCOperation ucop = new UCOperation(){name = "invoked " + ucName + " @ " + CurrentVF.name, uc = CurrentUCC};
         CurrentUCC.methods.Add(ucop);
         CurrentUCO = ucop;
         // 2. Create ‘Enumeration’ (if does not exist) based on ‘name’; add it to ‘ViewModel’
@@ -344,9 +344,9 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         }
         // 3. Create ‘DataItem’ (‘parameter’; type as ‘Enumeration’); add it to 'UCOperation’
         ucop.parameters.Add(new DataItem(){type = en.name});
-        // 4. If ‘CurrentUCC.name’ is in ‘UcNameToTrigger’  -> 
-        if (UcNameToTrigger.ContainsKey(CurrentUCC.name)){
-            Trigger trg = UcNameToTrigger[CurrentUCC.name];
+        // 4. If ‘name’ is in ‘UcNameToTrigger’  -> 
+        if (UcNameToTrigger.ContainsKey(ucName)){
+            Trigger trg = UcNameToTrigger[ucName];
             // add ‘Trigger.action’ (copy and attach if necessary) to ‘ControllerFuntion’ attached to ‘CurrentVF’;
             COperation cop = trg.action;
             COperation newcop = new COperation(){invoked = cop.invoked, name = cop.name};
@@ -363,11 +363,11 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             }
            // add the ‘Trigger’ (copy if necessary) from the map entry to ‘CurrentVF’;
            Trigger newtrg = new Trigger(){name = trg.name, action = newcop, condition = newCondcop};
-            CurrentVF.triggers.Add(newtrg);
-            // attach ‘Trigger.action.invoked.uc’ to ‘ControllerFuntion’ attached to ‘CurrentVF’;
-            CurrentVF.controller.useCases.Add(CurrentUCC);
-            // attach ‘UCOperation’ to ‘Trigger.action’ as ‘returnTo’
-            cop.returnTo = ucop;
+           CurrentVF.triggers.Add(newtrg);
+           // attach ‘Trigger.action.invoked.uc’ to ‘ControllerFuntion’ attached to ‘CurrentVF’;
+           if (!CurrentVF.controller.useCases.Contains(CurrentUCC)) CurrentVF.controller.useCases.Add(CurrentUCC);
+           // attach ‘UCOperation’ to ‘Trigger.action’ as ‘returnTo’
+           cop.returnTo = ucop;
         // 5. else -> add use case ‘name’-to-‘CurrentVF’ to ‘UcNameToViewFunction’;
         } else {
             if (!UcNameToVF.ContainsKey(ucName)) UcNameToVF.Add(ucName, new List<ViewFunction>());
@@ -402,7 +402,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             ucopName = cop.name + (0 == counter ? "" : " "+counter);
             counter++;
         }
-        UCOperation ucop = new UCOperation(){name = ucopName};
+        UCOperation ucop = new UCOperation(){name = ucopName, uc = CurrentUCC};
         // 5. For each ‘DataAggregate’ in ‘CurrentDAD’ create a ‘DataItem’ (‘parameters’; type as ‘DataAggregate’ name);
         //    add the ‘DataItems’ to the ‘UCOperation’
         foreach (DataAggregate da in CurrentDAD) ucop.parameters.Add(new DataItem(){type = da.name});
@@ -415,7 +415,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         // 8. else -> Add the ‘COperation’ to ‘ControllerFuntion’ attached to ‘CurrentVF’; attach ‘CurrentUCC’ to ‘ControllerFunction’
         } else {
             CurrentVF.controller.functions.Add(cop);
-            CurrentVF.controller.useCases.Add(CurrentUCC);
+            if (!CurrentVF.controller.useCases.Contains(CurrentUCC)) CurrentVF.controller.useCases.Add(CurrentUCC);
         }
         // 9. Set ‘UCOperation’ as ‘CurrentUCO’
         CurrentUCO = ucop;
@@ -425,13 +425,15 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     }
 
     private void ProcessInitialSentence(RslBisParser.SelectpredicateContext context, Trigger trg){
-        // 1. If ‘ConditionCO’ not empty -> attach ‘ConditionCO’ to ‘Trigger’ as ‘condition’
+        // 1. Attach all ‘DataAggregate’s in ‘InheritedDAD’ to the ‘COperation’ 
+        COperation cop = trg.action;
+        cop.data.AddRange(InheritedDAD);
+        // 2. If ‘ConditionCO’ not empty -> attach ‘ConditionCO’ to ‘Trigger’ as ‘condition’
         if (null != ConditionCO) trg.condition = ConditionCO;
-        // 2. If ‘CurrentUCC.name’ is in ‘UcNameToViewFunction’ -> for each matching ‘ViewFunction’ in ‘UcNameToViewFunction’ ->
+        // 3. If ‘CurrentUCC.name’ is in ‘UcNameToViewFunction’ -> for each matching ‘ViewFunction’ in ‘UcNameToViewFunction’ ->
         if (UcNameToVF.ContainsKey(CurrentUCC.name)) foreach (ViewFunction vf in UcNameToVF[CurrentUCC.name]){
             // add ‘COperation’ (copy and attach if necessary) and ‘ConditionCO’ (if not empty, copy and attach if necessary)
             //    to ‘ControllerFuntion’ attached to ‘ViewFunction’;
-            COperation cop = trg.action;
             COperation newcop = new COperation(){invoked = cop.invoked, name = cop.name};
             newcop.data.AddRange(cop.data);
             vf.controller.functions.Add(newcop);
@@ -445,16 +447,16 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             // add ‘Trigger’ (copy if necessary);
             Trigger newtrg = new Trigger(){name = trg.name, action = newcop, condition = condcop};
             // attach ‘CurrentUCC’ to ‘ControllerFunction’ attached to ‘ViewFunction’;
-            vf.controller.useCases.Add(CurrentUCC);
+            if (!vf.controller.useCases.Contains(CurrentUCC)) vf.controller.useCases.Add(CurrentUCC);
             // attach matching (‘CurrentUCC.name’ & ‘ViewFunction.name’) ‘UCOperation’ from ‘UcVFToUCOperation’ to ‘COperation’ as ‘return’;
             UcVFToUCOperation.TryGetValue((CurrentUCC.name, vf.name), out cop.returnTo);
             // remove ‘UcNameToViewFunction’ and ‘UcVFToUCOperation’ entries
             UcNameToVF.Remove(CurrentUCC.name);
             UcVFToUCOperation.Remove((CurrentUCC.name, vf.name));
         }
-        // 3. Add ‘CurrentUCC.name’ -to-‘Trigger’ to ‘UcNameToTrigger’
+        // 4. Add ‘CurrentUCC.name’ -to-‘Trigger’ to ‘UcNameToTrigger’
         UcNameToTrigger.Add(CurrentUCC.name,trg);
-        // 4. Clear ‘ConditionCO’
+        // 5. Clear ‘ConditionCO’
         ConditionCO = null;
     }
 
@@ -668,6 +670,8 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
 
     public override IntermediaryRepresentation VisitRejoinsentence([NotNull] RslBisParser.RejoinsentenceContext context)
     {
+        // TODO - consider other than current (incompatible) Auxiliary variables state
+        // (rejoin to <read> vs. rejoin to <show> vs. rejoin to <execute>)
         if (Verbose) Console.WriteLine("Rejoin sentence ");
         // Error In 1: ‘LastPredicateType’ empty or ‘System-to-Screen’ or ‘Actor-to-Data’(TODO) or ‘Repetition sentence’
         if (new List<PredicateType>{PredicateType.Show,PredicateType.Enter,PredicateType.Repetition}.Contains(LastPredicateType))

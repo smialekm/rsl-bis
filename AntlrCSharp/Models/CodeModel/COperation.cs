@@ -7,6 +7,7 @@
 ///////////////////////////////////////////////////////////
 
 using System.Collections.Generic;
+using System.Linq;
 namespace CodeModel {
 	public class COperation : Operation {
 
@@ -16,8 +17,20 @@ namespace CodeModel {
 
 		public COperation(){}
 
-		public override string ToCode(){
-            throw new System.NotImplementedException();
+		public override string ToCode(int tabs){
+			string ts = GetTabString(tabs);
+			bool isCondition = null != returnType;
+			string code = ts + "function " + Utils.ToCamelCase(name.Replace("!","") + "()");
+			if (isCondition) code += ": " + returnType;
+			code += " {\n";
+			foreach (DataAggregate da in data){
+				code += "\t" + ts + "let " + Utils.ToCamelCase(da.name) + ": " + Utils.ToPascalCase(da.name) + 
+						" = Object.create(state." + Utils.ToCamelCase(da.name) + ");\n";
+			}
+			code += ts + "\t" + (isCondition ? "return " : "") + Utils.ToCamelCase(invoked.uc.name) + "." + Utils.ToPascalCase(invoked.name.Replace("!", ""));
+			code += "(" + string.Join(", ", data.Select(x => Utils.ToCamelCase(x.name))) + ");\n";
+			code += ts + "}\n";
+            return code;
         }
 	}
 }

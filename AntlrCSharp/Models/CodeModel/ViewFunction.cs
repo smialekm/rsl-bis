@@ -16,8 +16,13 @@ namespace CodeModel {
 
 		public ViewFunction(){}
 
-        public override string ToCode(){
+        public override string ToCode(int tabs){
+ 			string ts = GetTabString(tabs);
             throw new System.NotImplementedException();
+        }
+
+        protected override string GetFileName(){
+            return "V " + name;
         }
     }
 }

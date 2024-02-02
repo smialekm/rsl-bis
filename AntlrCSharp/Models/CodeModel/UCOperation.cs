@@ -10,10 +10,12 @@ using System.Collections.Generic;
 namespace CodeModel {
 	public class UCOperation : Operation {
 		public List<Instruction> instructions = new List<Instruction>();
+		public UseCaseClass uc = null;
 
 		public UCOperation(){}
 		
-		public override string ToCode(){
+		public override string ToCode(int tabs){
+			string ts = GetTabString(tabs);
             throw new System.NotImplementedException();
         }
 	}

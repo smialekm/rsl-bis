@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace CodeModel{
 	public abstract class Operation : Generator {
-		public string returnType;
+		public string returnType = null;
 		public List<DataItem> parameters = new List<DataItem>();
 
 		public Operation(){}

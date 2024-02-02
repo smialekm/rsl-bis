@@ -10,6 +10,12 @@ namespace CodeModel {
 	public abstract class Generator : NamedElement {
 		public Generator(){}
 
-		public abstract string ToCode();
+		public abstract string ToCode(int tabs = 0);
+
+		protected string GetTabString(int tabs){
+			string tabString = "";
+			for (int i=0; i<tabs; i++) tabString += "\t";
+			return tabString;
+		}
 	}
 }
