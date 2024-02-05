@@ -19,7 +19,7 @@ namespace CodeModel {
         }
 
         public override string ToCode(int tabs){
- 			string ts = GetTabString(tabs);
+ 			string ts = Utils.GetTabString(tabs);
             throw new System.NotImplementedException();
         }
 

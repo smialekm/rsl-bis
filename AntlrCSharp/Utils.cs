@@ -12,4 +12,10 @@ public static class Utils {
         string output = ToPascalCase(input);
         return output[0..1].ToLower() + output[1..];
     }
+
+    public static string GetTabString(int tabs){
+		string tabString = "";
+		for (int i=0; i<tabs; i++) tabString += "\t";
+		return tabString;
+	}
 }

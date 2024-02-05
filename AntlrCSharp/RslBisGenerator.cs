@@ -164,7 +164,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         // 5. Create ‘SOperation’ (if does not exist); add ‘DataItem’ to ‘SOperation’; add ‘SOperation’ to 'ServiceInterface'
         // set ‘SOperation.returnType’ to ‘Enumeration.name’
         if (null == sop) {
-            sop = new SOperation(){name = "check! " + notionName, returnType = en.name};
+            sop = new SOperation(){name = "check! " + notionName, returnType = en.name, type = PredicateType.Check, si = si};
             sop.parameters.Add(di);
             si.signatures.Add(sop);
         }
@@ -230,7 +230,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         }
         // 3. Create ‘SOperation’ (if does not exist) based on ‘notion’; set ‘returnType’ based on ‘DataAggregate’; add ‘SOperation’ to ‘ServiceInterface’
         if (null == sop) { // TODO - handle overloaded methods
-            sop = new SOperation(){name = "read! " + notionName, returnType = da.name};
+            sop = new SOperation(){name = "read! " + notionName, returnType = da.name, type = PredicateType.Read, si = si};
             // 4. For each ‘DataAggregate’ in ‘CurrentDAD’+’InheritedDAD’ create a ‘DataItem’ (‘parameter’; type as ‘DataAggregate’ name);
             //    add the ‘DataItems’ to the ‘SOperation’
             foreach (DataAggregate xd in Enumerable.Concat(CurrentDAD,InheritedDAD)){
@@ -273,7 +273,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         }
         CurrentVF = vf;
         // 5. Create ‘POperation’ based on ‘notion’; add it to ‘PresenterClass’
-        POperation pop = new POperation(){name = notionName};
+        POperation pop = new POperation(){name = notionName, pres = vf.presenter};
         // 6. For each ‘DataAggregate’ in ‘CurrentDAP’ add a ‘DataItem’ (‘parameter’; type as ‘DataAggregate’ name);
         // attach the ‘DataItems’ to the ‘POperation’
         foreach (DataAggregate da in CurrentDAP) pop.parameters.Add(new DataItem(){type = da.name});
@@ -503,7 +503,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         }
         // 2. Create ‘SOperation’ (if does not exist) based on ‘notion’; add ‘SOperation’ to ‘ServiceInterface’
         if (null == sop) { // TODO - handle overloaded methods
-            sop = new SOperation(){name = verb + "! " + notionName};
+            sop = new SOperation(){name = verb + "! " + notionName, type = PredicateType.Execute, si = si};
             // 3. Create ‘DataItem’ based on ‘notion’; add it to ‘SOperation’
             DataItem di;
             if ("execute" != verb) {

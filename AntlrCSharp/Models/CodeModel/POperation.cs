@@ -9,6 +9,7 @@
 using CodeModel;
 namespace CodeModel {
 	public class POperation : UCCallableOperation {
+        public PresenterClass pres = null;
 		public POperation(){}
 
         public override string GetElemName(){
@@ -16,7 +17,7 @@ namespace CodeModel {
         }
 
         public override string ToCode(int tabs){
-			string ts = GetTabString(tabs);
+			string ts = Utils.GetTabString(tabs);
             throw new System.NotImplementedException();
         }
 	}

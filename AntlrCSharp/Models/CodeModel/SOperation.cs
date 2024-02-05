@@ -8,15 +8,18 @@
 
 namespace CodeModel {
 	public class SOperation : UCCallableOperation {
+		public PredicateType type = PredicateType.None;
+		public ServiceInterface si = null;
+
 		public SOperation(){}
 
         public override string GetElemName(){
-            throw new System.NotImplementedException();
+            return Utils.ToCamelCase(name.Replace("!", ""));
         }
 
         public override string ToCode(int tabs){
-			string ts = GetTabString(tabs);
-			string code = ts + Utils.ToCamelCase(name.Replace("!", "")) + GetParametersCode();
+			string ts = Utils.GetTabString(tabs);
+			string code = ts + GetElemName() + GetParametersCode();
 			return code;
         }
 	}

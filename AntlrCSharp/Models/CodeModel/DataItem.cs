@@ -13,10 +13,14 @@ namespace CodeModel {
 
 		public DataItem(){}
 
-		public string ToCode(int i = 0){
+		public string ToCode(int i = 0, bool var = false){
 			string code = Utils.ToCamelCase(type) + (i>0 ? i.ToString() : "");
-			code += ": " + Utils.ToPascalCase(type);
+			if (!var) code += ": " + Utils.ToPascalCase(type);
 			return code;
+		}
+
+		public string ToVarCode(int i = 0){
+			return ToCode(i, true);
 		}
 	}
 }

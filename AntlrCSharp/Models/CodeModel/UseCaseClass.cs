@@ -25,7 +25,7 @@ namespace CodeModel {
         }
 
         public override string ToCode(int tabs){
- 			string ts = GetTabString(tabs);
+ 			string ts = Utils.GetTabString(tabs);
             // CODE: export class UCShowClientList {
             string code = ts + "export class " + GetElemName() + "{\n";
             //   CODE: pClientListWindow: PClientListWnd;

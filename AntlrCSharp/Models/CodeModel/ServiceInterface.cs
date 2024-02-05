@@ -23,7 +23,7 @@ namespace CodeModel {
         }
 
         public override string ToCode(int tabs){
-            string ts = GetTabString(tabs);
+            string ts = Utils.GetTabString(tabs);
             string code = ts + "export interface I" + Utils.ToPascalCase(name) + " {\n";
             code += string.Join(";\n", signatures.Select(x => x.ToCode(tabs + 1)));
             code += ";\n" + ts + "}";

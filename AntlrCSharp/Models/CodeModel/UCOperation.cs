@@ -6,7 +6,9 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 namespace CodeModel {
 	public class UCOperation : Operation {
 		public List<Instruction> instructions = new List<Instruction>();
@@ -19,11 +21,21 @@ namespace CodeModel {
         }
 
         public override string ToCode(int tabs){
-			string ts = GetTabString(tabs);
+			string ts = Utils.GetTabString(tabs);
             // CODE: showClientListSelected() {
-            string code = ts + GetElemName() + "(";
-            code += ")" + (!string.IsNullOrEmpty(returnType) ? ": " + returnType : "") + " {\n";
-            // code += ts + "\t";
+            string code = ts + GetElemName() + GetParametersCode();
+            code += (!string.IsNullOrEmpty(returnType) ? ": " + returnType : "") + " {\n";
+            if (string.IsNullOrEmpty(returnType))
+                foreach (Instruction instr in instructions){
+                    if (instr is Call call) code += call.ToCode(tabs + 1) + "\n";
+                }
+            else if ("boolean" == returnType) {
+                try {
+                    code += ts + "\treturn " + string.Join(" && ", instructions.Select(i => ((Call) i).ToVarCode())) + ";\n";
+                } catch(InvalidCastException) {
+                    throw new Exception("Critical compilation error");
+                }
+            } else throw new Exception("Critical compilation error");
             // CODE: }
             code += ts + "}\n";
             return code;

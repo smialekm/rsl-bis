@@ -6,22 +6,13 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
 namespace CodeModel {
 	public abstract class Instruction {
 
 		public string label;
 
-		public Instruction(){
+		public Instruction(){}
 
-		}
-
-		~Instruction(){
-
-		}
-
-	}//end Instruction
-
-}//end namespace CodeModel
+		public abstract string ToCode(int tabs = 0);
+	}
+}

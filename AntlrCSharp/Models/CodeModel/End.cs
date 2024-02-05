@@ -6,21 +6,14 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
 using CodeModel;
 namespace CodeModel {
 	public class End : Instruction {
 
-		public End(){
+		public End(){}
 
-		}
-
-		~End(){
-
-		}
-
-	}//end End
-
-}//end namespace CodeModel
+        public override string ToCode(int tabs = 0){
+            throw new System.NotImplementedException();
+        }
+    }
+}

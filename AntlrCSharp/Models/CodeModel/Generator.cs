@@ -12,10 +12,5 @@ namespace CodeModel {
 
 		public abstract string ToCode(int tabs = 0);
 		public abstract string GetElemName();
-		protected string GetTabString(int tabs){
-			string tabString = "";
-			for (int i=0; i<tabs; i++) tabString += "\t";
-			return tabString;
-		}
 	}
 }

@@ -16,9 +16,21 @@ namespace CodeModel{
 
 		public Operation(){}
 
-		protected string GetParametersCode(){
-			IEnumerable<string> pars = parameters.Select(x => x.ToCode());
+		protected string GetParametersCode(bool var = false){
+			IEnumerable<string> pars = var ? parameters.Select(p => p.ToVarCode()) : parameters.Select(p => p.ToCode());
 			return "(" + string.Join(", ", pars) + ")";
+		}
+
+		public string GetVarParametersCode(){
+			return GetParametersCode(true);
+		}
+
+		public string GetReturnTypeElemName(){
+			return Utils.ToPascalCase(returnType.Replace("!", ""));
+		}
+
+		public string GetReturnTypeVarName(){
+			return Utils.ToCamelCase(returnType.Replace("!", ""));
 		}
     }
 }

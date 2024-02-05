@@ -22,7 +22,7 @@ namespace CodeModel {
         }
 
         public override string ToCode(int tabs){
-			string ts = GetTabString(tabs);
+			string ts = Utils.GetTabString(tabs);
 			bool isCondition = null != returnType;
 			// function invokeCheckFindClient(): boolean {
 			string code = ts + "function " + GetElemName() + "()";

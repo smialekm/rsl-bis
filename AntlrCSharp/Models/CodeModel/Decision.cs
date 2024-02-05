@@ -13,5 +13,10 @@ namespace CodeModel {
 		public List<Condition> conditions = new List<Condition>();
 
 		public Decision(){}
-	}
+
+        public override string ToCode(int tabs){
+			string ts = Utils.GetTabString(tabs);
+            throw new System.NotImplementedException();
+        }
+    }
 }
