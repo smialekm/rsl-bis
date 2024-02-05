@@ -10,7 +10,11 @@ namespace CodeModel {
 	public class SOperation : UCCallableOperation {
 		public SOperation(){}
 
-		public override string ToCode(int tabs){
+        public override string GetElemName(){
+            throw new System.NotImplementedException();
+        }
+
+        public override string ToCode(int tabs){
 			string ts = GetTabString(tabs);
 			string code = ts + Utils.ToCamelCase(name.Replace("!", "")) + GetParametersCode();
 			return code;

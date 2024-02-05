@@ -16,6 +16,10 @@ namespace CodeModel {
 
 		public ViewFunction(){}
 
+        public override string GetElemName(){
+            throw new System.NotImplementedException();
+        }
+
         public override string ToCode(int tabs){
  			string ts = GetTabString(tabs);
             throw new System.NotImplementedException();

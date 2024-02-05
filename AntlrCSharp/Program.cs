@@ -60,6 +60,9 @@ namespace AntlrCSharp
                 foreach (ControllerFunction func in result.ControllerFunctions){
                     func.ToFile(mainPath + "view\\controllers");
                 }
+                foreach (FileGenerator file in result.UseCaseClasses){
+                    file.ToFile(mainPath + "usecases");
+                }
                 foreach (FileGenerator file in result.ServiceInterfaces){
                     file.ToFile(mainPath + "services");
                 }

@@ -6,21 +6,10 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
 namespace CodeModel {
-	public class NamedElement {
+	public abstract class NamedElement {
 		public string name;
 
-		public NamedElement(){
-
-		}
-
-		~NamedElement(){
-
-		}
-
-	}//end NamedElement
-
-}//end namespace CodeModel
+		public NamedElement(){}
+	}
+}

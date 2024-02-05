@@ -8,10 +8,18 @@
 
 using System.Collections.Generic;
 namespace CodeModel {
-	public class PresenterClass : FileGenerator {
+	public class PresenterClass : ClassFileGenerator {
 		public List<POperation> methods = new List<POperation>();
 
 		public PresenterClass(){}
+
+        public override string GetElemName(){
+            return "P" + Utils.ToPascalCase(name);
+        }
+
+        public override string GetVarName(){
+            return "p" + Utils.ToPascalCase(name);
+        }
 
         public override string ToCode(int tabs){
 		    string ts = GetTabString(tabs);

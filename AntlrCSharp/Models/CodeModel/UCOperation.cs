@@ -13,10 +13,20 @@ namespace CodeModel {
 		public UseCaseClass uc = null;
 
 		public UCOperation(){}
-		
-		public override string ToCode(int tabs){
+
+        public override string GetElemName(){
+            return Utils.ToCamelCase(name.Replace("!", ""));
+        }
+
+        public override string ToCode(int tabs){
 			string ts = GetTabString(tabs);
-            throw new System.NotImplementedException();
+            // CODE: showClientListSelected() {
+            string code = ts + GetElemName() + "(";
+            code += ")" + (!string.IsNullOrEmpty(returnType) ? ": " + returnType : "") + " {\n";
+            // code += ts + "\t";
+            // CODE: }
+            code += ts + "}\n";
+            return code;
         }
 	}
 }

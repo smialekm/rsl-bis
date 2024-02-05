@@ -6,9 +6,6 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
 using CodeModel;
 namespace CodeModel {
 	public class DataAggregate : NamedElement {
@@ -16,13 +13,15 @@ namespace CodeModel {
 		public CodeModel.DataItem fields;
 		public CodeModel.ViewFunction m_ViewFunction;
 
-		public DataAggregate(){
-
+		public string GetElemName(){
+			return Utils.ToPascalCase(name);
 		}
 
-		~DataAggregate(){
-
+		public string GetVarName(){
+			return Utils.ToCamelCase(name);
 		}
+
+		public DataAggregate(){}
 
 	}//end DataAggregate
 

@@ -17,18 +17,25 @@ namespace CodeModel {
 
 		public COperation(){}
 
-		public override string ToCode(int tabs){
+        public override string GetElemName(){
+            return Utils.ToCamelCase(name.Replace("!",""));
+        }
+
+        public override string ToCode(int tabs){
 			string ts = GetTabString(tabs);
 			bool isCondition = null != returnType;
-			string code = ts + "function " + Utils.ToCamelCase(name.Replace("!","") + "()");
+			// function invokeCheckFindClient(): boolean {
+			string code = ts + "function " + GetElemName() + "()";
 			if (isCondition) code += ": " + returnType;
 			code += " {\n";
+			// let role: Role = Object.create(state.role);
 			foreach (DataAggregate da in data){
-				code += "\t" + ts + "let " + Utils.ToCamelCase(da.name) + ": " + Utils.ToPascalCase(da.name) + 
-						" = Object.create(state." + Utils.ToCamelCase(da.name) + ");\n";
+				code += "\t" + ts + "let " + da.GetVarName() + ": " + da.GetElemName() + 
+						" = Object.create(state." + da.GetVarName() + ");\n";
 			}
-			code += ts + "\t" + (isCondition ? "return " : "") + Utils.ToCamelCase(invoked.uc.name) + "." + Utils.ToPascalCase(invoked.name.Replace("!", ""));
-			code += "(" + string.Join(", ", data.Select(x => Utils.ToCamelCase(x.name))) + ");\n";
+			// return findClient.PreconditionCheck(role);
+			code += ts + "\t" + (isCondition ? "return " : "") + invoked.uc.GetVarName() + "." + invoked.GetElemName();
+			code += "(" + string.Join(", ", data.Select(da => da.GetVarName())) + ");\n";
 			code += ts + "}\n";
             return code;
         }

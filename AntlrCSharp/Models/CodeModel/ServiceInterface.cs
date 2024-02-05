@@ -9,10 +9,18 @@
 using System.Collections.Generic;
 using System.Linq;
 namespace CodeModel {
-	public class ServiceInterface : FileGenerator {
+	public class ServiceInterface : ClassFileGenerator {
 		public List<SOperation> signatures = new List<SOperation>();
 
 		public ServiceInterface(){}
+
+        public override string GetElemName(){
+            return "I" + Utils.ToPascalCase(name);
+        }
+
+        public override string GetVarName(){
+            return "i" + Utils.ToPascalCase(name);
+        }
 
         public override string ToCode(int tabs){
             string ts = GetTabString(tabs);

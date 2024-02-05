@@ -10,8 +10,12 @@ using CodeModel;
 namespace CodeModel {
 	public class POperation : UCCallableOperation {
 		public POperation(){}
-		
-		public override string ToCode(int tabs){
+
+        public override string GetElemName(){
+            return Utils.ToCamelCase(name.Replace("!", ""));
+        }
+
+        public override string ToCode(int tabs){
 			string ts = GetTabString(tabs);
             throw new System.NotImplementedException();
         }

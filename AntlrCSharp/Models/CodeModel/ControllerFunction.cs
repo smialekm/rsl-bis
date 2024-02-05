@@ -15,14 +15,24 @@ namespace CodeModel {
 
 		public ControllerFunction(){}
 
+        public override string GetElemName(){
+            return "C" + Utils.ToPascalCase(name);
+        }
+
         public override string ToCode(int tabs){
             string ts = GetTabString(tabs);
-            string code = ts + "export function C" + Utils.ToPascalCase(name) + "(\n";
+            // export function CCLientListForm(
+            string code = ts + "export function " + GetElemName() + "(\n";
+            //   state: ClientListFormData,
             code += ts + "\tstate: " + Utils.ToPascalCase(name) + "Data,\n\t" + ts;
-            code += string.Join(",\n\t" + ts, useCases.Select(x => Utils.ToCamelCase(x.name) + ": UC" + Utils.ToPascalCase(x.name)));
+            //   showClientList: UCShowClientList
+            code += string.Join(",\n\t" + ts, useCases.Select(x => x.GetVarName() + ": " + x.GetElemName()));
+            // ) {
             code += "\n) {\n" + ts;
+            //   >>>sub-functions<<<
             code += string.Join("\n" + ts,functions.Select(x => x.ToCode(tabs + 1)));
-            code += "\n\t" + ts + "return [" + string.Join(", ", functions.Select(x => Utils.ToCamelCase(x.name.Replace("!","")))) + "];\n" + ts + "}";
+            //   return [selectClose, selectFindClient, invokeCheckFindClient];
+            code += "\n\t" + ts + "return [" + string.Join(", ", functions.Select(x => x.GetElemName())) + "];\n" + ts + "}";
             return code;
         }
 
