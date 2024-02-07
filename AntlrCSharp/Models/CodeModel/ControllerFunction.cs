@@ -24,7 +24,7 @@ namespace CodeModel {
             // export function CCLientListForm(
             string code = ts + "export function " + GetElemName() + "(\n";
             //   state: ClientListFormData,
-            code += ts + "\tstate: " + Utils.ToPascalCase(name) + "Data,\n\t" + ts;
+            code += ts + "\tstate: " + Utils.ToPascalCase(name) + "State,\n\t" + ts;
             //   showClientList: UCShowClientList
             code += string.Join(",\n\t" + ts, useCases.Select(x => x.GetVarName() + ": " + x.GetElemName()));
             // ) {
