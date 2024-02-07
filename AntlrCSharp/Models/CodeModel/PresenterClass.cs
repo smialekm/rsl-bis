@@ -23,7 +23,13 @@ namespace CodeModel {
 
         public override string ToCode(int tabs){
 		    string ts = Utils.GetTabString(tabs);
-            throw new System.NotImplementedException();
+            // CODE: export class PClientListWnd extends PresentationDispatcher {
+            string code = ts + "export class " + GetElemName() + " extends PresentationDispatcher {\n";
+            //   CODE: state!: ClientListWndData;
+            code += ts + "\tstate!: " + Utils.ToPascalCase(name) + "Data;\n";
+            //   CODE: updateView!: Dispatch<ActionId>;
+            code += ts + "\tupdateView!: Dispatch<ActionId>;\n";
+            return code;
         }
 
         protected override string GetFileName(){

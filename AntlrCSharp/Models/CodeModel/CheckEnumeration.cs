@@ -12,5 +12,13 @@ namespace CodeModel {
 		public List<Value> values = new List<Value>();
 
 		public CheckEnumeration(){}
+
+		public string GetElemName(){
+            return Utils.ToPascalCase(name.Replace("!", ""));
+        }
+
+		public string GetVarName(){
+            return Utils.ToCamelCase(name.Replace("!", ""));
+        }
 	}
 }

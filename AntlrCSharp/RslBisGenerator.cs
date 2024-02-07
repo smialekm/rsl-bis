@@ -155,6 +155,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         if (null == en) {
             en = new CheckEnumeration(){name = notionName + " !enum"};
             result.ViewModel.enums.Add(en);
+            da.enumer = en;
         }
         // 4. Create ‘Value’ based on ‘value’; add it to ‘Enumeration’
         if (null == value) {
@@ -273,7 +274,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         }
         CurrentVF = vf;
         // 5. Create ‘POperation’ based on ‘notion’; add it to ‘PresenterClass’
-        POperation pop = new POperation(){name = notionName, pres = vf.presenter};
+        POperation pop = new POperation(){name = "show! " + notionName, pres = vf.presenter};
         // 6. For each ‘DataAggregate’ in ‘CurrentDAP’ add a ‘DataItem’ (‘parameter’; type as ‘DataAggregate’ name);
         // attach the ‘DataItems’ to the ‘POperation’
         foreach (DataAggregate da in CurrentDAP) pop.parameters.Add(new DataItem(){type = da.name});
@@ -503,7 +504,8 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         }
         // 2. Create ‘SOperation’ (if does not exist) based on ‘notion’; add ‘SOperation’ to ‘ServiceInterface’
         if (null == sop) { // TODO - handle overloaded methods
-            sop = new SOperation(){name = verb + "! " + notionName, type = PredicateType.Execute, si = si};
+            sop = new SOperation(){name = verb + "! " + notionName, 
+                    type = "check" == verb ? PredicateType.Check : PredicateType.Execute, si = si};
             // 3. Create ‘DataItem’ based on ‘notion’; add it to ‘SOperation’
             DataItem di;
             if ("execute" != verb) {
@@ -525,6 +527,9 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             if (null == en) {
                 en = new CheckEnumeration(){name = notionName + " !enum"};
                 result.ViewModel.enums.Add(en);
+                DataAggregate da = result.ViewModel.items.Find(x => notionName == x.name);
+                if (null == da) throw new Exception("Check for a non-existent notion");
+                da.enumer = en;
             }
             sop.returnType = en.name;
         } else sop.returnType = "short";

@@ -7,6 +7,7 @@
 ///////////////////////////////////////////////////////////
 
 using System.Collections.Generic;
+using System.Linq;
 namespace CodeModel {
 	public class Condition {
 
@@ -14,6 +15,16 @@ namespace CodeModel {
 		public List<Expression> expressions = new List<Expression>();
 
 		public Condition(){}
+
+		public string ToCode(int tabs){
+			string ts = Utils.GetTabString(tabs);
+			// CODE: if (ClientEnumCheck.Valid == clientEnumCheck) {
+            string code = "if (" + string.Join(" && ", expressions.Select(e => e.ToCode())) + ") {\n";
+			foreach (Instruction instr in instructions)
+                code += instr.ToCode(tabs + 1) + "\n";
+			code += ts + "}";
+			return code;
+        }
 	}
 
 }

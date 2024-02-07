@@ -6,12 +6,12 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-using CodeModel;
+using System.Collections.Generic;
+
 namespace CodeModel {
 	public class DataAggregate : NamedElement {
-
-		public CodeModel.DataItem fields;
-		public CodeModel.ViewFunction m_ViewFunction;
+		public List<DataItem> fields = new List<DataItem>();
+		public CheckEnumeration enumer = null;
 
 		public string GetElemName(){
 			return Utils.ToPascalCase(name);
@@ -22,7 +22,5 @@ namespace CodeModel {
 		}
 
 		public DataAggregate(){}
-
-	}//end DataAggregate
-
-}//end namespace CodeModel
+	}
+}

@@ -6,24 +6,16 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
-using CodeModel;
 namespace CodeModel {
 	public class Expression {
+		public DataAggregate data;
+		public Value value;
 
-		public CodeModel.DataAggregate data;
-		public CodeModel.Value value;
+		public Expression(){}
 
-		public Expression(){
-
-		}
-
-		~Expression(){
-
-		}
-
-	}//end Expression
-
-}//end namespace CodeModel
+		public string ToCode(){
+			// CODE: ClientEnumCheck.Valid == clientEnumCheck
+			return data.enumer.GetElemName() + "." + Utils.ToPascalCase(value.name) + " == " + data.enumer.GetVarName();
+        }
+	}
+}

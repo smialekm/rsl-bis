@@ -7,6 +7,7 @@
 ///////////////////////////////////////////////////////////
 
 using System.Collections.Generic;
+using System.Linq;
 namespace CodeModel {
 	public class Decision : Instruction {
 
@@ -14,9 +15,10 @@ namespace CodeModel {
 
 		public Decision(){}
 
-        public override string ToCode(int tabs){
+        public override string ToCode(int tabs = 0){
 			string ts = Utils.GetTabString(tabs);
-            throw new System.NotImplementedException();
+            string code = ts + string.Join(" else ", conditions.Select(c => c.ToCode(tabs)));
+			return code;
         }
     }
 }

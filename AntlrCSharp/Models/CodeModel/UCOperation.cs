@@ -26,9 +26,8 @@ namespace CodeModel {
             string code = ts + GetElemName() + GetParametersCode();
             code += (!string.IsNullOrEmpty(returnType) ? ": " + returnType : "") + " {\n";
             if (string.IsNullOrEmpty(returnType))
-                foreach (Instruction instr in instructions){
-                    if (instr is Call call) code += call.ToCode(tabs + 1) + "\n";
-                }
+                foreach (Instruction instr in instructions)
+                    code += instr.ToCode(tabs + 1) + "\n";
             else if ("boolean" == returnType) {
                 try {
                     code += ts + "\treturn " + string.Join(" && ", instructions.Select(i => ((Call) i).ToVarCode())) + ";\n";

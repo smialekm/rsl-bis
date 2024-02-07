@@ -20,7 +20,7 @@ namespace CodeModel {
         }
 
         public override string ToCode(int tabs = 0){
-            return ToFullCode(tabs);
+            return ToFullCode(tabs, false);
         }
 
         protected string ToFullCode(int tabs = 0, bool var = false){

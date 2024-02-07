@@ -13,7 +13,7 @@ namespace CodeModel {
 		public End(){}
 
         public override string ToCode(int tabs = 0){
-            throw new System.NotImplementedException();
+            return "// TODO implement END\n";
         }
     }
 }
