@@ -22,7 +22,10 @@ namespace AntlrCSharp
                 RslBisParser.StartContext startContext = rslBisParser.start();
                 RslBisGenerator visitor = new RslBisGenerator(){Verbose = true};
                 IntermediaryRepresentation result = visitor.Visit(startContext);
-                
+
+                foreach (ViewFunction func in result.ViewFunctions){
+                    func.ToFile(mainPath + "view");
+                }
                 foreach (ControllerFunction func in result.ControllerFunctions){
                     func.ToFile(mainPath + "view\\controllers");
                 }

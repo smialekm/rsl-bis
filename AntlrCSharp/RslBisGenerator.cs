@@ -114,10 +114,11 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             da = new DataAggregate(){name = notionName};
             result.ViewModel.items.Add(da);
         }
-        if (null != ccondition)
-            // 2. if ‘condition’ is ‘contextcondition’ -> add ‘DataAggregate’ to ‘InheritedDAD’
-            InheritedDAD.Add(da);
-        else {
+        if (null != ccondition){
+            // 2. if ‘condition’ is ‘contextcondition’ -> add ‘DataAggregate’ to ‘InheritedDAD’ and ‘CurrentUCC.attrs’
+            InheritedDAD.Add(da); // TODO - replace by CurrentUCC.attrs
+            CurrentUCC.attrs.Add(da);
+        } else {
             // 3. If any ‘valuecondition’ exists -> create ‘COperation’; set it as ‘ConditionCO’;
             //    create ‘UCOperation’; add it to ‘CurrentUCC’; attach it to ‘COperation’;
             //    set ‘UCOperation.returnType’ as ‘boolean’
@@ -409,26 +410,28 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         foreach (DataAggregate da in CurrentDAD) ucop.parameters.Add(new DataItem(){type = da.name});
         // 6. Add ‘UCOperation’ to the ‘CurrentUCC’; attach it to ‘COperation’ (as ‘invoked’)
         CurrentUCC.methods.Add(ucop); cop.invoked = ucop;
-        // 7. If ‘CurrentUCO’ empty -> Algorithm for initial trigger sentence
+        // 7. Set ‘UCOperation’ as ‘CurrentUCO’
+        CurrentUCO = ucop;
+        // 8. If ‘CurrentUCO’ empty -> Algorithm for initial trigger sentence
         if (FirstSentence) {
             ProcessInitialSentence(context, trg);
             FirstSentence = false;
-        // 8. else -> Add the ‘COperation’ to ‘ControllerFuntion’ attached to ‘CurrentVF’; attach ‘CurrentUCC’ to ‘ControllerFunction’
+        // 9. else -> Add the ‘COperation’ to ‘ControllerFuntion’ attached to ‘CurrentVF’; attach ‘CurrentUCC’ to ‘ControllerFunction’
         } else {
             CurrentVF.controller.functions.Add(cop);
             if (!CurrentVF.controller.useCases.Contains(CurrentUCC)) CurrentVF.controller.useCases.Add(CurrentUCC);
         }
-        // 9. Set ‘UCOperation’ as ‘CurrentUCO’
-        CurrentUCO = ucop;
 
         SetLastPredicateTypes(PredicateType.Select);
         return result;
     }
 
     private void ProcessInitialSentence(RslBisParser.SelectpredicateContext context, Trigger trg){
-        // 1. Attach all ‘DataAggregate’s in ‘InheritedDAD’ to the ‘COperation’ 
+        CurrentUCO.initial = true;
+        // 1. Attach all ‘DataAggregate’s in ‘InheritedDAD’ to ‘COperation’ and ‘UCOperartion’ 
         COperation cop = trg.action;
         cop.data.AddRange(InheritedDAD);
+        foreach (DataAggregate da in InheritedDAD) CurrentUCO.parameters.Add(new DataItem(){type = da.name});
         // 2. If ‘ConditionCO’ not empty -> attach ‘ConditionCO’ to ‘Trigger’ as ‘condition’
         if (null != ConditionCO) trg.condition = ConditionCO;
         // 3. If ‘CurrentUCC.name’ is in ‘UcNameToViewFunction’ -> for each matching ‘ViewFunction’ in ‘UcNameToViewFunction’ ->

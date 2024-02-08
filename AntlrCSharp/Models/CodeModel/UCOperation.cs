@@ -13,6 +13,7 @@ namespace CodeModel {
 	public class UCOperation : Operation {
 		public List<Instruction> instructions = new List<Instruction>();
 		public UseCaseClass uc = null;
+        public bool initial = false;
 
 		public UCOperation(){}
 
@@ -25,6 +26,8 @@ namespace CodeModel {
             // CODE: showClientListSelected() {
             string code = ts + GetElemName() + GetParametersCode();
             code += (!string.IsNullOrEmpty(returnType) ? ": " + returnType : "") + " {\n";
+            //   CODE: this.clientType = clientType;
+            if (initial) code += string.Join("", parameters.Select( p => ts + "\tthis." + p.ToVarCode() + " = " + p.ToVarCode() + ";\n" ));
             if (string.IsNullOrEmpty(returnType))
                 foreach (Instruction instr in instructions)
                     code += instr.ToCode(tabs + 1) + "\n";
