@@ -6,24 +6,18 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
-using CodeModel;
 namespace CodeModel {
 	public class Trigger : NamedElement {
+		public COperation action;
+		public COperation condition;
 
-		public CodeModel.COperation action;
-		public CodeModel.COperation condition;
+		public Trigger(){}
 
-		public Trigger(){
-
-		}
-
-		~Trigger(){
-
-		}
-
-	}//end Trigger
-
-}//end namespace CodeModel
+        public string ToCode(int tabs) {
+ 			string ts = Utils.GetTabString(tabs);
+            string code = ts + "<button\n" + ts + "\tonClick={" + action.GetElemName() + "}\n" + ts + ">\n";
+			code += ts + "\t" + Utils.ToTitleCase(name) + "\n" + ts + "</button>";
+			return code;
+        }
+    }
+}

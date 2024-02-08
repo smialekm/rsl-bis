@@ -6,6 +6,7 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
+using System;
 using System.Collections.Generic;
 
 namespace CodeModel {
@@ -21,6 +22,12 @@ namespace CodeModel {
 			return Utils.ToCamelCase(name);
 		}
 
-		public DataAggregate(){}
+        public string ToCode(int tabs){
+ 			string ts = Utils.GetTabString(tabs);
+            string code = "";
+			return code;
+        }
+
+        public DataAggregate(){}
 	}
 }

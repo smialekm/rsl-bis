@@ -13,6 +13,10 @@ public static class Utils {
         return output[0..1].ToLower() + output[1..];
     }
 
+    public static string ToTitleCase(string input){
+        return Ti.ToTitleCase(input);
+    }
+
     public static string GetTabString(int tabs){
 		string tabString = "";
 		for (int i=0; i<tabs; i++) tabString += "\t";
