@@ -1,0 +1,5 @@
+is_global = true
+build_property.RootNamespace = AntlrCSharpTests
+build_property.ProjectDir = D:\Praca\rsl-bis\rsl-bis\AntlrCSharpTests\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 

@@ -35,6 +35,8 @@ namespace CodeModel {
             //   CODE: iCl: IClients;
             code += 0 == services.Count ? "" :
                     string.Join("", services.Select(s => "\t" + ts + s.GetVarName() + ": " + s.GetElemName() + ";\n")) + "\n";
+            //   CODE: returnTo: Function = null;
+            code += ts + "\treturnTo: Function = null;\n\n";
             //   CODE: clientType: ClientType;
             code += 0 == attrs.Count ? "" :
                     string.Join("", attrs.Select(a => "\t" + ts + a.GetVarName() + ": " + a.GetElemName() + ";\n")) + "\n";

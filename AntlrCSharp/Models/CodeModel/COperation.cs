@@ -35,7 +35,10 @@ namespace CodeModel {
 			}
 			// return findClient.PreconditionCheck(role);
 			code += ts + "\t" + (isCondition ? "return " : "") + invoked.uc.GetVarName() + "." + invoked.GetElemName();
-			code += "(" + string.Join(", ", data.Select(da => da.GetVarName())) + ");\n";
+			code += "(" + string.Join(", ", data.Select(da => da.GetVarName()));
+			if (null != returnTo)
+				code += ", " + returnTo.uc.GetVarName() + "." + returnTo.GetElemName();
+			code += ");\n";
 			code += ts + "}\n";
             return code;
         }

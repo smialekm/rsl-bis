@@ -18,16 +18,21 @@ namespace CodeModel {
 		public UCOperation(){}
 
         public override string GetElemName(){
-            return Utils.ToCamelCase(name.Replace("!", ""));
+            return Utils.ToCamelCase(name.Replace("@","at").Replace("!", ""));
         }
 
         public override string ToCode(int tabs){
 			string ts = Utils.GetTabString(tabs);
             // CODE: showClientListSelected() {
-            string code = ts + GetElemName() + GetParametersCode();
-            code += (!string.IsNullOrEmpty(returnType) ? ": " + returnType : "") + " {\n";
+            string code = ts + GetElemName() + "(" + GetParametersCode(false, true);
+            if (initial)  code += (0 != parameters.Count ? ", " : "") + "returnTo: Function = null";
+            code += ")" + (!string.IsNullOrEmpty(returnType) ? ": " + returnType : "") + " {\n";
+            if (initial){
+            //   CODE: if (null != returnTo) this.returnTo = returnTo;
+                code += ts + "\tif (null != returnTo) this.returnTo = returnTo;\n";
             //   CODE: this.clientType = clientType;
-            if (initial) code += string.Join("", parameters.Select( p => ts + "\tthis." + p.ToVarCode() + " = " + p.ToVarCode() + ";\n" ));
+                code += string.Join("", parameters.Select( p => ts + "\tthis." + p.ToVarCode() + " = " + p.ToVarCode() + ";\n" ));
+            }
             if (string.IsNullOrEmpty(returnType))
                 foreach (Instruction instr in instructions)
                     code += instr.ToCode(tabs + 1) + "\n";

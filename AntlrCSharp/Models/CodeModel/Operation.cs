@@ -8,6 +8,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace CodeModel{
 	public abstract class Operation : Generator {
@@ -16,9 +17,9 @@ namespace CodeModel{
 
 		public Operation(){}
 
-		protected string GetParametersCode(bool var = false){
+		protected string GetParametersCode(bool var = false, bool bare = false){
 			IEnumerable<string> pars = var ? parameters.Select(p => p.ToVarCode()) : parameters.Select(p => p.ToCode());
-			return "(" + string.Join(", ", pars) + ")";
+			return (bare ? "" : "(") + string.Join(", ", pars) + (bare ? "" : ")");
 		}
 
 		public string GetVarParametersCode(){

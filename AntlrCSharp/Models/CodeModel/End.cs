@@ -13,7 +13,10 @@ namespace CodeModel {
 		public End(){}
 
         public override string ToCode(int tabs = 0){
-            return "// TODO implement END\n";
+            string ts = Utils.GetTabString(tabs);
+            string code = ts + "if (null != returnTo)";
+            code = ts + "\tthis.returnTo();";
+            return code;
         }
     }
 }
