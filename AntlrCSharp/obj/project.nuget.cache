@@ -1,14 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "ep+DhexYCYZn3UuqHsCObgxW+tsaENyABf8linTsmDnzaLHKS9wmHMJpSNVz+Xrnsp0f6RvXR4t9RrYKR2zsyA==",
+  "dgSpecHash": "2EvbgMg7GLAyTlSUqchJKEIAVVD/Jdv8clE1qanoV6rdUwTYonoPTJMIZvVW4ruSIqSJfWnlM9yoCWO4QYMLsQ==",
   "success": true,
-  "projectFilePath": "D:\\Praca\\rsl-bis\\rsl-bis\\AntlrCSharp\\AntlrCSharp.csproj",
+  "projectFilePath": "c:\\Users\\smial\\MyRepos\\rsl-bis\\AntlrCSharp\\AntlrCSharp.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Kamil\\.nuget\\packages\\antlr4.runtime.standard\\4.13.1\\antlr4.runtime.standard.4.13.1.nupkg.sha512",
-    "C:\\Users\\Kamil\\.nuget\\packages\\microsoft.netcore.app.ref\\3.1.0\\microsoft.netcore.app.ref.3.1.0.nupkg.sha512",
-    "C:\\Users\\Kamil\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\3.1.0\\microsoft.windowsdesktop.app.ref.3.1.0.nupkg.sha512",
-    "C:\\Users\\Kamil\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\3.1.10\\microsoft.aspnetcore.app.ref.3.1.10.nupkg.sha512",
-    "C:\\Users\\Kamil\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\3.1.32\\microsoft.netcore.app.host.win-x64.3.1.32.nupkg.sha512"
+    "C:\\Users\\smial\\.nuget\\packages\\antlr4.runtime.standard\\4.13.1\\antlr4.runtime.standard.4.13.1.nupkg.sha512"
   ],
   "logs": []
 }

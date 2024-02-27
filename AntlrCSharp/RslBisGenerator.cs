@@ -348,8 +348,12 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         ucop.parameters.Add(new DataItem(){type = en.name});
         // 4. If ‘name’ is in ‘UcNameToTrigger’  -> 
         if (UcNameToTrigger.ContainsKey(ucName)){
-            Trigger trg = UcNameToTrigger[ucName];
+            // add the invoked 'UseCaseClass' (corresponding to 'name') to ‘ControllerFuntion’ attached to ‘CurrentVF’ (if necessary);
+            UseCaseClass ucc = result.UseCaseClasses.Find(ucc => ucName == ucc.name);
+            if (!CurrentVF.controller.useCases.Contains(ucc))
+                CurrentVF.controller.useCases.Add(ucc);
             // add ‘Trigger.action’ (copy and attach if necessary) to ‘ControllerFuntion’ attached to ‘CurrentVF’;
+            Trigger trg = UcNameToTrigger[ucName];
             COperation cop = trg.action;
             COperation newcop = new COperation(){invoked = cop.invoked, name = cop.name};
             newcop.data.AddRange(cop.data);
@@ -436,6 +440,8 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         if (null != ConditionCO) trg.condition = ConditionCO;
         // 3. If ‘CurrentUCC.name’ is in ‘UcNameToViewFunction’ -> for each matching ‘ViewFunction’ in ‘UcNameToViewFunction’ ->
         if (UcNameToVF.ContainsKey(CurrentUCC.name)) foreach (ViewFunction vf in UcNameToVF[CurrentUCC.name]){
+            // attach 'CurrentUCC' to 'ControllerFunction' attached to 'ViewFunction' (if necessary)
+            if (!vf.controller.useCases.Contains(CurrentUCC)) vf.controller.useCases.Add(CurrentUCC);
             // add ‘COperation’ (copy and attach if necessary) and ‘ConditionCO’ (if not empty, copy and attach if necessary)
             //    to ‘ControllerFuntion’ attached to ‘ViewFunction’;
             COperation newcop = new COperation(){invoked = cop.invoked, name = cop.name};
