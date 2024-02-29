@@ -348,10 +348,6 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         ucop.parameters.Add(new DataItem(){type = en.name});
         // 4. If ‘name’ is in ‘UcNameToTrigger’  -> 
         if (UcNameToTrigger.ContainsKey(ucName)){
-            // add the invoked 'UseCaseClass' (corresponding to 'name') to ‘ControllerFuntion’ attached to ‘CurrentVF’ (if necessary);
-            UseCaseClass ucc = result.UseCaseClasses.Find(ucc => ucName == ucc.name);
-            if (!CurrentVF.controller.useCases.Contains(ucc))
-                CurrentVF.controller.useCases.Add(ucc);
             // add ‘Trigger.action’ (copy and attach if necessary) to ‘ControllerFuntion’ attached to ‘CurrentVF’;
             Trigger trg = UcNameToTrigger[ucName];
             COperation cop = trg.action;
@@ -367,13 +363,14 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
                 newCondcop.data.AddRange(condcop.data);
                 CurrentVF.controller.functions.Add(newCondcop);
             }
-           // add the ‘Trigger’ (copy if necessary) from the map entry to ‘CurrentVF’;
-           Trigger newtrg = new Trigger(){name = trg.name, action = newcop, condition = newCondcop};
-           CurrentVF.triggers.Add(newtrg);
-           // attach ‘Trigger.action.invoked.uc’ to ‘ControllerFuntion’ attached to ‘CurrentVF’;
-           if (!CurrentVF.controller.useCases.Contains(CurrentUCC)) CurrentVF.controller.useCases.Add(CurrentUCC);
-           // attach ‘UCOperation’ to ‘Trigger.action’ as ‘returnTo’
-           cop.returnTo = ucop;
+            // add the ‘Trigger’ (copy if necessary) from the map entry to ‘CurrentVF’;
+            Trigger newtrg = new Trigger(){name = trg.name, action = newcop, condition = newCondcop};
+            CurrentVF.triggers.Add(newtrg);
+            // attach ‘Trigger.action.invoked.uc’ to ‘ControllerFuntion’ attached to ‘CurrentVF’ (if necessary);
+            if (!CurrentVF.controller.useCases.Contains(cop.invoked.uc))
+                CurrentVF.controller.useCases.Add(cop.invoked.uc);
+            // attach ‘UCOperation’ to ‘Trigger.action’ as ‘returnTo’
+            newcop.returnTo = ucop;
         // 5. else -> add use case ‘name’-to-‘CurrentVF’ to ‘UcNameToViewFunction’;
         } else {
             if (!UcNameToVF.ContainsKey(ucName)) UcNameToVF.Add(ucName, new List<ViewFunction>());
@@ -440,8 +437,6 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         if (null != ConditionCO) trg.condition = ConditionCO;
         // 3. If ‘CurrentUCC.name’ is in ‘UcNameToViewFunction’ -> for each matching ‘ViewFunction’ in ‘UcNameToViewFunction’ ->
         if (UcNameToVF.ContainsKey(CurrentUCC.name)) foreach (ViewFunction vf in UcNameToVF[CurrentUCC.name]){
-            // attach 'CurrentUCC' to 'ControllerFunction' attached to 'ViewFunction' (if necessary)
-            if (!vf.controller.useCases.Contains(CurrentUCC)) vf.controller.useCases.Add(CurrentUCC);
             // add ‘COperation’ (copy and attach if necessary) and ‘ConditionCO’ (if not empty, copy and attach if necessary)
             //    to ‘ControllerFuntion’ attached to ‘ViewFunction’;
             COperation newcop = new COperation(){invoked = cop.invoked, name = cop.name};
@@ -456,10 +451,10 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             }
             // add ‘Trigger’ (copy if necessary);
             Trigger newtrg = new Trigger(){name = trg.name, action = newcop, condition = condcop};
-            // attach ‘CurrentUCC’ to ‘ControllerFunction’ attached to ‘ViewFunction’;
+            // attach ‘CurrentUCC’ to ‘ControllerFunction’ attached to ‘ViewFunction’ (if necessary);
             if (!vf.controller.useCases.Contains(CurrentUCC)) vf.controller.useCases.Add(CurrentUCC);
             // attach matching (‘CurrentUCC.name’ & ‘ViewFunction.name’) ‘UCOperation’ from ‘UcVFToUCOperation’ to ‘COperation’ as ‘return’;
-            UcVFToUCOperation.TryGetValue((CurrentUCC.name, vf.name), out cop.returnTo);
+            UcVFToUCOperation.TryGetValue((CurrentUCC.name, vf.name), out newcop.returnTo);
             // remove ‘UcNameToViewFunction’ and ‘UcVFToUCOperation’ entries
             UcNameToVF.Remove(CurrentUCC.name);
             UcVFToUCOperation.Remove((CurrentUCC.name, vf.name));
