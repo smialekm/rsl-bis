@@ -14,6 +14,8 @@ namespace CodeModel {
 		public ControllerFunction controller;
 		public PresenterClass presenter;
 		public List<Trigger> triggers = new List<Trigger>();
+        string type = "form";
+        string label = null;
 
 		public ViewFunction(){}
 
@@ -30,7 +32,7 @@ namespace CodeModel {
             //   CODE:   pCLW: PClientListWnd,
             code += ts + "\t" + presenter.GetVarName() + ": " + presenter.GetElemName() + ",\n";
             //   ucSCL: UCShowClientList
-            code += string.Join(",", controller.useCases.Select(u => ts + "\t" + u.GetVarName() + ": " + u.GetElemName() + "\n"));
+            code += string.Join(",\n", controller.useCases.Select(u => ts + "\t" + u.GetVarName() + ": " + u.GetElemName())) + "\n";
             // CODE: ) {
             code += ts + ") {\n";
             //   CODE: const emptyState: ClientListWndState = new ClientListWndState();

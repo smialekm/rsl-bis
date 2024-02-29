@@ -10,6 +10,8 @@ namespace CodeModel {
 	public class Trigger : NamedElement {
 		public COperation action;
 		public COperation condition;
+		string type = "button";
+        string label = null;
 
 		public Trigger(){}
 

@@ -24,7 +24,9 @@ namespace CodeModel {
 
         public string ToCode(int tabs){
  			string ts = Utils.GetTabString(tabs);
-            string code = "";
+            string code = ts + "<h2>" + name + "</h2>\n";
+			foreach (DataItem item in fields)
+				code += ts + "\t<label>" + item.name + "</label>\n";
 			return code;
         }
 

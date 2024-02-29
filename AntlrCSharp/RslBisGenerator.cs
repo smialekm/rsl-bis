@@ -44,6 +44,8 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         if (context is RslBisParser.NameContext nameContext) strings = nameContext.STRING();
         else if (context is RslBisParser.NotionContext notionContext) strings = notionContext.STRING();
         else if (context is RslBisParser.ValueContext valueContext) strings = valueContext.STRING();
+        else if (context is RslBisParser.DatatypeContext dataContext) return dataContext.GetText();
+        else if (context is RslBisParser.MultnotionContext multContext) return multContext.GetText();
         else return null;     
         return string.Join(" ", strings.ToList().Select(x => x.GetText()));
     }
@@ -716,6 +718,53 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
                 }
         }
         return null;
+    }
+
+    //*****************************************************************************************************
+    // 15. DATA NOTION
+    //*****************************************************************************************************
+
+    public override IntermediaryRepresentation VisitDatanotion([NotNull] RslBisParser.DatanotionContext context)
+    {
+        if (Verbose) Console.WriteLine("Data notion: " + context.name().GetText());
+        string notionName = ObtainName(context.name());
+        DataAggregate da = result.ViewModel.items.Find(da => notionName == da.name);
+        if (null == da) {
+            da = new DataAggregate(){name = notionName};
+            result.ViewModel.items.Add(da);
+        }
+        AddDataItems(da,context.attributes());
+        return result;
+    }
+
+    private void AddDataItems(DataAggregate da, RslBisParser.AttributesContext context){
+        if (null == context) return;
+        string itemName = ObtainName(context.attribute().name());
+        string typeName = null;
+        if (null != context.attribute().datatype()) typeName = ObtainName(context.attribute().datatype());
+        else if (null != context.attribute().notion()) typeName = ObtainName(context.attribute().notion());
+        else if (null != context.attribute().multnotion()) typeName = ObtainName(context.attribute().multnotion());
+        DataItem di = new DataItem(){name = itemName, type = typeName};
+        da.fields.Add(di);
+        AddDataItems(da,context.attributes());
+    }
+
+    //*****************************************************************************************************
+    // 15. TRIGGER NOTION
+    //*****************************************************************************************************
+
+    public override IntermediaryRepresentation VisitTriggernotion([NotNull] RslBisParser.TriggernotionContext context)
+    {
+        return base.VisitTriggernotion(context);
+    }
+
+    //*****************************************************************************************************
+    // 15. VIEW NOTION
+    //*****************************************************************************************************
+
+    public override IntermediaryRepresentation VisitViewnotion([NotNull] RslBisParser.ViewnotionContext context)
+    {
+        return base.VisitViewnotion(context);
     }
 
     //*****************************************************************************************************
