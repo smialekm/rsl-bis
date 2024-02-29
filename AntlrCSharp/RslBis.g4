@@ -1,6 +1,6 @@
 grammar RslBis;
 
-start: usecase+ dnotion* EOF
+start: usecase+ notiondef* EOF
     ;
 
 usecase:
@@ -155,8 +155,32 @@ invoke:
     '<invoke>' name
     ;
 
-dnotion:
-    ('Frame' | 'Trigger' | 'Data') STRING+ ((':' STRING) | ('{' attributes '}'))
+notiondef:
+    viewnotion | triggernotion | datanotion
+    ;
+
+viewnotion: 
+    'View' '*' viewtype '*' namesandlabels
+    ;
+
+viewtype:
+    STRING
+    ;
+
+triggernotion: 
+    'Trigger' ('*' triggertype '*')? namesandlabels
+    ;
+
+triggertype:
+    STRING
+    ;
+
+namesandlabels:
+    name ('{' STRING+ '}')? (',' namesandlabels)?
+    ;
+
+datanotion: 
+    'Data' name '{' attributes '}'
     ;
 
 attributes:
@@ -164,7 +188,15 @@ attributes:
     ;
 
 attribute:
-    STRING+ ':' STRING
+    name ':' (datatype | notion | multnotion)
+    ;
+
+multnotion:
+    '[' notion ']'
+    ;
+
+datatype:
+    'integer' | 'float' | 'text' | 'boolean' | 'time' | 'date'
     ;
 
 actor:

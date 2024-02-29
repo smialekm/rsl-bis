@@ -254,11 +254,47 @@ public interface IRslBisVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitInvoke([NotNull] RslBisParser.InvokeContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="RslBisParser.dnotion"/>.
+	/// Visit a parse tree produced by <see cref="RslBisParser.notiondef"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitDnotion([NotNull] RslBisParser.DnotionContext context);
+	Result VisitNotiondef([NotNull] RslBisParser.NotiondefContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="RslBisParser.viewnotion"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitViewnotion([NotNull] RslBisParser.ViewnotionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="RslBisParser.viewtype"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitViewtype([NotNull] RslBisParser.ViewtypeContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="RslBisParser.triggernotion"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitTriggernotion([NotNull] RslBisParser.TriggernotionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="RslBisParser.triggertype"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitTriggertype([NotNull] RslBisParser.TriggertypeContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="RslBisParser.namesandlabels"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitNamesandlabels([NotNull] RslBisParser.NamesandlabelsContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="RslBisParser.datanotion"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDatanotion([NotNull] RslBisParser.DatanotionContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="RslBisParser.attributes"/>.
 	/// </summary>
@@ -271,6 +307,18 @@ public interface IRslBisVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitAttribute([NotNull] RslBisParser.AttributeContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="RslBisParser.multnotion"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitMultnotion([NotNull] RslBisParser.MultnotionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="RslBisParser.datatype"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDatatype([NotNull] RslBisParser.DatatypeContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="RslBisParser.actor"/>.
 	/// </summary>

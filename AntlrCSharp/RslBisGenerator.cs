@@ -250,12 +250,12 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     }
 
     //*****************************************************************************************************
-    // 5. SYSTEM-TO-SCREEN SENTENCE
+    // 5. SYSTEM-TO-VIEW SENTENCE
     //*****************************************************************************************************
 
     public override IntermediaryRepresentation VisitShowpredicate([NotNull] RslBisParser.ShowpredicateContext context)
     {
-        if (Verbose) Console.WriteLine(CurrentLabel + ": System-to-Screen predicate: " + context.GetText());
+        if (Verbose) Console.WriteLine(CurrentLabel + ": System-to-View predicate: " + context.GetText());
         // 1. Create ‘ViewFunction’ (if does not exist) based on ‘notion’; set it as ‘CurrentVF’
         string notionName = ObtainName(context.notion());
         ViewFunction vf = result.ViewFunctions.Find(x => notionName == x.name);
