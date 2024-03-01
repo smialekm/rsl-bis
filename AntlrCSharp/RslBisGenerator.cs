@@ -305,6 +305,8 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     public override IntermediaryRepresentation VisitEnterpredicate([NotNull] RslBisParser.EnterpredicateContext context)
     {
         if (Verbose) Console.WriteLine(CurrentLabel + ": Actor-to-Data predicate: " + context.GetText());
+        if (null == CurrentVF)
+            throw new Exception("Unexpected <enter> sentence");
         // 1. Create ‘DataAggregate’ (if does not exist) based on ‘notion’; add it to ‘CurrentDAD’; 
         // attach it to ‘ViewModel’; attach it to ‘CurrentVF’
         string notionName = ObtainName(context.notion());
@@ -314,6 +316,8 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             result.ViewModel.items.Add(da);
         }
         CurrentDAD.Add(da);
+        if (!CurrentVF.data.Contains(da)) CurrentVF.data.Add(da);
+        CurrentVF.editable.Add(da);
         // 2. Append ‘label’-to-‘CurrentVF’ to ‘LabelToVF’
         LabelToVF.Add(CurrentLabel,CurrentVF);
 

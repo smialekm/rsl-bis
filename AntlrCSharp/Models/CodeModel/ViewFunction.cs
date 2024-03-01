@@ -11,6 +11,7 @@ using System.Linq;
 namespace CodeModel {
 	public class ViewFunction : FileGenerator {
 		public List<DataAggregate> data = new List<DataAggregate>();
+        public List<DataAggregate> editable = new List<DataAggregate>();
 		public ControllerFunction controller;
 		public PresenterClass presenter;
 		public List<Trigger> triggers = new List<Trigger>();
