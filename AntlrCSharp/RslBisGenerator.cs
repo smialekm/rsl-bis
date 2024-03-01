@@ -140,7 +140,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         string notionName = ObtainName(context.notion());
         // 1. Create ‘DataItem’ (‘parameter’; type as ‘notion’); add ‘DataItem’ to ‘ConditionCO.invoked’ ('UCOperation');
         // attach ‘DataAggregate’ to ‘ConditionCO’ (as ‘data’)
-        DataItem di = new DataItem() {type = notionName};
+        CodeModel.Parameter di = new CodeModel.Parameter() { type = notionName};
         ConditionCO.invoked.parameters.Add(di);
         ConditionCO.data.Add(da);
         // 2. Create ‘ServiceInterface’ (if does not exist) based on ‘notion’; attach it to ‘CurrentUCC’
@@ -238,7 +238,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             // 4. For each ‘DataAggregate’ in ‘CurrentDAD’+’InheritedDAD’ create a ‘DataItem’ (‘parameter’; type as ‘DataAggregate’ name);
             //    add the ‘DataItems’ to the ‘SOperation’
             foreach (DataAggregate xd in Enumerable.Concat(CurrentDAD,InheritedDAD)){
-                DataItem di = new DataItem() {type = xd.name};
+                CodeModel.Parameter di = new CodeModel.Parameter() { type = xd.name};
                 sop.parameters.Add(di);
             }
             si.signatures.Add(sop);
@@ -280,7 +280,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         POperation pop = new POperation(){name = "show! " + notionName, pres = vf.presenter};
         // 6. For each ‘DataAggregate’ in ‘CurrentDAP’ add a ‘DataItem’ (‘parameter’; type as ‘DataAggregate’ name);
         // attach the ‘DataItems’ to the ‘POperation’
-        foreach (DataAggregate da in CurrentDAP) pop.parameters.Add(new DataItem(){type = da.name});
+        foreach (DataAggregate da in CurrentDAP) pop.parameters.Add(new CodeModel.Parameter(){ type = da.name});
         POperation ppop = vf.presenter.methods.Find(x => pop.Equals(x)); // TODO - implement POperation.Equals
         if (null != ppop) pop = ppop;
         else vf.presenter.methods.Add(pop);
@@ -351,7 +351,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             result.ViewModel.enums.Add(en);
         }
         // 3. Create ‘DataItem’ (‘parameter’; type as ‘Enumeration’); add it to 'UCOperation’
-        ucop.parameters.Add(new DataItem(){type = en.name});
+        ucop.parameters.Add(new CodeModel.Parameter(){ type = en.name});
         // 4. If ‘name’ is in ‘UcNameToTrigger’  -> 
         if (UcNameToTrigger.ContainsKey(ucName)){
             // add ‘Trigger.action’ (copy and attach if necessary) to ‘ControllerFuntion’ attached to ‘CurrentVF’;
@@ -414,7 +414,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         UCOperation ucop = new UCOperation(){name = ucopName, uc = CurrentUCC};
         // 5. For each ‘DataAggregate’ in ‘CurrentDAD’ create a ‘DataItem’ (‘parameters’; type as ‘DataAggregate’ name);
         //    add the ‘DataItems’ to the ‘UCOperation’
-        foreach (DataAggregate da in CurrentDAD) ucop.parameters.Add(new DataItem(){type = da.name});
+        foreach (DataAggregate da in CurrentDAD) ucop.parameters.Add(new CodeModel.Parameter(){ type = da.name});
         // 6. Add ‘UCOperation’ to the ‘CurrentUCC’; attach it to ‘COperation’ (as ‘invoked’)
         CurrentUCC.methods.Add(ucop); cop.invoked = ucop;
         // 7. Set ‘UCOperation’ as ‘CurrentUCO’
@@ -438,7 +438,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         // 1. Attach all ‘DataAggregate’s in ‘InheritedDAD’ to ‘COperation’ and ‘UCOperartion’ 
         COperation cop = trg.action;
         cop.data.AddRange(InheritedDAD);
-        foreach (DataAggregate da in InheritedDAD) CurrentUCO.parameters.Add(new DataItem(){type = da.name});
+        foreach (DataAggregate da in InheritedDAD) CurrentUCO.parameters.Add(new CodeModel.Parameter(){ type = da.name});
         // 2. If ‘ConditionCO’ not empty -> attach ‘ConditionCO’ to ‘Trigger’ as ‘condition’
         if (null != ConditionCO) trg.condition = ConditionCO;
         // 3. If ‘CurrentUCC.name’ is in ‘UcNameToViewFunction’ -> for each matching ‘ViewFunction’ in ‘UcNameToViewFunction’ ->
@@ -517,15 +517,15 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             sop = new SOperation(){name = verb + "! " + notionName, 
                     type = "check" == verb ? PredicateType.Check : PredicateType.Execute, si = si};
             // 3. Create ‘DataItem’ based on ‘notion’; add it to ‘SOperation’
-            DataItem di;
+            CodeModel.Parameter di;
             if ("execute" != verb) {
-                di = new DataItem() {type = notionName};
+                di = new CodeModel.Parameter() { type = notionName};
                 sop.parameters.Add(di);
             }
             // 4. For each ‘DataAggregate’ in ‘InheritedDAD’ create a ‘DataItem’ (‘parameter’; type as ‘DataAggregate’ name);
             //    add the ‘DataItems’ to the ‘SOperation’
             foreach (DataAggregate xd in "execute" != verb ? InheritedDAD : Enumerable.Concat(CurrentDAD,InheritedDAD)){
-                di = new DataItem() {type = xd.name};
+                di = new CodeModel.Parameter() { type = xd.name};
                 sop.parameters.Add(di);
             }
             si.signatures.Add(sop);
@@ -745,10 +745,15 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         if (null == context) return;
         string itemName = ObtainName(context.attribute().name());
         string typeName = null;
-        if (null != context.attribute().datatype()) typeName = ObtainName(context.attribute().datatype());
-        else if (null != context.attribute().notion()) typeName = ObtainName(context.attribute().notion());
-        else if (null != context.attribute().multnotion()) typeName = ObtainName(context.attribute().multnotion());
-        DataItem di = new DataItem(){name = itemName, type = typeName};
+        TypeKind tk;
+        if (null != context.attribute().datatype()) {
+            typeName = ObtainName(context.attribute().datatype()); tk = TypeKind.Primitive;
+        } else if (null != context.attribute().notion()) {
+            typeName = ObtainName(context.attribute().notion()); tk = TypeKind.Simple;
+        } else if (null != context.attribute().multnotion()) {
+            typeName = ObtainName(context.attribute().multnotion().notion()); tk = TypeKind.Multiple;
+        } else throw new Exception("Critical error");
+        DataItem di = new DataItem(){ name = itemName, type = typeName, typekind = tk};
         da.fields.Add(di);
         AddDataItems(da,context.attributes());
     }

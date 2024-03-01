@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CodeModel {
 	public class DataAggregate : NamedElement {
@@ -22,13 +23,21 @@ namespace CodeModel {
 			return Utils.ToCamelCase(name);
 		}
 
-        public string ToCode(int tabs){
+        public string ToHtml(int tabs, bool editable){
  			string ts = Utils.GetTabString(tabs);
             string code = ts + "<h2>" + name + "</h2>\n";
 			foreach (DataItem item in fields)
 				code += ts + "\t<label>" + item.name + "</label>\n";
 			return code;
         }
+
+		public string ToCode(int tabs){
+			string ts = Utils.GetTabString(tabs);
+            string code = ts + "export type " + GetElemName() + " = {\n";
+			code += string.Join("", fields.Select(di => di.ToCode(tabs+1) + "\n"));
+			code += ts + "}\n";
+			return code;
+		}
 
         public DataAggregate(){}
 	}

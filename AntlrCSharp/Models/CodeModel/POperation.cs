@@ -19,7 +19,7 @@ namespace CodeModel {
         public override string ToCode(int tabs){
 			string ts = Utils.GetTabString(tabs);
             string code = ts + GetElemName() + GetParametersCode() + "{\n";
-            foreach (DataItem da in parameters)
+            foreach (Parameter da in parameters)
                 code += ts + "\tthis.state." + da.ToVarCode() + " = " + da.ToVarCode() + ";\n";
             code += ts + "\tthis.gUpdateView?.(ScreenId." + pres.GetElemName().ToUpper().Substring(1) + ");\n" + ts + "}";
             return code;

@@ -13,7 +13,7 @@ using System.Threading;
 namespace CodeModel{
 	public abstract class Operation : Generator {
 		public string returnType = null;
-		public List<DataItem> parameters = new List<DataItem>();
+		public List<Parameter> parameters = new List<Parameter>();
 
 		public Operation(){}
 

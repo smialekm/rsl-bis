@@ -53,7 +53,7 @@ namespace CodeModel {
             //     CODE: <div className="ClientListWnd">
             code += ts + "\t\t<div className=\"" + windowName + "\">\n";
             
-            code += 0 == data.Count() ? "" : string.Join("", data.Select(da => da.ToCode(tabs + 3) + "\n"));
+            code += 0 == data.Count() ? "" : string.Join("", data.Select(da => da.ToHtml(tabs + 3, editable.Contains(da)) + "\n"));
 
             code += 0 == triggers.Count() ? "" : string.Join("", triggers.Select(tr => tr.ToCode(tabs + 3) + "\n"));
 

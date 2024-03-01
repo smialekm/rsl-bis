@@ -38,6 +38,7 @@ namespace AntlrCSharp
                 foreach (FileGenerator file in result.ServiceInterfaces){
                     file.ToFile(mainPath + "services");
                 }
+                result.ViewModel.ToFile(mainPath + "viewmodel");
             }
             catch (Exception ex)
             {

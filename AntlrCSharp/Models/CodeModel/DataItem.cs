@@ -6,21 +6,41 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-using CodeModel;
+using System.ComponentModel;
+
 namespace CodeModel {
 	public class DataItem : NamedElement {
 		public string type;
+		public TypeKind? typekind = null;
 
 		public DataItem(){}
 
-		public string ToCode(int i = 0, bool var = false){
-			string code = Utils.ToCamelCase(type) + (i>0 ? i.ToString() : "");
-			if (!var) code += ": " + Utils.ToPascalCase(type);
-			return code;
+		public string ToCode(int tabs = 0){
+			string ts = Utils.GetTabString(tabs);
+			string code = ts + Utils.ToCamelCase(name) + ": ";
+			if (TypeKind.Primitive != typekind) code += Utils.ToPascalCase(type) + (TypeKind.Simple == typekind ? "" : "[]");
+			else {
+				switch (type) {
+					case "integer": code += "bigint";
+					break;
+					case "float": code += "number";
+					break;
+					case "text": code += "string";
+					break;
+					case "boolean": code += "boolean";
+					break;
+					case "time":
+					case "date": code += "Date";
+					break;
+				}
+			}
+			return code + ";";
 		}
+	}
 
-		public string ToVarCode(int i = 0){
-			return ToCode(i, true);
-		}
+	public enum TypeKind {
+		Primitive,
+		Simple,
+		Multiple
 	}
 }

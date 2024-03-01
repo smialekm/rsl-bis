@@ -7,6 +7,7 @@
 ///////////////////////////////////////////////////////////
 
 using System.Collections.Generic;
+using System.Linq;
 namespace CodeModel {
 	public class ViewModel : FileGenerator {
 		public List<DataAggregate> items = new List<DataAggregate>();
@@ -15,16 +16,17 @@ namespace CodeModel {
 		public ViewModel(){}
 
         public override string GetElemName(){
-            throw new System.NotImplementedException();
+            return Utils.ToPascalCase(name);
         }
 
         public override string ToCode(int tabs){
  			string ts = Utils.GetTabString(tabs);
-            throw new System.NotImplementedException();
+            string code = string.Join("\n", items.Select(da => da.ToCode(tabs)));
+            return code;
         }
 
         protected override string GetFileName(){
-            return "Types";
+            return "View Model";
         }
     }
 }
