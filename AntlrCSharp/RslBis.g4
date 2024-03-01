@@ -176,7 +176,7 @@ triggertype:
     ;
 
 namesandlabels:
-    name ('{' STRING+ '}')? (',' namesandlabels)?
+    name ('{' uilabel '}')? (',' namesandlabels)?
     ;
 
 datanotion: 
@@ -212,6 +212,10 @@ value:
     ;
 
 name:
+    STRING+
+    ;
+
+uilabel:
     STRING+
     ;
 

@@ -17,6 +17,10 @@ public static class Utils {
         return Ti.ToTitleCase(input);
     }
 
+    public static string ToUpperCase(string input){
+        return Ti.ToUpper(input).Replace(" ", "");
+    }
+
     public static string GetTabString(int tabs){
 		string tabString = "";
 		for (int i=0; i<tabs; i++) tabString += "\t";

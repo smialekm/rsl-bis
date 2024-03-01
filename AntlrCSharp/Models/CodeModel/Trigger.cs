@@ -10,15 +10,15 @@ namespace CodeModel {
 	public class Trigger : NamedElement {
 		public COperation action;
 		public COperation condition;
-		string type = "button";
-        string label = null;
+		public string type = "button";
+        public string label = null;
 
 		public Trigger(){}
 
         public string ToCode(int tabs) {
  			string ts = Utils.GetTabString(tabs);
-            string code = ts + "<button\n" + ts + "\tonClick={" + action.GetElemName() + "}\n" + ts + ">\n";
-			code += ts + "\t" + Utils.ToTitleCase(name) + "\n" + ts + "</button>";
+            string code = ts + "<" + type + "\n" + ts + "\tonClick={" + action.GetElemName() + "}\n" + ts + ">\n";
+			code += ts + "\t" + Utils.ToTitleCase(name) + "\n" + ts + "</" + type + ">";
 			return code;
         }
     }

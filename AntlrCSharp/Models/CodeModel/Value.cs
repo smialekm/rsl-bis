@@ -6,21 +6,14 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
-
-
-
-using CodeModel;
 namespace CodeModel {
 	public class Value : NamedElement {
 
 		public Value(){
-
 		}
 
-		~Value(){
-
+		public string GetElemName(){
+			return Utils.ToUpperCase(name);
 		}
-
-	}//end Value
-
-}//end namespace CodeModel
+	}
+}

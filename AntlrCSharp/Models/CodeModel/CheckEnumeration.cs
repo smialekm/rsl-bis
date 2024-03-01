@@ -7,6 +7,7 @@
 ///////////////////////////////////////////////////////////
 
 using System.Collections.Generic;
+using System.Linq;
 namespace CodeModel {
 	public class CheckEnumeration : NamedElement {
 		public List<Value> values = new List<Value>();
@@ -20,5 +21,13 @@ namespace CodeModel {
 		public string GetVarName(){
             return Utils.ToCamelCase(name.Replace("!", ""));
         }
+
+		public string ToCode(int tabs = 0){
+			string ts = Utils.GetTabString(tabs);
+			string code = ts + "export enum " + GetElemName() + " = {\n";
+			code += string.Join(",\n", values.Select(v => ts + "\t" + v.GetElemName())) + "\n";
+			code += ts + "}\n";
+			return code;
+		}
 	}
 }

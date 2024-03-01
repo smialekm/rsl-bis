@@ -344,6 +344,12 @@ public interface IRslBisVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitName([NotNull] RslBisParser.NameContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="RslBisParser.uilabel"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitUilabel([NotNull] RslBisParser.UilabelContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="RslBisParser.label"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

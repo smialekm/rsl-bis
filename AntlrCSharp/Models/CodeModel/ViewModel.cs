@@ -21,7 +21,8 @@ namespace CodeModel {
 
         public override string ToCode(int tabs){
  			string ts = Utils.GetTabString(tabs);
-            string code = string.Join("\n", items.Select(da => da.ToCode(tabs)));
+            string code = string.Join("", enums.Select(en => en.ToCode(tabs) + "\n"));
+            code += string.Join("\n", items.Select(da => da.ToCode(tabs)));
             return code;
         }
 

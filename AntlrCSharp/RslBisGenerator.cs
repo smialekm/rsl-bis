@@ -46,6 +46,8 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         else if (context is RslBisParser.ValueContext valueContext) strings = valueContext.STRING();
         else if (context is RslBisParser.DatatypeContext dataContext) return dataContext.GetText();
         else if (context is RslBisParser.MultnotionContext multContext) return multContext.GetText();
+        else if (context is RslBisParser.TriggertypeContext trgContext) return trgContext.GetText();
+        else if (context is RslBisParser.ViewtypeContext vContext) return vContext.GetText();
         else return null;     
         return string.Join(" ", strings.ToList().Select(x => x.GetText()));
     }
@@ -764,7 +766,19 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
 
     public override IntermediaryRepresentation VisitTriggernotion([NotNull] RslBisParser.TriggernotionContext context)
     {
-        return base.VisitTriggernotion(context);
+        string trgType = ObtainName(context.triggertype());
+        SetTriggerDetails(trgType, context.namesandlabels());
+        return result;
+    }
+
+    private void SetTriggerDetails(string trgType, RslBisParser.NamesandlabelsContext context){
+        if (null == context) return;
+        string trgName = ObtainName(context.name());
+        Trigger trg = result.ViewFunctions.SelectMany(vf => vf.triggers).ToList().Find(t => trgName == t.name);
+        if (null == trg) throw new Exception("Unexpected trigger definition");
+        if (null != trgType) trg.type = trgType;
+        if (null != context.uilabel()) trg.label = ObtainName(context.uilabel());
+        SetTriggerDetails(trgType, context.namesandlabels());
     }
 
     //*****************************************************************************************************
