@@ -25,7 +25,8 @@ namespace CodeModel {
 			return Utils.ToCamelCase(name);
 		}
 
-		public string ToHtml(string parentName, bool editable, int tabs = 0, int hLevel = 4){
+		public string ToHtml(string parentPath, bool editable, int tabs = 0, int hLevel = 4){
+			if (6 < hLevel) throw new System.Exception("To many levels of indentation in " + parentPath);
 			string ts = Utils.GetTabString(tabs);
 			string code = "";
 			if (TypeKind.Primitive == typeKind) {
@@ -34,18 +35,18 @@ namespace CodeModel {
 				code = ts + "<label>" + name + "</label>\n";
 				code += ts + "<input\n";
 				code += ts + "\ttype=\"" + itemType + "\"\n";
-				code += ts + "\tvalue={viewState." + parentName + "." + GetVarName() + "}\n";
+				code += ts + "\tvalue={viewState." + parentPath + "." + GetVarName() + "}\n";
 				code += ts + "\tonChange={(e) => {\n";
-				code += ts + "\t\t" + parentName + "." + GetVarName() + " = e.target.value;\n";
-				code += ts + "\t\tupdateView(\"" + parentName + "_" + name + "\")\n";
+				code += ts + "\t\tviewState." + parentPath + "." + GetVarName() + " = e.target.value;\n";
+				code += ts + "\t\tupdateView(\"" + parentPath.Replace(".", "_") + "_" + name + "\")\n";
 				code += ts + "\t}\n";
 				code += ts + "/>\n";
 			} else if (null != baseType){
 				if (TypeKind.Simple == typeKind) {
 					code = ts + "<h" + hLevel + ">" + name + "</h" + hLevel + ">\n";
-					code += baseType.ToHtml(editable, tabs, hLevel);
+					code += baseType.ToHtml(editable, tabs, hLevel, parentPath + "." + GetVarName());
 				} else if (TypeKind.Multiple == typeKind) {
-					code = "";
+					code = baseType.ToHtmlTable(tabs, parentPath + "." + GetVarName());
 				} else throw new System.Exception("Critical error");
 			}
 			return code;

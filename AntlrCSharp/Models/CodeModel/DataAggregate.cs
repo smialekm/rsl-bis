@@ -23,9 +23,9 @@ namespace CodeModel {
 			return Utils.ToCamelCase(name);
 		}
 
-        public string ToHtml(bool editable, int tabs = 0, int hLevel = 3){
+        public string ToHtml(bool editable, int tabs = 0, int hLevel = 3, string parentPath = null){
  			string ts = Utils.GetTabString(tabs);
-			string varName = GetVarName();
+			string varName = null == parentPath ? GetVarName() : parentPath;
             string code = "";
 			if (3 >= hLevel)
 				code += ts + "<h" + hLevel + ">" + name + "</h" + hLevel+ ">\n";
@@ -33,6 +33,23 @@ namespace CodeModel {
 				code += item.ToHtml(varName, editable, tabs + 1, hLevel + 1);
 			return code;
         }
+
+		public string ToHtmlTable(int tabs = 0, string parentPath = null) {
+ 			string ts = Utils.GetTabString(tabs);
+			string code = ts + "<table className=\"table table-striped table-bordered\">\n";
+			code += ts + "\t<thead>\n" + ts + "\t\t<tr>\n";
+			code += string.Join("", fields.Select(f => (TypeKind.Primitive == f.typeKind) ? ts + "\t\t\t<th>" + f.name + "</th>\n" : ""));
+			code += ts + "\t\t</tr>\n" + ts + "\t</thead>\n";
+			code += ts + "\t<tbody>\n";
+			code += ts + "\t\t{viewState." + parentPath + " &&\n";
+			code += ts + "\t\t viewState." + parentPath + ".map((value,index) => (\n";
+			code += ts + "\t\t\t<tr key={index}>\n";
+			code += string.Join("", fields.Select(f => (TypeKind.Primitive == f.typeKind) ? ts + "\t\t\t\t<td>{value." + f.name + "}</td>\n" : ""));
+			code += ts + "\t\t\t</tr>\n" + ts + "\t\t))}\n";
+			code += ts + "\t</tbody>\n";
+			code += ts + "</table>\n";
+			return code;
+		}
 
 		public string ToCode(int tabs){
 			string ts = Utils.GetTabString(tabs);
