@@ -30,6 +30,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     Dictionary<string,Trigger> UcNameToTrigger {get; set;} = new Dictionary<string, Trigger>();
     Dictionary<string,List<ViewFunction>> UcNameToVF {get; set;} = new Dictionary<string, List<ViewFunction>>();
     Dictionary<(string,string),UCOperation> UcVFToUCOperation {get; set;} = new Dictionary<(string, string), UCOperation>();
+    DataAggregate CurrentViewAggregate = null;
 
     // Configuration
 
@@ -56,6 +57,8 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     public override IntermediaryRepresentation VisitStart([NotNull] RslBisParser.StartContext context)
     {
         if (Verbose) Console.WriteLine("Starting processing RSL specification");
+        CheckEnumeration screenIdEnum = new CheckEnumeration(){name = "ScreenId"};
+        result.ViewModel.enums.Add(screenIdEnum);
         object childResult = base.VisitStart(context);
         return result;
     }
@@ -272,12 +275,19 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             PresenterClass pc = new PresenterClass(){name = notionName};
             CurrentUCC.presenters.Add(pc);
             vf = new ViewFunction(){name = notionName, controller = cf, presenter = pc};
+            CheckEnumeration screenIdEnum = result.ViewModel.enums.Find(e => "ScreenId" == e.name);
+            screenIdEnum.values.Add(new Value(){name = Utils.ToUpperCase(notionName)});
             // 4. If (does not exist) -> Attach all ‘DataAggregate’s in ‘CurrentDAP’ to the ‘ViewFunction’
             vf.data.AddRange(CurrentDAP);
             result.ViewFunctions.Add(vf);
             result.PresenterClasses.Add(pc);
             result.ControllerFunctions.Add(cf);
-        }
+            CurrentViewAggregate = new DataAggregate(){name = notionName + " State"};
+            result.ViewModel.items.Add(CurrentViewAggregate);
+            CurrentViewAggregate.fields.AddRange(CurrentDAP.Select(da => new DataItem()
+                {name = da.name, type = da.name, typeKind = TypeKind.Simple, baseType = da}));
+        } else
+            CurrentViewAggregate = result.ViewModel.items.Find(da => notionName + " State" == da.name);
         CurrentVF = vf;
         // 5. Create ‘POperation’ based on ‘notion’; add it to ‘PresenterClass’
         POperation pop = new POperation(){name = "show! " + notionName, pres = vf.presenter};
@@ -319,7 +329,11 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             result.ViewModel.items.Add(da);
         }
         CurrentDAD.Add(da);
-        if (!CurrentVF.data.Contains(da)) CurrentVF.data.Add(da);
+        if (!CurrentVF.data.Contains(da)) {
+            CurrentVF.data.Add(da);
+            CurrentViewAggregate.fields.Add(new DataItem()
+                {name = da.name, type = da.name, typeKind = TypeKind.Simple, baseType = da});
+        }
         CurrentVF.editable.Add(da);
         // 2. Append ‘label’-to-‘CurrentVF’ to ‘LabelToVF’
         LabelToVF.Add(CurrentLabel,CurrentVF);
