@@ -25,9 +25,9 @@ namespace CodeModel {
 			return Utils.ToCamelCase(name);
 		}
 
-		public string ToHtml(string parentName, int tabs = 0){
+		public string ToHtml(string parentName, bool editable, int tabs = 0, int hLevel = 4){
 			string ts = Utils.GetTabString(tabs);
-			string code;
+			string code = "";
 			if (TypeKind.Primitive == typeKind) {
 				string itemType = "text";
 				// TODO switch
@@ -40,11 +40,14 @@ namespace CodeModel {
 				code += ts + "\t\tupdateView(\"" + parentName + "_" + name + "\")\n";
 				code += ts + "\t}\n";
 				code += ts + "/>\n";
-			} else if (TypeKind.Simple == typeKind){
-				code = "";
-			} else if (TypeKind.Multiple == typeKind){
-				code = "";
-			} else throw new System.Exception("Critical error");
+			} else if (null != baseType){
+				if (TypeKind.Simple == typeKind) {
+					code = ts + "<h" + hLevel + ">" + name + "</h" + hLevel + ">\n";
+					code += baseType.ToHtml(editable, tabs, hLevel);
+				} else if (TypeKind.Multiple == typeKind) {
+					code = "";
+				} else throw new System.Exception("Critical error");
+			}
 			return code;
 		}
 

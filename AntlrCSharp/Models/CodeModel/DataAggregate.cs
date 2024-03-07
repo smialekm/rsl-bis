@@ -23,12 +23,14 @@ namespace CodeModel {
 			return Utils.ToCamelCase(name);
 		}
 
-        public string ToHtml(int tabs, bool editable){
+        public string ToHtml(bool editable, int tabs = 0, int hLevel = 3){
  			string ts = Utils.GetTabString(tabs);
 			string varName = GetVarName();
-            string code = ts + "<h3>" + name + "</h3>\n";
+            string code = "";
+			if (3 >= hLevel)
+				code += ts + "<h" + hLevel + ">" + name + "</h" + hLevel+ ">\n";
 			foreach (DataItem item in fields)
-				code += item.ToHtml(varName, tabs+1);
+				code += item.ToHtml(varName, editable, tabs + 1, hLevel + 1);
 			return code;
         }
 

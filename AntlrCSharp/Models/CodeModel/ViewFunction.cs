@@ -55,7 +55,7 @@ namespace CodeModel {
              //       CODE: <h2>Client list</h2>
             if (!string.IsNullOrEmpty(label)) code += ts + "\t\t\t<h2>" + label + "</h2>\n";
             
-            code += 0 == data.Count() ? "" : string.Join("", data.Select(da => da.ToHtml(tabs + 3, editable.Contains(da)) + "\n"));
+            code += 0 == data.Count() ? "" : string.Join("", data.Select(da => da.ToHtml(editable.Contains(da), tabs + 3) + "\n"));
 
             code += 0 == triggers.Count() ? "" : string.Join("", triggers.Select(tr => tr.ToCode(tabs + 3) + "\n"));
 

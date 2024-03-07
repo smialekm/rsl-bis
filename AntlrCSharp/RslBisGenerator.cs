@@ -757,7 +757,10 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             typeName = ObtainName(context.attribute().multnotion().notion()); tk = TypeKind.Multiple;
         } else throw new Exception("Critical error");
         DataAggregate baseType = null;
-        if (TypeKind.Primitive != tk) baseType = result.ViewModel.items.Find(t => typeName == t.name);
+        if (TypeKind.Primitive != tk) {
+            baseType = result.ViewModel.items.Find(t => typeName == t.name);
+            if (null == baseType) throw new Exception("Unknown domain notion: " + typeName);
+        }
         DataItem di = new DataItem(){ name = itemName, type = typeName, typeKind = tk, baseType = baseType};
         da.fields.Add(di);
         AddDataItems(da,context.attributes());
