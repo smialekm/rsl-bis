@@ -44,6 +44,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         if (context is RslBisParser.NameContext nameContext) strings = nameContext.STRING();
         else if (context is RslBisParser.NotionContext notionContext) strings = notionContext.STRING();
         else if (context is RslBisParser.ValueContext valueContext) strings = valueContext.STRING();
+        else if (context is RslBisParser.UilabelContext uiContext) strings = uiContext.STRING();
         else if (context is RslBisParser.DatatypeContext dataContext) return dataContext.GetText();
         else if (context is RslBisParser.MultnotionContext multContext) return multContext.GetText();
         else if (context is RslBisParser.TriggertypeContext trgContext) return trgContext.GetText();
@@ -755,7 +756,9 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         } else if (null != context.attribute().multnotion()) {
             typeName = ObtainName(context.attribute().multnotion().notion()); tk = TypeKind.Multiple;
         } else throw new Exception("Critical error");
-        DataItem di = new DataItem(){ name = itemName, type = typeName, typekind = tk};
+        DataAggregate baseType = null;
+        if (TypeKind.Primitive != tk) baseType = result.ViewModel.items.Find(t => typeName == t.name);
+        DataItem di = new DataItem(){ name = itemName, type = typeName, typeKind = tk, baseType = baseType};
         da.fields.Add(di);
         AddDataItems(da,context.attributes());
     }
@@ -787,7 +790,19 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
 
     public override IntermediaryRepresentation VisitViewnotion([NotNull] RslBisParser.ViewnotionContext context)
     {
-        return base.VisitViewnotion(context);
+        string viewType = ObtainName(context.viewtype());
+        SetViewnotionDetails(viewType, context.namesandlabels());
+        return result;   
+    }
+
+    private void SetViewnotionDetails(string viewType, RslBisParser.NamesandlabelsContext context){
+        if (null == context) return;
+        string viewName = ObtainName(context.name());
+        ViewFunction view = result.ViewFunctions.Find(vf => viewName == vf.name);
+        if (null == view) throw new Exception("Unexpected view notion definition");
+        if (null != viewType) view.type = viewType;
+        if (null != context.uilabel()) view.label = ObtainName(context.uilabel());
+        SetViewnotionDetails(viewType, context.namesandlabels());
     }
 
     //*****************************************************************************************************

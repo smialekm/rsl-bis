@@ -24,9 +24,9 @@ namespace CodeModel {
 
         public override string ToCode(int tabs){
 		    string ts = Utils.GetTabString(tabs);
-            // export function updateClwView(state: ClientListWndData, action: ActionId) {
+            // export function updateClwView(state: ClientListWndData, action: string) {
             string code = ts + "export function update" + Utils.ToPascalCase(name) + "(";
-            code += "state: " + Utils.ToPascalCase(name) + "State, action: ActionID) {\n";
+            code += "state: " + Utils.ToPascalCase(name) + "State, action: string) {\n";
             //   let newState = { ...state };
             code += ts + "\tlet newState = { ...state };\n";
             //   return newState;
@@ -37,10 +37,10 @@ namespace CodeModel {
             code += ts + "export class " + GetElemName() + " extends PresentationDispatcher {\n";
             //   CODE: state!: ClientListWndData;
             code += ts + "\tstate!: " + Utils.ToPascalCase(name) + "State;\n";
-            //   CODE: updateView!: Dispatch<ActionId>;
-            code += ts + "\tupdateView!: Dispatch<ActionId>;\n\n";
+            //   CODE: updateView!: Dispatch<string>;
+            code += ts + "\tupdateView!: Dispatch<string>;\n\n";
 
-            code += ts + "\tinjectStateHandle(state: " + Utils.ToPascalCase(name) + "State, updateView: Dispatch<ActionID>) {\n";
+            code += ts + "\tinjectStateHandle(state: " + Utils.ToPascalCase(name) + "State, updateView: Dispatch<string>) {\n";
             code += ts + "\t\tthis.state = state;\n";
             code += ts + "\t\tthis.updateView = updateView;\n";
             code += ts + "\t}\n\n";

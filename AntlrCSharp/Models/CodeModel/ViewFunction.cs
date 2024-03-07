@@ -15,8 +15,8 @@ namespace CodeModel {
 		public ControllerFunction controller;
 		public PresenterClass presenter;
 		public List<Trigger> triggers = new List<Trigger>();
-        string type = "form";
-        string label = null;
+        public string type = "form";
+        public string label = null;
 
 		public ViewFunction(){}
 
@@ -52,6 +52,8 @@ namespace CodeModel {
             code += ts + "\treturn (\n";
             //     CODE: <div className="ClientListWnd">
             code += ts + "\t\t<div className=\"" + windowName + "\">\n";
+             //       CODE: <h2>Client list</h2>
+            if (!string.IsNullOrEmpty(label)) code += ts + "\t\t\t<h2>" + label + "</h2>\n";
             
             code += 0 == data.Count() ? "" : string.Join("", data.Select(da => da.ToHtml(tabs + 3, editable.Contains(da)) + "\n"));
 

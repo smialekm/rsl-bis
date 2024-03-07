@@ -25,9 +25,10 @@ namespace CodeModel {
 
         public string ToHtml(int tabs, bool editable){
  			string ts = Utils.GetTabString(tabs);
-            string code = ts + "<h2>" + name + "</h2>\n";
+			string varName = GetVarName();
+            string code = ts + "<h3>" + name + "</h3>\n";
 			foreach (DataItem item in fields)
-				code += ts + "\t<label>" + item.name + "</label>\n";
+				code += item.ToHtml(varName, tabs+1);
 			return code;
         }
 

@@ -7,18 +7,51 @@
 ///////////////////////////////////////////////////////////
 
 using System.ComponentModel;
+using System.Xml.XPath;
 
 namespace CodeModel {
 	public class DataItem : NamedElement {
 		public string type;
-		public TypeKind? typekind = null;
+		public TypeKind? typeKind = null;
+		public DataAggregate baseType = null;
 
 		public DataItem(){}
+
+		public string GetElemName(){
+			return Utils.ToPascalCase(name);
+		}
+
+		public string GetVarName(){
+			return Utils.ToCamelCase(name);
+		}
+
+		public string ToHtml(string parentName, int tabs = 0){
+			string ts = Utils.GetTabString(tabs);
+			string code;
+			if (TypeKind.Primitive == typeKind) {
+				string itemType = "text";
+				// TODO switch
+				code = ts + "<label>" + name + "</label>\n";
+				code += ts + "<input\n";
+				code += ts + "\ttype=\"" + itemType + "\"\n";
+				code += ts + "\tvalue={viewState." + parentName + "." + GetVarName() + "}\n";
+				code += ts + "\tonChange={(e) => {\n";
+				code += ts + "\t\t" + parentName + "." + GetVarName() + " = e.target.value;\n";
+				code += ts + "\t\tupdateView(\"" + parentName + "_" + name + "\")\n";
+				code += ts + "\t}\n";
+				code += ts + "/>\n";
+			} else if (TypeKind.Simple == typeKind){
+				code = "";
+			} else if (TypeKind.Multiple == typeKind){
+				code = "";
+			} else throw new System.Exception("Critical error");
+			return code;
+		}
 
 		public string ToCode(int tabs = 0){
 			string ts = Utils.GetTabString(tabs);
 			string code = ts + Utils.ToCamelCase(name) + ": ";
-			if (TypeKind.Primitive != typekind) code += Utils.ToPascalCase(type) + (TypeKind.Simple == typekind ? "" : "[]");
+			if (TypeKind.Primitive != typeKind) code += Utils.ToPascalCase(type) + (TypeKind.Simple == typeKind ? "" : "[]");
 			else {
 				switch (type) {
 					case "integer": code += "bigint";
