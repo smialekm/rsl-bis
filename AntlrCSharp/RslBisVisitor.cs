@@ -254,6 +254,12 @@ public interface IRslBisVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitInvoke([NotNull] RslBisParser.InvokeContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="RslBisParser.sysinvoke"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitSysinvoke([NotNull] RslBisParser.SysinvokeContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="RslBisParser.notiondef"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -319,6 +325,12 @@ public interface IRslBisVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitDatatype([NotNull] RslBisParser.DatatypeContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="RslBisParser.names"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitNames([NotNull] RslBisParser.NamesContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="RslBisParser.actor"/>.
 	/// </summary>

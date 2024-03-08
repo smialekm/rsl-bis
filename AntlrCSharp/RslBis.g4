@@ -24,7 +24,7 @@ contextcondition:
     ;
 
 valuecondition:
-    ('user' | notion) '?' value
+    ('user' | notion) '?' ('-')? value
     ;
 
 mainscenario:
@@ -95,7 +95,7 @@ step:
     ;
 
 systemstep:
-    'System' (tosystempredicate | toactorpredicate | invoke)
+    'System' (tosystempredicate | toactorpredicate | sysinvoke)
     ;
 
 toactorpredicate:
@@ -152,6 +152,10 @@ enterpredicate:
     ;
 
 invoke:
+    '<invoke>' names
+    ;
+
+sysinvoke:
     '<invoke>' name
     ;
 
@@ -197,6 +201,10 @@ multnotion:
 
 datatype:
     'integer' | 'float' | 'text' | 'boolean' | 'time' | 'date'
+    ;
+
+names:
+    name (',' names)?
     ;
 
 actor:
