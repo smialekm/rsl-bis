@@ -12,6 +12,7 @@ namespace CodeModel {
 	public class ViewModel : FileGenerator {
 		public List<DataAggregate> items = new List<DataAggregate>();
 		public List<CheckEnumeration> enums = new List<CheckEnumeration>();
+        public List<EnumUnion> unions = new List<EnumUnion>();
 
 		public ViewModel(){}
 
@@ -23,6 +24,7 @@ namespace CodeModel {
  			string ts = Utils.GetTabString(tabs);
             string code = string.Join("", enums.Select(en => en.ToCode(tabs) + "\n"));
             code += string.Join("\n", items.Select(da => da.ToCode(tabs)));
+            code += string.Join("\n", unions.Select(eu => eu.ToCode(tabs)));
             return code;
         }
 

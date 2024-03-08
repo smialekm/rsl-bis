@@ -9,13 +9,13 @@
 using CodeModel;
 namespace CodeModel {
 	public class End : Instruction {
-
+        public Value value = null;
 		public End(){}
 
         public override string ToCode(int tabs = 0){
             string ts = Utils.GetTabString(tabs);
             string code = ts + "if (null != returnTo)\n";
-            code += ts + "\tthis.returnTo();";
+            code += ts + "\tthis.returnTo(" + value.parent.GetElemName() + "." + value.GetElemName() + ".toString());";
             return code;
         }
     }

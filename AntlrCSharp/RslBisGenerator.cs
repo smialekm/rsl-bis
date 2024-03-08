@@ -169,7 +169,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         }
         // 4. Create ‘Value’ based on ‘value’; add it to ‘Enumeration’
         if (null == value) {
-            value = new Value(){name = valueName};
+            value = new Value(){name = valueName, parent = en};
             en.values.Add(value);
         }
         // 5. Create ‘SOperation’ (if does not exist); add ‘DataItem’ to ‘SOperation’; add ‘SOperation’ to 'ServiceInterface'
@@ -276,7 +276,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             PresenterClass pc = new PresenterClass(){name = notionName};
             CurrentUCC.presenters.Add(pc);
             vf = new ViewFunction(){name = notionName, controller = cf, presenter = pc};
-            ScreenIdEnum.values.Add(new Value(){name = Utils.ToUpperCase(notionName)});
+            ScreenIdEnum.values.Add(new Value(){name = Utils.ToUpperCase(notionName), parent = ScreenIdEnum});
             // 4. If (does not exist) -> Attach all ‘DataAggregate’s in ‘CurrentDAP’ to the ‘ViewFunction’
             vf.data.AddRange(CurrentDAP);
             result.ViewFunctions.Add(vf);
@@ -349,29 +349,41 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     public override IntermediaryRepresentation VisitInvoke([NotNull] RslBisParser.InvokeContext context)
     {
         if (Verbose) Console.WriteLine(CurrentLabel + ": Actor-Invoke sentence: " + context.GetText());
-        ProcessUserInvoke(context.names());
+        EnumUnion eu = null;
+        if (null != context.names().names()) {
+            eu = new EnumUnion(){name = CurrentUCC.name + " !union !enum " + CurrentLabel};
+            result.ViewModel.unions.Add(eu);
+        }
+        ProcessUserInvoke(context.names(), eu);
         LastPredicateType = PredicateType.Invoke;
         return result;
     }
 
-    private void ProcessUserInvoke(RslBisParser.NamesContext context, UCOperation returnTo = null){
+    private void ProcessUserInvoke(RslBisParser.NamesContext context, EnumUnion eu, UCOperation returnTo = null){
         if (null == context) return;
         // 1. Create ‘UCOperation’ based on ‘name’ and ‘CurrentVF.name’ (‘invoked…’); add it to ‘CurrentUCC’; set it as ‘CurrentUCO’
         string ucName = ObtainName(context.name());
         UCOperation ucop;
         if (null != returnTo) ucop = returnTo;
         else {
-            ucop = new UCOperation(){name = "invoked " + ucName + " @ " + CurrentVF.name, uc = CurrentUCC};
+            // ucop = new UCOperation(){name = "invoked " + ucName + " @ " + CurrentVF.name, uc = CurrentUCC};
+            ucop = new UCOperation(){name = "invoked @ " + CurrentLabel, uc = CurrentUCC};
             CurrentUCC.methods.Add(ucop);
             CurrentUCO = ucop;
             // 2. Create ‘Enumeration’ (if does not exist) based on ‘name’; add it to ‘ViewModel’
-            CheckEnumeration en = result.ViewModel.enums.Find(x => CurrentUCC.name + " !result !enum" == x.name);
+            CheckEnumeration en = result.ViewModel.enums.Find(x => ucName + " !result !enum" == x.name);
             if (null == en) {
-                en = new CheckEnumeration(){name = CurrentUCC.name + " !result !enum"};
+                en = new CheckEnumeration(){name = ucName + " !result !enum"};
                 result.ViewModel.enums.Add(en);
             }
+            string type;
+            if (null == eu) type = en.GetElemName();
+            else {
+                eu.elements.Add(en);
+                type = eu.GetElemName();
+            }
             // 3. Create ‘DataItem’ (‘parameter’; type as ‘Enumeration’); add it to 'UCOperation’
-            ucop.parameters.Add(new CodeModel.Parameter(){ type = en.name});
+            ucop.parameters.Add(new CodeModel.Parameter(){ type = "string"});
         }
         // 4. If ‘name’ is in ‘UcNameToTrigger’  -> 
         if (UcNameToTrigger.ContainsKey(ucName)){
@@ -408,7 +420,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             }
             else throw new Exception("Duplicate use case invocation");
         }
-        ProcessUserInvoke(context.names(),ucop);
+        ProcessUserInvoke(context.names(), eu, ucop);
     }
 
     //*****************************************************************************************************
@@ -665,7 +677,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             string valueName = ObtainName(vcondition.value());
             Value val = en.values.Find(x => valueName == x.name);
             if (null == val){
-                val = new Value(){name = valueName};
+                val = new Value(){name = valueName, parent = en};
                 en.values.Add(val);
             }
             expr.value = val;
@@ -695,9 +707,10 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         }
         // 3. Create ‘Value’ based on ‘value’; add it to ‘Enumeration’
         if (null == value) {
-            value = new Value(){name = valueName};
+            value = new Value(){name = valueName, parent = en};
             en.values.Add(value);
         }
+        end.value = value;
         return result;
     }
 

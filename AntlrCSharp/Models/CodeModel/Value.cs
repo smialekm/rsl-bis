@@ -6,8 +6,11 @@
 //  Original author: smial
 ///////////////////////////////////////////////////////////
 
+using System;
+
 namespace CodeModel {
 	public class Value : NamedElement {
+		public CheckEnumeration parent = null;
 
 		public Value(){
 		}

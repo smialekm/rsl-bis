@@ -13,8 +13,9 @@ namespace CodeModel {
 		public Parameter(){}
 
 		public string ToCode(int i = 0, bool var = false){
-			string code = Utils.ToCamelCase(type) + (i>0 ? i.ToString() : "");
-			if (!var) code += ": " + Utils.ToPascalCase(type);
+			if ("string" == type) return "result: string";
+			string code = Utils.ToCamelCase(type.Replace("!", "")) + (i>0 ? i.ToString() : "");
+			if (!var) code += ": " + Utils.ToPascalCase(type.Replace("!", ""));
 			return code;
 		}
 

@@ -19,7 +19,7 @@ namespace CodeModel {
 
         public override string ToCode(int tabs){
 			string ts = Utils.GetTabString(tabs);
-			string code = ts + GetElemName() + GetParametersCode();
+			string code = ts + GetElemName() + GetParametersCode() + (null == returnType ? "" : ": " + Utils.ToPascalCase(returnType));
 			return code;
         }
 	}
