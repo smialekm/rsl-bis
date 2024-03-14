@@ -25,6 +25,12 @@ namespace CodeModel {
             return Utils.ToCamelCase(name);
         }
 
+        public string GetParams(){
+            return string.Join(", ", 
+                            Enumerable.Concat<FileGenerator>(presenters, services).
+                                ToList().Select(p => (p is PresenterClass pr) ? pr.GetVarName() : ((ServiceInterface) p).GetVarName()));
+        }
+
         public override string ToCode(int tabs){
  			string ts = Utils.GetTabString(tabs);
             // CODE: export class UCShowClientList {

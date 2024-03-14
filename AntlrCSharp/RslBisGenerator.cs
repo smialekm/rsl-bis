@@ -58,8 +58,12 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     public override IntermediaryRepresentation VisitStart([NotNull] RslBisParser.StartContext context)
     {
         if (Verbose) Console.WriteLine("Starting processing RSL specification");
-        ScreenIdEnum = new CheckEnumeration(){name = "ScreenId"};
+        ScreenIdEnum = new CheckEnumeration(){name = "screen id"};
         result.ViewModel.enums.Add(ScreenIdEnum);
+        DataAggregate appState = new DataAggregate(){name = "app state"};
+        DataItem screenId = new DataItem(){name = "screen", type = ScreenIdEnum.name, typeKind = TypeKind.Simple};
+        appState.fields.Add(screenId);
+        result.ViewModel.items.Add(appState);
         object childResult = base.VisitStart(context);
         return result;
     }
