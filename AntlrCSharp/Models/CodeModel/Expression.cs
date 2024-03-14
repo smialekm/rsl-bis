@@ -15,7 +15,8 @@ namespace CodeModel {
 
 		public string ToCode(){
 			// CODE: ClientEnumCheck.Valid == clientEnumCheck
-			return data.enumer.GetElemName() + "." + Utils.ToPascalCase(value.name) + " == " + data.enumer.GetVarName();
+			return data == null ? "result == \"" + value.GetElemName() + "\""
+						: data.enumer.GetElemName() + "." + Utils.ToPascalCase(value.name) + " == " + data.enumer.GetVarName();
         }
 	}
 }

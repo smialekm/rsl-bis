@@ -24,8 +24,8 @@ namespace CodeModel {
 
 		public string ToCode(int tabs = 0){
 			string ts = Utils.GetTabString(tabs);
-			string code = ts + "export type " + GetElemName() + " = \n";
-			code += string.Join("\n| ", elements.Select(e => ts + "\t" + e.GetElemName() )) + "\n";
+			string code = ts + "export type " + GetElemName() + " = \n\t";
+			code += string.Join("\n\t| ", elements.Select(e => ts + e.GetElemName() )) + "\n";
 			code += ts + "\t;\n";
 			return code;
 		}

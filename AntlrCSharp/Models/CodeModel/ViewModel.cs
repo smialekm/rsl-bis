@@ -23,8 +23,8 @@ namespace CodeModel {
         public override string ToCode(int tabs){
  			string ts = Utils.GetTabString(tabs);
             string code = string.Join("", enums.Select(en => en.ToCode(tabs) + "\n"));
-            code += string.Join("\n", items.Select(da => da.ToCode(tabs)));
-            code += string.Join("\n", unions.Select(eu => eu.ToCode(tabs)));
+            code += string.Join("", items.Select(da => da.ToCode(tabs) + "\n"));
+            code += string.Join("", unions.Select(eu => eu.ToCode(tabs) + "\n"));
             return code;
         }
 

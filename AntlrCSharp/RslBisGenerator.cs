@@ -25,7 +25,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     PredicateType LastPredicateType {get; set;} = PredicateType.None;
     PredicateType LastNonInvokePT {get; set;} = PredicateType.None;
     bool FirstSentence {get; set;}
-    bool StartOfAltScenario {get; set;}
+    bool ConditionPossible {get; set;}
     Dictionary<string,ViewFunction> LabelToVF {get; set;} = new Dictionary<string, ViewFunction>();
     Dictionary<string,Trigger> UcNameToTrigger {get; set;} = new Dictionary<string, Trigger>();
     Dictionary<string,List<ViewFunction>> UcNameToVF {get; set;} = new Dictionary<string, List<ViewFunction>>();
@@ -91,7 +91,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         LastPredicateType = PredicateType.None;
         LastNonInvokePT = PredicateType.None;
         FirstSentence = true;
-        StartOfAltScenario = false;
+        ConditionPossible = false;
         LabelToVF = new Dictionary<string, ViewFunction>();
     }
 
@@ -223,6 +223,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     public override IntermediaryRepresentation VisitReadpredicate([NotNull] RslBisParser.ReadpredicateContext context)
     {
         if (Verbose) Console.WriteLine(CurrentLabel + ": System-to-Data (read) predicate: " + context.GetText());
+        ConditionPossible = true;
         // 1. Create ‘DataAggregate’ (if does not exist) based on ‘notion’; add it to ‘CurrentDAP’; attach it to ‘ViewModel’
         string notionName = ObtainName(context.notion());
         DataAggregate da = result.ViewModel.items.Find(x => notionName == x.name);
@@ -265,6 +266,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     public override IntermediaryRepresentation VisitShowpredicate([NotNull] RslBisParser.ShowpredicateContext context)
     {
         if (Verbose) Console.WriteLine(CurrentLabel + ": System-to-View predicate: " + context.GetText());
+        ConditionPossible = false;
         // 1. Create ‘ViewFunction’ (if does not exist) based on ‘notion’; set it as ‘CurrentVF’
         string notionName = ObtainName(context.notion());
         ViewFunction vf = result.ViewFunctions.Find(x => notionName == x.name);
@@ -318,6 +320,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     public override IntermediaryRepresentation VisitEnterpredicate([NotNull] RslBisParser.EnterpredicateContext context)
     {
         if (Verbose) Console.WriteLine(CurrentLabel + ": Actor-to-Data predicate: " + context.GetText());
+        ConditionPossible = false;
         if (null == CurrentVF)
             throw new Exception("Unexpected <enter> sentence");
         // 1. Create ‘DataAggregate’ (if does not exist) based on ‘notion’; add it to ‘CurrentDAD’; 
@@ -349,12 +352,14 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     public override IntermediaryRepresentation VisitInvoke([NotNull] RslBisParser.InvokeContext context)
     {
         if (Verbose) Console.WriteLine(CurrentLabel + ": Actor-Invoke sentence: " + context.GetText());
+        ConditionPossible = true;
         EnumUnion eu = null;
         if (null != context.names().names()) {
-            eu = new EnumUnion(){name = CurrentLabel +" @ " + CurrentUCC.name + " !union !enum"};
+            eu = new EnumUnion(){name = CurrentUCC.name +" @ " + CurrentLabel + " !union !enum"};
             result.ViewModel.unions.Add(eu);
         }
         ProcessUserInvoke(context.names(), eu);
+        LabelToVF.Add(CurrentLabel,null);
         LastPredicateType = PredicateType.Invoke;
         return result;
     }
@@ -376,10 +381,10 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             CurrentUCC.methods.Add(ucop);
             CurrentUCO = ucop;
             string type;
-            if (null == eu) type = en.GetElemName();
+            if (null == eu) type = en.name;
             else {
                 eu.elements.Add(en);
-                type = eu.GetElemName();
+                type = eu.name;
             }
             // 3. Create ‘DataItem’ (‘parameter’; type as ‘Enumeration’); add it to 'UCOperation’
             ucop.parameters.Add(new CodeModel.Parameter(){ type = type});
@@ -432,6 +437,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     public override IntermediaryRepresentation VisitSelectpredicate([NotNull] RslBisParser.SelectpredicateContext context)
     {
         if (Verbose) Console.WriteLine(CurrentLabel + ": Actor-to-Trigger predicate: " + context.GetText());
+        ConditionPossible = false;
         // 1. Create a ‘Trigger’ based on ‘notion’; If ‘CurrentVF’ exists -> add it to ‘CurrentVF’
         Trigger trg = new Trigger(){name = ObtainName(context.notion())};
         if (null != CurrentVF) CurrentVF.triggers.Add(trg);
@@ -514,6 +520,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     public override IntermediaryRepresentation VisitUpdatepredicate([NotNull] RslBisParser.UpdatepredicateContext context)
     {
         if (Verbose) Console.WriteLine(CurrentLabel + ": System-to-Data (update) predicate: " + context.GetText());
+        ConditionPossible = true;
         ProcessDataSentence("update", context.notion());
         LabelToVF.Add(CurrentLabel,null);
         SetLastPredicateTypes(PredicateType.Update);
@@ -523,6 +530,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     public override IntermediaryRepresentation VisitDeletepredicate([NotNull] RslBisParser.DeletepredicateContext context)
     {
         if (Verbose) Console.WriteLine(CurrentLabel + ": System-to-Data (delete) predicate: " + context.GetText());
+        ConditionPossible = true;
         ProcessDataSentence("delete", context.notion());
         LabelToVF.Add(CurrentLabel,null);
         SetLastPredicateTypes(PredicateType.Delete);
@@ -532,6 +540,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     public override IntermediaryRepresentation VisitCheckpredicate([NotNull] RslBisParser.CheckpredicateContext context)
     {
         if (Verbose) Console.WriteLine(CurrentLabel + ": System-to-Data (check) predicate: " + context.GetText());
+        ConditionPossible = true;
         ProcessDataSentence("check", context.notion());
         LabelToVF.Add(CurrentLabel,null);
         SetLastPredicateTypes(PredicateType.Check);
@@ -590,6 +599,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     public override IntermediaryRepresentation VisitExecutepredicate([NotNull] RslBisParser.ExecutepredicateContext context)
     {
         if (Verbose) Console.WriteLine(CurrentLabel + ": System-to-Data (execute) predicate: " + context.GetText());
+        ConditionPossible = true;
         ProcessDataSentence("execute", context.notion());
         LabelToVF.Add(CurrentLabel,null);
         SetLastPredicateTypes(PredicateType.Execute);
@@ -607,8 +617,8 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
                                    context.label().NUMBER().GetText() :
                                    context.altlabel().CHAR().GetText() + context.altlabel().NUMBER().GetText();
             if (Verbose) Console.WriteLine(CurrentLabel + ": repetition sentence");
-            // 1. Set ‘StartOfAltScenario’ as true
-            StartOfAltScenario = true;
+            // 1. Set ‘ConditionPossible’ as true
+            ConditionPossible = true;
             // 2. Clear ‘CurrentCondition’
             CurrentCondition = null;
             // 3. Search for ‘label’ in ‘LabelToVF’; if ‘label’ found -> set ‘CurrentVF’ to associated ‘ViewFunction’
@@ -629,20 +639,15 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     {
         try {
             if (Verbose) Console.WriteLine("Condition sentence: " + context.GetText());
-            // 1. If ‘StartOfAltScenario’ is false -> Create ‘Decision’ (set ‘Decision.label’ as ‘CurrentLabel’);
-            //    set ‘StartOfAltScenario’ as false;
-            //    if ‘CurrentCondition’ empty ->  append ‘Decision’ to ‘CurrentUCO’ else append ‘Decision’ to ‘CurrentCondition’
-            Decision dec;
-            if (!StartOfAltScenario) {
+            if (ConditionPossible == false) throw new Exception("Unexpected condition"); // ERROR HANDLING
+            // 1. Create ‘Decision’ (if does not exist; set ‘Decision.label’ as ‘CurrentLabel’);
+            Decision dec = (Decision) CurrentUCC.methods.SelectMany(x => x.instructions).ToList().Find(x => x is Decision && CurrentLabel == x.label);
+            if (null == dec) {
                 dec = new Decision(){label = CurrentLabel};
+                // 2. If ‘CurrentCondition’ empty ->  append ‘Decision’ to ‘CurrentUCO’ else append ‘Decision’ to ‘CurrentCondition’
                 if (null == CurrentCondition) CurrentUCO.instructions.Add(dec);
                 else CurrentCondition.instructions.Add(dec);
-                StartOfAltScenario = false;
-            // 2. If ‘StartOfAltScenario’ is true -> find ‘Decision’ where ‘Decision.label’ == ‘CurrentLabel’
-            } else {
-                dec = (Decision) CurrentUCC.methods.SelectMany(x => x.instructions).ToList().Find(x => x is Decision && CurrentLabel == x.label);
-                // ERROR HANDLING
-                if (null == dec) throw new Exception("Unexpected condition");
+                ConditionPossible = false;
             }
             // 3. Create ‘Condition’; add it to ‘Decision’
             Condition cond = new Condition(){};
@@ -661,21 +666,29 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         //    attach it to ‘DataAggregate’ based on ‘notion’; if ‘condition’ is ‘valuecondition’ -> create ‘Value’ based on ‘value’;
         //    add it to ‘Enumeration’ based on ‘notion’; attach it to ‘Expression’
         if (null == context) return;
-        RslBisParser.ContextconditionContext ccondition = context.condition().contextcondition();
-        RslBisParser.ValueconditionContext vcondition = context.condition().valuecondition();
-        string notionName = null != ccondition ? ObtainName(ccondition.notion()) : ObtainName(vcondition.notion());
-        
         Expression expr = new Expression();
         CurrentCondition.expressions.Add(expr);
-        DataAggregate da = result.ViewModel.items.Find(x => notionName == x.name);
 
-        if (null != da) expr.data = da;
-        // ERROR HANDLING
-        else throw new Exception("Notion not found");
+        RslBisParser.ContextconditionContext ccondition = context.condition().contextcondition();
+        RslBisParser.ValueconditionContext vcondition = context.condition().valuecondition();
+
+        string notionName = null != ccondition ? ObtainName(ccondition.notion()) : ObtainName(vcondition.notion());
+        
+        if ("ended" != notionName || null != ccondition) {       
+            DataAggregate da = result.ViewModel.items.Find(x => notionName == x.name);
+            if (null != da) expr.data = da;
+            // ERROR HANDLING
+            else throw new Exception("Notion not found");
+        } else expr.data = null;
 
         if (null != vcondition) {
             CheckEnumeration en = result.ViewModel.enums.Find(x => notionName + " !enum" == x.name);
-            if (null == en) throw new Exception("Notion not checked");
+            if (null == en)
+                if ("ended" == notionName) {
+                    en = new CheckEnumeration(){name = "invoke result !enum"};
+                    result.ViewModel.enums.Add(en);
+                }
+                else throw new Exception("Notion not checked");
             string valueName = ObtainName(vcondition.value());
             Value val = en.values.Find(x => valueName == x.name);
             if (null == val){
