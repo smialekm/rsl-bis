@@ -15,11 +15,11 @@ namespace CodeModel {
 		public EnumUnion(){}
 
 		public string GetElemName(){
-            return Utils.ToPascalCase(name.Replace("!", ""));
+            return Utils.ToPascalCase(name.Replace("@","at").Replace("!", ""));
         }
 
 		public string GetVarName(){
-            return Utils.ToCamelCase(name.Replace("!", ""));
+            return Utils.ToCamelCase(name.Replace("@","at").Replace("!", ""));
         }
 
 		public string ToCode(int tabs = 0){

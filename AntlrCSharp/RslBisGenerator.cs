@@ -351,7 +351,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         if (Verbose) Console.WriteLine(CurrentLabel + ": Actor-Invoke sentence: " + context.GetText());
         EnumUnion eu = null;
         if (null != context.names().names()) {
-            eu = new EnumUnion(){name = CurrentUCC.name + " !union !enum " + CurrentLabel};
+            eu = new EnumUnion(){name = CurrentLabel +" @ " + CurrentUCC.name + " !union !enum"};
             result.ViewModel.unions.Add(eu);
         }
         ProcessUserInvoke(context.names(), eu);
@@ -361,21 +361,20 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
 
     private void ProcessUserInvoke(RslBisParser.NamesContext context, EnumUnion eu, UCOperation returnTo = null){
         if (null == context) return;
-        // 1. Create ‘UCOperation’ based on ‘name’ and ‘CurrentVF.name’ (‘invoked…’); add it to ‘CurrentUCC’; set it as ‘CurrentUCO’
         string ucName = ObtainName(context.name());
+        // 1. Create ‘Enumeration’ (if does not exist) based on ‘name’; add it to ‘ViewModel’
+        CheckEnumeration en = result.ViewModel.enums.Find(x => ucName + " !result !enum" == x.name);
+        if (null == en) {
+            en = new CheckEnumeration(){name = ucName + " !result !enum"};
+            result.ViewModel.enums.Add(en);
+        }
+        // 2. Create ‘UCOperation’ based on ‘name’ and ‘CurrentVF.name’ (‘invoked…’); add it to ‘CurrentUCC’; set it as ‘CurrentUCO’
         UCOperation ucop;
-        if (null != returnTo) ucop = returnTo;
-        else {
+        if (null == returnTo){
             // ucop = new UCOperation(){name = "invoked " + ucName + " @ " + CurrentVF.name, uc = CurrentUCC};
             ucop = new UCOperation(){name = "invoked @ " + CurrentLabel, uc = CurrentUCC};
             CurrentUCC.methods.Add(ucop);
             CurrentUCO = ucop;
-            // 2. Create ‘Enumeration’ (if does not exist) based on ‘name’; add it to ‘ViewModel’
-            CheckEnumeration en = result.ViewModel.enums.Find(x => ucName + " !result !enum" == x.name);
-            if (null == en) {
-                en = new CheckEnumeration(){name = ucName + " !result !enum"};
-                result.ViewModel.enums.Add(en);
-            }
             string type;
             if (null == eu) type = en.GetElemName();
             else {
@@ -383,7 +382,10 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
                 type = eu.GetElemName();
             }
             // 3. Create ‘DataItem’ (‘parameter’; type as ‘Enumeration’); add it to 'UCOperation’
-            ucop.parameters.Add(new CodeModel.Parameter(){ type = "string"});
+            ucop.parameters.Add(new CodeModel.Parameter(){ type = type});
+        } else {
+            ucop = returnTo;
+            eu.elements.Add(en);
         }
         // 4. If ‘name’ is in ‘UcNameToTrigger’  -> 
         if (UcNameToTrigger.ContainsKey(ucName)){
