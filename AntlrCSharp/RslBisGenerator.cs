@@ -245,10 +245,11 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             sop = new SOperation(){name = "read! " + notionName, returnType = da.name, type = PredicateType.Read, si = si};
             // 4. For each ‘DataAggregate’ in ‘CurrentDAD’+’InheritedDAD’ create a ‘DataItem’ (‘parameter’; type as ‘DataAggregate’ name);
             //    add the ‘DataItems’ to the ‘SOperation’
-            foreach (DataAggregate xd in Enumerable.Concat(CurrentDAD,InheritedDAD)){
-                CodeModel.Parameter di = new CodeModel.Parameter() { type = xd.name};
-                sop.parameters.Add(di);
-            }
+            foreach (DataAggregate xd in Enumerable.Concat(CurrentDAD,InheritedDAD))
+                if (!sop.parameters.Exists(di => xd.name == di.type)){
+                    CodeModel.Parameter di = new CodeModel.Parameter() { type = xd.name};
+                    sop.parameters.Add(di);
+                }
             si.signatures.Add(sop);
         }
         // 5. Create ‘Call’ etc.
@@ -569,10 +570,11 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             }
             // 4. For each ‘DataAggregate’ in ‘InheritedDAD’ create a ‘DataItem’ (‘parameter’; type as ‘DataAggregate’ name);
             //    add the ‘DataItems’ to the ‘SOperation’
-            foreach (DataAggregate xd in "execute" != verb ? InheritedDAD : Enumerable.Concat(CurrentDAD,InheritedDAD)){
-                di = new CodeModel.Parameter() { type = xd.name};
-                sop.parameters.Add(di);
-            }
+            foreach (DataAggregate xd in "execute" != verb ? InheritedDAD : Enumerable.Concat(CurrentDAD,InheritedDAD))
+                if (!sop.parameters.Exists(di => xd.name == di.type)){
+                    di = new CodeModel.Parameter() { type = xd.name};
+                    sop.parameters.Add(di);
+                }
             si.signatures.Add(sop);
         }
         // 5. If sentence has a ‘checkpredicate’ (“check” sentence) -> create ‘Enumeration’ based on ‘notion’; add it to ‘ViewModel’;
