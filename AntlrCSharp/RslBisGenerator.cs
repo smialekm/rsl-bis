@@ -201,14 +201,11 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     }
 
     private void CreateCall(UCCallableOperation uop){
-        // ERROR HANDLING
-        if (null == CurrentUCO) throw new Exception("Actor sentence expected");
         // 1. Create ‘Call’; attach ‘SOperation’ to it; ; set ‘Call.label’ as CurrentLabel
         Call call = new Call(){label = CurrentLabel, operation = uop};
         // 2. If ‘CurrentCondition’ empty ->  append ‘Call’ to ‘CurrentUCO’ else append ‘Call’ to ‘CurrentCondition’ 
         if (null == CurrentCondition) CurrentUCO.instructions.Add(call);
         else CurrentCondition.instructions.Add(call);
-        // TODO - error when CurrentUCO is null
     }
 
     private void SetLastPredicateTypes(PredicateType ptype){
@@ -619,8 +616,9 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
                                    context.label().NUMBER().GetText() :
                                    context.altlabel().CHAR().GetText() + context.altlabel().NUMBER().GetText();
             if (Verbose) Console.WriteLine(CurrentLabel + ": repetition sentence");
-            // 1. Set ‘ConditionPossible’ as true
-            ConditionPossible = true;
+            // 1. Set ‘ConditionPossible’ and reset 'CurrentUCO'
+            ConditionPossible = CurrentUCC.methods.SelectMany(x => x.instructions).ToList().Exists(x => x is Decision && CurrentLabel == x.label);
+            CurrentUCO = null;
             // 2. Clear ‘CurrentCondition’
             CurrentCondition = null;
             // 3. Search for ‘label’ in ‘LabelToVF’; if ‘label’ found -> set ‘CurrentVF’ to associated ‘ViewFunction’
@@ -644,7 +642,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             if (ConditionPossible == false) throw new Exception("Unexpected condition"); // ERROR HANDLING
             // 1. Create ‘Decision’ (if does not exist; set ‘Decision.label’ as ‘CurrentLabel’);
             Decision dec = (Decision) CurrentUCC.methods.SelectMany(x => x.instructions).ToList().Find(x => x is Decision && CurrentLabel == x.label);
-            if (null == dec) {
+            if (null == dec) { // not start of alternative scenario
                 dec = new Decision(){label = CurrentLabel};
                 // 2. If ‘CurrentCondition’ empty ->  append ‘Decision’ to ‘CurrentUCO’ else append ‘Decision’ to ‘CurrentCondition’
                 if (null == CurrentCondition) CurrentUCO.instructions.Add(dec);
@@ -709,7 +707,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     public override IntermediaryRepresentation VisitResultsentence([NotNull] RslBisParser.ResultsentenceContext context)
     {
         if (Verbose) Console.WriteLine("End sentence ");
-        if (null == CurrentUCO) throw new Exception("Unexpected end of scenario");
+        if (null == CurrentUCO && null == CurrentCondition) throw new Exception("Unexpected end of scenario");
         // 1. Create ‘End’; append it to ‘CurrentUCO.instructions’ or ‘CurrentCondition.instructions’
         End end = new End();
         if (null == CurrentCondition) CurrentUCO.instructions.Add(end);
@@ -889,6 +887,20 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             WriteErrorMessage(e, "after " + CurrentLabel);
             return result;
         }
+    }
+
+    public override IntermediaryRepresentation VisitSystemstep([NotNull] RslBisParser.SystemstepContext context)
+    {
+        if (null == CurrentUCO && null == CurrentCondition)
+            throw new Exception(null != CurrentVF ? "\'Actor-to\' sentence expected" : "Unexpected \'System-to\' sentence");
+        return base.VisitSystemstep(context);
+    }
+
+    public override IntermediaryRepresentation VisitUserstep([NotNull] RslBisParser.UserstepContext context)
+    {
+        if (!FirstSentence && null == CurrentVF)
+            throw new Exception(null == CurrentUCO || null == CurrentCondition ? "Unexpected \'Actor-to\' sentence" : "\'System-to\' sentence expected");
+        return base.VisitUserstep(context);
     }
 
     private void WriteErrorMessage(Exception e, string altlabel = null){
