@@ -14,7 +14,7 @@ namespace CodeModel {
 
 		public void ToFile(string path){
 			if (!Directory.Exists(path)) Directory.CreateDirectory(path);
-			File.WriteAllText(path + "\\" + Utils.ToPascalCase(GetFileName()) + ".ts", ToCode());
+			File.WriteAllText(path + "\\" + Utils.ToPascalCase(GetFileName()) + ".tsx", ToCode());
 		}
 
 		protected abstract string GetFileName();

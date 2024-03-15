@@ -39,6 +39,7 @@ namespace AntlrCSharp
                     file.ToFile(mainPath + "services");
                 }
                 result.ViewModel.ToFile(mainPath + "viewmodel");
+                result.ToMainFile(mainPath);
             }
             catch (Exception ex)
             {

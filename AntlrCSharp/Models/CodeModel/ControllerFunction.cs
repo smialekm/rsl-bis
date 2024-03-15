@@ -19,10 +19,33 @@ namespace CodeModel {
             return "C" + Utils.ToPascalCase(name);
         }
 
+        private string GetImports(){
+            string code = "import { ";
+            List<string> dataObjects = new List<string>();
+            dataObjects.Add(GetElemName().Substring(1) + "State");
+            foreach (COperation cop in functions){
+                foreach (DataAggregate var in cop.data){
+                    string name = var.GetElemName();
+                    if (!dataObjects.Contains(name)) dataObjects.Add(name);
+                }
+                foreach (Parameter par in cop.parameters) {
+                    string name = par.ToCode();
+                    if (!dataObjects.Contains(name) && "result" != name) dataObjects.Add(name);
+                }
+            }
+            code += string.Join(", ", dataObjects);
+            code += " } from \"../../viewmodel/ViewModel\";\n";
+            
+            foreach (UseCaseClass ucc in useCases)
+                code += "import { " + ucc.GetElemName() + " } from \"../usecases/" + ucc.GetElemName() + "\";\n";
+            return code + "\n";
+        }
+
         public override string ToCode(int tabs){
             string ts = Utils.GetTabString(tabs);
+            string code = GetImports();
             // export function CCLientListForm(
-            string code = ts + "export function " + GetElemName() + "(\n";
+            code += ts + "export function " + GetElemName() + "(\n";
             //   state: ClientListFormData,
             code += ts + "\tstate: " + Utils.ToPascalCase(name) + "State,\n\t" + ts;
             //   showClientList: UCShowClientList

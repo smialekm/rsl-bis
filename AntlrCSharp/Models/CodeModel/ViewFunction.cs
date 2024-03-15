@@ -24,10 +24,22 @@ namespace CodeModel {
             return "V" + Utils.ToPascalCase(name);
         }
 
+        private string GetImports(){
+            string code = "import { useReducer } from \"react\";\n";
+            code += "import { " + GetElemName().Substring(1) + "State } from \"../viewmodel/ViewModel\";\n";
+            code += "import { " + controller.GetElemName() + " } from \"./controllers/" + controller.GetElemName() + "\";\n";
+            foreach (UseCaseClass ucc in controller.useCases)
+                code += "import { " + ucc.GetElemName() + " } from \"../usecases/" + ucc.GetElemName() + "\";\n";
+            code += "import { " + presenter.GetElemName() + ", update" + presenter.GetElemName().Substring(1) + 
+                    " } from \"./presenters/" + presenter.GetElemName() + "\";\n\n";
+            return code;
+        }
+
         public override string ToCode(int tabs){
  			string ts = Utils.GetTabString(tabs);
+            string code = GetImports();
             // CODE: export default function VClientListWnd(
-            string code = ts + "export default function " + GetElemName() + "(\n";
+            code += ts + "export default function " + GetElemName() + "(\n";
             //   CODE: isActive: boolean,
             code += ts + "\tisActive: boolean,\n";
             //   CODE:   pCLW: PClientListWnd,

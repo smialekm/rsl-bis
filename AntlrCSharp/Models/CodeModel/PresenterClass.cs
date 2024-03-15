@@ -22,10 +22,31 @@ namespace CodeModel {
             return "p" + Utils.ToPascalCase(name);
         }
 
+        private string GetImports(){
+            string code = "import { Dispatch } from \"react\";\n";
+            code += "import { PresentationDispatcher } from \"./PresentationDispatcher\";\n";
+            
+            code += "import { ";
+            List<string> dataObjects = new List<string>();
+            dataObjects.Add(GetElemName().Substring(1) + "State");
+            dataObjects.Add("ScreenId");
+            foreach (POperation cop in methods){
+                foreach (Parameter par in cop.parameters) {
+                    string name = par.ToTypeCode();
+                    if (!dataObjects.Contains(name) && "result" != name) dataObjects.Add(name);
+                }
+            }
+            code += string.Join(", ", dataObjects);
+            code += " } from \"../../viewmodel/ViewModel\";\n";
+            
+            return code + "\n";
+        }
+
         public override string ToCode(int tabs){
 		    string ts = Utils.GetTabString(tabs);
+            string code = GetImports();
             // export function updateClwView(state: ClientListWndData, action: string) {
-            string code = ts + "export function update" + Utils.ToPascalCase(name) + "(";
+            code += ts + "export function update" + Utils.ToPascalCase(name) + "(";
             code += "state: " + Utils.ToPascalCase(name) + "State, action: string) {\n";
             //   let newState = { ...state };
             code += ts + "\tlet newState = { ...state };\n";

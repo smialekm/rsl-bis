@@ -22,11 +22,19 @@ namespace CodeModel {
             return "i" + Utils.ToPascalCase(name);
         }
 
+        public string GetSvcName(){
+            return Utils.ToPascalCase(name) + "Proxy";
+        }
+
         public override string ToCode(int tabs){
             string ts = Utils.GetTabString(tabs);
-            string code = ts + "export interface I" + Utils.ToPascalCase(name) + " {\n";
-            code += string.Join(";\n", signatures.Select(x => x.ToCode(tabs + 1)));
-            code += ";\n" + ts + "}";
+            string code = ts + "export interface " + GetElemName() + " {\n";
+            code += string.Join("", signatures.Select(x => x.ToCode(tabs + 1) + ";\n"));
+            code += ts + "}\n\n";
+
+            code += ts + "export class " + GetSvcName() + " implements " + GetElemName() + "{\n\n";
+            code += string.Join("", signatures.Select(x => x.ToCode(tabs + 1) + " {\n\n" + ts + "\t}\n"));
+            code += ts + "}\n\n";
             return code;
         }
 

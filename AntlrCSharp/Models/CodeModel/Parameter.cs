@@ -23,5 +23,9 @@ namespace CodeModel {
 		public string ToVarCode(int i = 0){
 			return ToCode(i, true);
 		}
+		
+		public string ToTypeCode(){
+			return Utils.ToPascalCase(type.Replace("!", ""));
+		}
 	}
 }

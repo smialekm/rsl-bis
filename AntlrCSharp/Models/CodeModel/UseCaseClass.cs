@@ -31,10 +31,22 @@ namespace CodeModel {
                                 ToList().Select(p => (p is PresenterClass pr) ? pr.GetVarName() : ((ServiceInterface) p).GetVarName()));
         }
 
+        private string GetImports(){
+            string code = "";
+            foreach (PresenterClass presenter in presenters)
+                code += "import { " + presenter.GetElemName() + " } from \"../view/presenters/" + presenter.GetElemName() + "\";\n";
+            foreach (DataAggregate attr in attrs)
+                code += "import { " + attr.GetElemName() + " } from \"../viewmodel/ViewModel\";\n";
+            foreach (ServiceInterface service in services)
+                code += "import { " + service.GetElemName() + " } from \"../services/" + service.GetElemName() + "\";\n";
+            return code + "\n";
+        }
+
         public override string ToCode(int tabs){
  			string ts = Utils.GetTabString(tabs);
+            string code = GetImports();
             // CODE: export class UCShowClientList {
-            string code = ts + "export class " + GetElemName() + "{\n";
+            code += ts + "export class " + GetElemName() + "{\n";
             //   CODE: pClientListWindow: PClientListWnd;
             code += 0 == presenters.Count ? "" : 
                     string.Join("", presenters.Select(p => "\t" + ts + p.GetVarName() + ": " + p.GetElemName() + ";\n")) + "\n";

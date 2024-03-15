@@ -60,6 +60,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         if (Verbose) Console.WriteLine("Starting processing RSL specification");
         ScreenIdEnum = new CheckEnumeration(){name = "screen id"};
         result.ViewModel.enums.Add(ScreenIdEnum);
+        Value start = new Value(){name = "start"};
         DataAggregate appState = new DataAggregate(){name = "app state"};
         DataItem screenId = new DataItem(){name = "screen", type = ScreenIdEnum.name, typeKind = TypeKind.Simple};
         appState.fields.Add(screenId);
