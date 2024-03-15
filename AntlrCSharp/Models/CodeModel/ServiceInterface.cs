@@ -26,9 +26,26 @@ namespace CodeModel {
             return Utils.ToPascalCase(name) + "Proxy";
         }
 
+        private string GetImports(){
+            string code = "import { ";
+            List<string> dataObjects = new List<string>();
+            foreach (SOperation sig in signatures){
+                if (null != sig.returnType && "boolean" != sig.returnType) dataObjects.Add(sig.GetReturnTypeElemName());
+                foreach (Parameter par in sig.parameters) {
+                    string name = par.ToTypeCode();
+                    if (!dataObjects.Contains(name) && "result" != name) dataObjects.Add(name);
+                }
+            }
+            code += string.Join(", ", dataObjects);
+            code += " } from \"../../viewmodel/ViewModel\";\n";
+            
+            return code + "\n";
+        }
+
         public override string ToCode(int tabs){
             string ts = Utils.GetTabString(tabs);
-            string code = ts + "export interface " + GetElemName() + " {\n";
+            string code = GetImports();
+            code += ts + "export interface " + GetElemName() + " {\n";
             code += string.Join("", signatures.Select(x => x.ToCode(tabs + 1) + ";\n"));
             code += ts + "}\n\n";
 

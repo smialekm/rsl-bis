@@ -31,6 +31,7 @@ namespace CodeModel {
             dataObjects.Add(GetElemName().Substring(1) + "State");
             dataObjects.Add("ScreenId");
             foreach (POperation cop in methods){
+                if (null != cop.returnType && "boolean" != cop.returnType) dataObjects.Add(cop.GetReturnTypeElemName());
                 foreach (Parameter par in cop.parameters) {
                     string name = par.ToTypeCode();
                     if (!dataObjects.Contains(name) && "result" != name) dataObjects.Add(name);
