@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\smial\\MyRepos\\rsl-bis\\AntlrCSharp\\AntlrCSharp.csproj": {}
+    "C:\\Users\\smial\\MyRepos\\rsl-bis\\AntlrCSharp\\AntlrCSharp.csproj": {}
   },
   "projects": {
-    "c:\\Users\\smial\\MyRepos\\rsl-bis\\AntlrCSharp\\AntlrCSharp.csproj": {
+    "C:\\Users\\smial\\MyRepos\\rsl-bis\\AntlrCSharp\\AntlrCSharp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\smial\\MyRepos\\rsl-bis\\AntlrCSharp\\AntlrCSharp.csproj",
+        "projectUniqueName": "C:\\Users\\smial\\MyRepos\\rsl-bis\\AntlrCSharp\\AntlrCSharp.csproj",
         "projectName": "AntlrCSharp",
-        "projectPath": "c:\\Users\\smial\\MyRepos\\rsl-bis\\AntlrCSharp\\AntlrCSharp.csproj",
+        "projectPath": "C:\\Users\\smial\\MyRepos\\rsl-bis\\AntlrCSharp\\AntlrCSharp.csproj",
         "packagesPath": "C:\\Users\\smial\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\smial\\MyRepos\\rsl-bis\\AntlrCSharp\\obj\\",
+        "outputPath": "C:\\Users\\smial\\MyRepos\\rsl-bis\\AntlrCSharp\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\smial\\AppData\\Roaming\\NuGet\\NuGet.Config"

@@ -12,6 +12,7 @@ namespace CodeModel {
 	public class Call : Instruction {
 
 		public UCCallableOperation operation;
+		public Value value = null;
 
 		public Call(){}
 
@@ -29,12 +30,14 @@ namespace CodeModel {
 			// CODE: this.pCLW.showUpdatedClientListWnd(list);
 			if (operation is SOperation op) {
 				if (!var && (PredicateType.Read == op.type || PredicateType.Check == op.type))
-					code += op.GetReturnTypeElemName() + " " + op.GetReturnTypeVarName() + " = "; // TODO - repeated return variable names
-				code += op.si.GetVarName();
+					code += /* op.GetReturnTypeElemName() + */ "let " + op.GetReturnTypeVarName() + " = "; // TODO - repeated return variable names
+				code += "this." + op.si.GetVarName();
 			} else if (operation is POperation pop)
-				code += pop.pres.GetVarName();
+				code += "this." + pop.pres.GetVarName();
 			else throw new System.Exception("Critical compilation failure");
-			code += "." + operation.GetElemName() + operation.GetVarParametersCode() + (var ? "" : ";");
+			code += "." + operation.GetElemName() + operation.GetVarParametersCode();
+			if (var) code += null == value ? "" : " == " + value.parent.GetElemName() + "." + value.GetElemName();
+			else code += ";";
             return code;
         }
 

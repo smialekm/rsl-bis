@@ -14,28 +14,29 @@ public class IntermediaryRepresentation {
 
     private string GetImports(){
             string code = "import { useReducer } from \"react\";\n";
-            code += "import { AppState, ScreenId } from \"../viewmodel/ViewModel\";\n";
+            code += "import { AppState, ScreenId } from \"./viewmodel/ViewModel\";\n";
             foreach (ViewFunction vf in ViewFunctions)
-                code += "import { " + vf.GetElemName() + " } from \"./view/" + vf.GetElemName() + "\";\n";
+                code += "import " + vf.GetElemName() + " from \"./view/" + vf.GetElemName() + "\";\n";
             foreach (PresenterClass pc in PresenterClasses)
-                code += "import { " + pc.GetElemName() + " } from \"./view/" + pc.GetElemName() + "\";\n";
+                code += "import { " + pc.GetElemName() + " } from \"./view/presenters/" + pc.GetElemName() + "\";\n";
             foreach (UseCaseClass ucc in UseCaseClasses)
-                code += "import { " + ucc.GetElemName() + " } from \"../usecases/" + ucc.GetElemName() + "\";\n";
+                code += "import { " + ucc.GetElemName() + " } from \"./usecases/" + ucc.GetElemName() + "\";\n";
+            foreach (ServiceInterface si in ServiceInterfaces)
+                code += "import { " + si.GetElemName() + ", " + si.GetElemName().Substring(1) + "Proxy } from \"./services/" + si.GetElemName() + "\";\n";
             return code + "\n";
         }
 
     public void ToMainFile(string path){
         string code = GetImports();
-        code += string.Join("", PresenterClasses.Select(pc => "conts " + pc.GetVarName() + ": " + pc.GetElemName() + " = new " + pc.GetElemName() + "();\n")) + "\n";
-        code += string.Join("", ServiceInterfaces.Select(si => "conts " + si.GetVarName() + ": " + si.GetElemName() + " = new " + si.GetSvcName() + "();\n")) + "\n";
+        code += string.Join("", PresenterClasses.Select(pc => "const " + pc.GetVarName() + ": " + pc.GetElemName() + " = new " + pc.GetElemName() + "();\n")) + "\n";
+        code += string.Join("", ServiceInterfaces.Select(si => "const " + si.GetVarName() + ": " + si.GetElemName() + " = new " + si.GetSvcName() + "();\n")) + "\n";
 
         foreach (UseCaseClass ucc in UseCaseClasses){
             code += "const " + ucc.GetVarName() + ": " + ucc.GetElemName() + " = new " + ucc.GetElemName() + "(";
             code += ucc.GetParams() + ");\n";
         }
-        code += "\nconst ucStart: UCStart = new UCStart();\n";
 
-        code += "function switchView(state: AppState, action: ScreenId) {\n";
+        code += "\nfunction switchView(state: AppState, action: ScreenId) {\n";
         code += "\tlet newState = { ...state };\n";
         code += "\tswitch (action) {\n";
         CheckEnumeration screenId = ViewModel.enums.Find(id => "screen id" == id.name);
@@ -51,11 +52,11 @@ public class IntermediaryRepresentation {
         code += "\tconst [state, globalUpdateView] = useReducer(switchView, {\n";
         code += "\t\tscreen: ScreenId.START,\n\t});\n\n";
 
-        code += string.Join("", PresenterClasses.Select(pc => "\t" + pc.GetElemName() + ".injectGlobalUpdateView(globalUpdateView);\n")) + "\n";
+        code += string.Join("", PresenterClasses.Select(pc => "\t" + pc.GetVarName() + ".injectGlobalUpdateView(globalUpdateView);\n")) + "\n";
 
         code += "\treturn (\n";
         code += "\t\t<div className=\"App\">\n";
-        code += "\t\t\t{ucStart.selectApplication()}\n";
+        code += "\t\t\t{start.selectApplication()}\n";
         foreach (ViewFunction vf in ViewFunctions){
           code += "\t\t\t{" + vf.GetElemName() + "(state.screen === ScreenId." + vf.GetElemName().ToUpper().Substring(1) + ", ";
           code += vf.presenter.GetVarName();

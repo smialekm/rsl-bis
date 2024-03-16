@@ -60,7 +60,8 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         if (Verbose) Console.WriteLine("Starting processing RSL specification");
         ScreenIdEnum = new CheckEnumeration(){name = "screen id"};
         result.ViewModel.enums.Add(ScreenIdEnum);
-        Value start = new Value(){name = "start"};
+        Value start = new Value(){name = "start", parent = ScreenIdEnum};
+        ScreenIdEnum.values.Add(start);
         DataAggregate appState = new DataAggregate(){name = "app state"};
         DataItem screenId = new DataItem(){name = "screen", type = ScreenIdEnum.name, typeKind = TypeKind.Simple};
         appState.fields.Add(screenId);
@@ -163,8 +164,8 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             result.ServiceInterfaces.Add(si);
             CurrentUCC.services.Add(si);
         }
-        // 3. Create ‘Enumeration’ (it does not exist) based on ‘notion’; add it to ‘ViewModel’
-        CheckEnumeration en = result.ViewModel.enums.Find(x => notionName == x.name);
+        // 3. Create ‘Enumeration’ (if does not exist) based on ‘notion’; add it to ‘ViewModel’
+        CheckEnumeration en = result.ViewModel.enums.Find(x => notionName + " !enum" == x.name);
         string valueName = ObtainName(context.value());
         Value value = en?.values.Find(x => valueName == x.name);
         if (null == en) {
@@ -185,7 +186,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             si.signatures.Add(sop);
         }
         // 6. Create ‘Call’; append it to ‘UCOperation’; attach ‘SOperation’ to ‘Call’
-        Call call = new Call(){operation = sop};
+        Call call = new Call(){operation = sop, value = value};
         ConditionCO.invoked.instructions.Add(call);
     }
 
@@ -247,9 +248,14 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             sop = new SOperation(){name = "read! " + notionName, returnType = da.name, type = PredicateType.Read, si = si};
             // 4. For each ‘DataAggregate’ in ‘CurrentDAD’+’InheritedDAD’ create a ‘DataItem’ (‘parameter’; type as ‘DataAggregate’ name);
             //    add the ‘DataItems’ to the ‘SOperation’
-            foreach (DataAggregate xd in Enumerable.Concat(CurrentDAD,InheritedDAD))
+            foreach (DataAggregate xd in CurrentDAD)
                 if (!sop.parameters.Exists(di => xd.name == di.type)){
-                    CodeModel.Parameter di = new CodeModel.Parameter() { type = xd.name};
+                    CodeModel.Parameter di = new CodeModel.Parameter() {type = xd.name};
+                    sop.parameters.Add(di);
+                }
+            foreach (DataAggregate xd in InheritedDAD)
+                if (!sop.parameters.Exists(di => xd.name == di.type)){
+                    CodeModel.Parameter di = new CodeModel.Parameter() {type = xd.name, isAttribute = true};
                     sop.parameters.Add(di);
                 }
             si.signatures.Add(sop);
@@ -483,7 +489,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         // 1. Attach all ‘DataAggregate’s in ‘InheritedDAD’ to ‘COperation’ and ‘UCOperartion’ 
         COperation cop = trg.action;
         cop.data.AddRange(InheritedDAD);
-        foreach (DataAggregate da in InheritedDAD) CurrentUCO.parameters.Add(new CodeModel.Parameter(){ type = da.name});
+        foreach (DataAggregate da in InheritedDAD) CurrentUCO.parameters.Add(new CodeModel.Parameter(){type = da.name});
         // 2. If ‘ConditionCO’ not empty -> attach ‘ConditionCO’ to ‘Trigger’ as ‘condition’
         if (null != ConditionCO) trg.condition = ConditionCO;
         // 3. If ‘CurrentUCC.name’ is in ‘UcNameToViewFunction’ -> for each matching ‘ViewFunction’ in ‘UcNameToViewFunction’ ->
@@ -567,14 +573,20 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             // 3. Create ‘DataItem’ based on ‘notion’; add it to ‘SOperation’
             CodeModel.Parameter di;
             if ("execute" != verb) {
-                di = new CodeModel.Parameter() { type = notionName};
+                di = new CodeModel.Parameter() {type = notionName};
                 sop.parameters.Add(di);
             }
             // 4. For each ‘DataAggregate’ in ‘InheritedDAD’ create a ‘DataItem’ (‘parameter’; type as ‘DataAggregate’ name);
             //    add the ‘DataItems’ to the ‘SOperation’
-            foreach (DataAggregate xd in "execute" != verb ? InheritedDAD : Enumerable.Concat(CurrentDAD,InheritedDAD))
+            if ("execute" != verb)
+                foreach (DataAggregate xd in CurrentDAD)
+                    if (!sop.parameters.Exists(di => xd.name == di.type)){
+                        di = new CodeModel.Parameter() { type = xd.name};
+                        sop.parameters.Add(di);
+                    }
+            foreach (DataAggregate xd in InheritedDAD)
                 if (!sop.parameters.Exists(di => xd.name == di.type)){
-                    di = new CodeModel.Parameter() { type = xd.name};
+                    di = new CodeModel.Parameter() { type = xd.name, isAttribute = true};
                     sop.parameters.Add(di);
                 }
             si.signatures.Add(sop);
@@ -582,7 +594,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         // 5. If sentence has a ‘checkpredicate’ (“check” sentence) -> create ‘Enumeration’ based on ‘notion’; add it to ‘ViewModel’;
         //    set ‘SOperation.returnType’ to “short” or ‘Enumeration.name’
         if ("check" == verb) {
-            CheckEnumeration en = result.ViewModel.enums.Find(x => notionName == x.name);
+            CheckEnumeration en = result.ViewModel.enums.Find(x => notionName + " !enum" == x.name);
             if (null == en) {
                 en = new CheckEnumeration(){name = notionName + " !enum"};
                 result.ViewModel.enums.Add(en);

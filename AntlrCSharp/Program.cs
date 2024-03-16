@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Antlr4.Runtime;
 using CodeModel;
 
@@ -12,8 +13,16 @@ namespace AntlrCSharp
             Console.WriteLine("RSL BiS Translator, (C) M. Śmiałek, K. Rybiński");
             try
             {
-                string mainPath = "C:\\Users\\smial\\Desktop\\code\\";
-                string input = File.ReadAllText(mainPath+"input.txt");
+                if (2 != args.Count()) {
+                    Console.WriteLine("Use with command line arguments: input-path output-path");
+                    return;
+                }
+                string inputPath = args[0];
+                Console.WriteLine("Input from file: " + inputPath);
+                string mainPath = args[1];
+                Console.WriteLine("Output to folder: " + mainPath);
+                
+                string input = File.ReadAllText(inputPath);
 
                 AntlrInputStream inputStream = new AntlrInputStream(input);
                 RslBisLexer rslBisLexer = new RslBisLexer(inputStream);

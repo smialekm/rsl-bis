@@ -55,16 +55,21 @@ namespace CodeModel {
 		public string ToCode(int tabs = 0){
 			string ts = Utils.GetTabString(tabs);
 			string code = ts + Utils.ToCamelCase(name) + ": ";
-			if (TypeKind.Primitive != typeKind) code += Utils.ToPascalCase(type) + (TypeKind.Simple == typeKind ? "" : "[]");
+			if (TypeKind.Primitive != typeKind) {
+				string typeString = Utils.ToPascalCase(type) + (TypeKind.Simple == typeKind ? "" : "[]");
+				code += typeString + " = ";
+				if ("ScreenId" == typeString) code += typeString + ".START";
+				else code += (TypeKind.Simple == typeKind) ? "new " + typeString + "()" : "[]";
+			}
 			else {
 				switch (type) {
-					case "integer": code += "bigint";
+					case "integer": code += "bigint = BigInt(0)";
 					break;
-					case "float": code += "number";
+					case "float": code += "number = 0";
 					break;
-					case "text": code += "string";
+					case "text": code += "string = \"\"";
 					break;
-					case "boolean": code += "boolean";
+					case "boolean": code += "boolean = false";
 					break;
 					case "time":
 					case "date": code += "Date";

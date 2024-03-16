@@ -3,5 +3,31 @@
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
-    "configurations": []
+    "configurations": [{
+        "name": "Build + Debug",
+        "type": "coreclr",
+        "request": "launch",
+        "preLaunchTask": "dotnet: build",
+        "program": "${workspaceFolder}/AntlrCSharp/bin/Debug/netcoreapp3.1/AntlrCSharp.dll",
+        "args": [
+            "C:\\Users\\smial\\MyRepos\\rsl-bis-app\\src\\input.txt",
+            "C:\\Users\\smial\\MyRepos\\rsl-bis-app\\src\\"
+        ],
+        "cwd": "${workspaceFolder}",
+        "stopAtEntry": false,
+        "console": "internalConsole"
+    },
+    {
+        "name": "Debug Only",
+        "type": "coreclr",
+        "request": "launch",
+        "program": "${workspaceFolder}/AntlrCSharp/bin/Debug/netcoreapp3.1/AntlrCSharp.dll",
+        "args": [
+            "C:\\Users\\smial\\MyRepos\\rsl-bis-app\\src\\input.txt",
+            "C:\\Users\\smial\\MyRepos\\rsl-bis-app\\src\\"
+        ],
+        "cwd": "${workspaceFolder}",
+        "stopAtEntry": false,
+        "console": "internalConsole"
+    }]
 }

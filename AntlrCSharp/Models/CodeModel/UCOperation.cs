@@ -25,11 +25,11 @@ namespace CodeModel {
 			string ts = Utils.GetTabString(tabs);
             // CODE: showClientListSelected() {
             string code = ts + GetElemName() + "(" + GetParametersCode(false, true);
-            if (initial)  code += (0 != parameters.Count ? ", " : "") + "returnTo: Function = null";
+            if (initial)  code += (0 != parameters.Count ? ", " : "") + "returnTo?: Function";
             code += ")" + (!string.IsNullOrEmpty(returnType) ? ": " + returnType : "") + " {\n";
             if (initial){
             //   CODE: if (null != returnTo) this.returnTo = returnTo;
-                code += ts + "\tif (null != returnTo) this.returnTo = returnTo;\n";
+                code += ts + "\tif (undefined != this.returnTo) this.returnTo = returnTo;\n";
             //   CODE: this.clientType = clientType;
                 code += string.Join("", parameters.Select( p => ts + "\tthis." + p.ToVarCode() + " = " + p.ToVarCode() + ";\n" ));
             }

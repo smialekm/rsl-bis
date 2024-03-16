@@ -20,7 +20,6 @@ namespace CodeModel {
         }
 
         private string GetImports(){
-            string code = "import { ";
             List<string> dataObjects = new List<string>();
             dataObjects.Add(GetElemName().Substring(1) + "State");
             foreach (COperation cop in functions){
@@ -29,15 +28,15 @@ namespace CodeModel {
                     if (!dataObjects.Contains(name)) dataObjects.Add(name);
                 }
                 foreach (Parameter par in cop.parameters) {
-                    string name = par.ToCode();
+                    string name = par.ToTypeCode();
                     if (!dataObjects.Contains(name) && "result" != name) dataObjects.Add(name);
                 }
             }
-            code += string.Join(", ", dataObjects);
+            string code = "import { " + string.Join(", ", dataObjects);
             code += " } from \"../../viewmodel/ViewModel\";\n";
             
             foreach (UseCaseClass ucc in useCases)
-                code += "import { " + ucc.GetElemName() + " } from \"../usecases/" + ucc.GetElemName() + "\";\n";
+                code += "import { " + ucc.GetElemName() + " } from \"../../usecases/" + ucc.GetElemName() + "\";\n";
             return code + "\n";
         }
 

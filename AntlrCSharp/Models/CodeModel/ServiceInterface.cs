@@ -37,7 +37,7 @@ namespace CodeModel {
                 }
             }
             code += string.Join(", ", dataObjects);
-            code += " } from \"../../viewmodel/ViewModel\";\n";
+            code += " } from \"../viewmodel/ViewModel\";\n";
             
             return code + "\n";
         }

@@ -32,11 +32,29 @@ namespace CodeModel {
         }
 
         private string GetImports(){
-            string code = "";
+            List<string> dataObjects = new List<string>();
+            foreach (UCOperation cop in methods){
+                foreach (Instruction instr in cop.instructions){
+                    if (instr is Call call && null != call.operation.returnType) {
+                        string name = Utils.ToPascalCase(call.operation.returnType).Replace("!","");
+                        if (!dataObjects.Contains(name) && "Short" != name) dataObjects.Add(name);
+                    } else if (instr is End) {
+                        string resultEnum = Utils.ToPascalCase(name) + "ResultEnum";
+                        if (!dataObjects.Contains(resultEnum)) dataObjects.Add(resultEnum);
+                    }
+                }
+                foreach (Parameter par in cop.parameters) {
+                    string name = par.ToTypeCode();
+                    if (!dataObjects.Contains(name) && "result" != name) dataObjects.Add(name);
+                }
+            }
+            string code = "import { " + string.Join(", ", dataObjects);
+            code += " } from \"../viewmodel/ViewModel\";\n";
+
             foreach (PresenterClass presenter in presenters)
                 code += "import { " + presenter.GetElemName() + " } from \"../view/presenters/" + presenter.GetElemName() + "\";\n";
-            foreach (DataAggregate attr in attrs)
-                code += "import { " + attr.GetElemName() + " } from \"../viewmodel/ViewModel\";\n";
+            // foreach (DataAggregate attr in attrs)
+            //    code += "import { " + attr.GetElemName() + " } from \"../viewmodel/ViewModel\";\n";
             foreach (ServiceInterface service in services)
                 code += "import { " + service.GetElemName() + " } from \"../services/" + service.GetElemName() + "\";\n";
             return code + "\n";
@@ -53,11 +71,12 @@ namespace CodeModel {
             //   CODE: iCl: IClients;
             code += 0 == services.Count ? "" :
                     string.Join("", services.Select(s => "\t" + ts + s.GetVarName() + ": " + s.GetElemName() + ";\n")) + "\n";
-            //   CODE: returnTo: Function = null;
-            code += ts + "\treturnTo: Function = null;\n\n";
+            //   CODE: returnTo: Function = new Function();
+            code += ts + "\treturnTo?: Function;\n\n";
             //   CODE: clientType: ClientType;
             code += 0 == attrs.Count ? "" :
-                    string.Join("", attrs.Select(a => "\t" + ts + a.GetVarName() + ": " + a.GetElemName() + ";\n")) + "\n";
+                    string.Join("", attrs.Select(a => "\t" + ts + a.GetVarName() + ": " + a.GetElemName() + 
+                    " = new " + a.GetElemName() + "();\n")) + "\n";
             //   CODE: constructor(clw: PClientListWnd, mm: PMainMenu, cl: IClients) {
             code += "\t" + ts + "constructor(";
             code += string.Join(", " + ts, presenters.Select(p => p.GetVarName() + ": " + p.GetElemName()));

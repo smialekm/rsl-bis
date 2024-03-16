@@ -24,7 +24,7 @@ namespace CodeModel {
 
 		public string ToCode(int tabs = 0){
 			string ts = Utils.GetTabString(tabs);
-			string code = ts + "export enum " + GetElemName() + " = {\n";
+			string code = ts + "export enum " + GetElemName() + " {\n";
 			code += string.Join(",\n", values.Select(v => ts + "\t" + v.GetElemName() + " = \"" + v.GetElemName() + "\"")) + "\n";
 			code += ts + "}\n";
 			return code;

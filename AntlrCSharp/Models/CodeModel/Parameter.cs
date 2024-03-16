@@ -9,6 +9,7 @@
 namespace CodeModel {
 	public class Parameter {
 		public string type;
+		public bool isAttribute = false;
 
 		public Parameter(){}
 
@@ -16,16 +17,17 @@ namespace CodeModel {
 			string code;
 			if (type.Contains("@")) code = "result";
 			else code = Utils.ToCamelCase(type.Replace("!", "")) + (i>0 ? i.ToString() : "");
-			if (!var) code += ": " + Utils.ToPascalCase(type.Replace("@","at").Replace("!", ""));
+			if (!var) code += ": " + ToTypeCode();
 			return code;
 		}
 
 		public string ToVarCode(int i = 0){
-			return ToCode(i, true);
+			string code = (isAttribute) ? "this." : "";
+			return code + ToCode(i, true);
 		}
 		
 		public string ToTypeCode(){
-			return Utils.ToPascalCase(type.Replace("!", ""));
+			return Utils.ToPascalCase(type.Replace("@","at").Replace("!", ""));
 		}
 	}
 }

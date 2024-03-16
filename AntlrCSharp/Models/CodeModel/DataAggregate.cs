@@ -53,7 +53,7 @@ namespace CodeModel {
 
 		public string ToCode(int tabs){
 			string ts = Utils.GetTabString(tabs);
-            string code = ts + "export type " + GetElemName() + " = {\n";
+            string code = ts + "export class " + GetElemName() + " {\n";
 			code += string.Join("", fields.Select(di => di.ToCode(tabs+1) + "\n"));
 			code += ts + "}\n";
 			return code;
