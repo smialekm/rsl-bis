@@ -162,8 +162,8 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         if (null == si) {
             si = new ServiceInterface(){name = notionName};
             result.ServiceInterfaces.Add(si);
-            CurrentUCC.services.Add(si);
         }
+        if (!CurrentUCC.services.Contains(si)) CurrentUCC.services.Add(si);
         // 3. Create ‘Enumeration’ (if does not exist) based on ‘notion’; add it to ‘ViewModel’
         CheckEnumeration en = result.ViewModel.enums.Find(x => notionName + " !enum" == x.name);
         string valueName = ObtainName(context.value());
@@ -241,8 +241,8 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         if (null == si) {
             si = new ServiceInterface(){name = notionName};
             result.ServiceInterfaces.Add(si);
-            CurrentUCC.services.Add(si);
         }
+        if (!CurrentUCC.services.Contains(si)) CurrentUCC.services.Add(si);
         // 3. Create ‘SOperation’ (if does not exist) based on ‘notion’; set ‘returnType’ based on ‘DataAggregate’; add ‘SOperation’ to ‘ServiceInterface’
         if (null == sop) { // TODO - handle overloaded methods
             sop = new SOperation(){name = "read! " + notionName, returnType = da.name, type = PredicateType.Read, si = si};
@@ -564,8 +564,8 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         if (null == si) {
             si = new ServiceInterface(){name = notionName};
             result.ServiceInterfaces.Add(si);
-            CurrentUCC.services.Add(si);
         }
+        if (!CurrentUCC.services.Contains(si)) CurrentUCC.services.Add(si);
         // 2. Create ‘SOperation’ (if does not exist) based on ‘notion’; add ‘SOperation’ to ‘ServiceInterface’
         if (null == sop) { // TODO - handle overloaded methods
             sop = new SOperation(){name = verb + "! " + notionName, 
