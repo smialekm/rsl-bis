@@ -33,11 +33,12 @@ namespace CodeModel {
 
         private string GetImports(){
             List<string> dataObjects = new List<string>();
+            List<string> types = new List<string>(){"bigint", "boolean"};
             foreach (UCOperation cop in methods){
                 foreach (Instruction instr in cop.instructions){
                     if (instr is Call call && null != call.operation.returnType) {
                         string name = Utils.ToPascalCase(call.operation.returnType).Replace("!","");
-                        if (!dataObjects.Contains(name) && "Short" != name) dataObjects.Add(name);
+                        if (!dataObjects.Contains(name) && !types.Contains(name)) dataObjects.Add(name);
                     } else if (instr is End) {
                         string resultEnum = Utils.ToPascalCase(name) + "ResultEnum";
                         if (!dataObjects.Contains(resultEnum)) dataObjects.Add(resultEnum);
@@ -45,7 +46,7 @@ namespace CodeModel {
                 }
                 foreach (Parameter par in cop.parameters) {
                     string name = par.ToTypeCode();
-                    if (!dataObjects.Contains(name) && "result" != name) dataObjects.Add(name);
+                    if (!dataObjects.Contains(name) && !types.Contains(name)) dataObjects.Add(name);
                 }
             }
             string code = "import { " + string.Join(", ", dataObjects);

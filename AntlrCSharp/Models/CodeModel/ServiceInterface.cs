@@ -30,10 +30,11 @@ namespace CodeModel {
             string code = "import { ";
             List<string> dataObjects = new List<string>();
             foreach (SOperation sig in signatures){
-                if (null != sig.returnType && "boolean" != sig.returnType) dataObjects.Add(sig.GetReturnTypeElemName());
+                List<string> types = new List<string>(){"bigint", "boolean"};
+                if (null != sig.returnType && !types.Contains(sig.returnType)) dataObjects.Add(sig.GetReturnTypeElemName());
                 foreach (Parameter par in sig.parameters) {
                     string name = par.ToTypeCode();
-                    if (!dataObjects.Contains(name) && "result" != name) dataObjects.Add(name);
+                    if (!dataObjects.Contains(name)) dataObjects.Add(name);
                 }
             }
             code += string.Join(", ", dataObjects);
@@ -50,7 +51,7 @@ namespace CodeModel {
             code += ts + "}\n\n";
 
             code += ts + "export class " + GetSvcName() + " implements " + GetElemName() + "{\n\n";
-            code += string.Join("", signatures.Select(x => x.ToCode(tabs + 1) + " {\n\n" + ts + "\t}\n"));
+            code += string.Join("", signatures.Select(x => x.ToCode(tabs + 1) + x.ToBodyCode(tabs + 1)));
             code += ts + "}\n\n";
             return code;
         }

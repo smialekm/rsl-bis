@@ -22,5 +22,16 @@ namespace CodeModel {
 			string code = ts + GetElemName() + GetParametersCode() + (null == returnType ? "" : ": " + GetReturnTypeElemName());
 			return code;
         }
+
+		public string ToBodyCode(int tabs){
+			string ts = Utils.GetTabString(tabs);
+			string ret = GetReturnTypeElemName();
+			if (ret.Contains("Enum")) ret += "[0];";
+			else if ("bigint" == ret) ret = "BigInt(0);";
+			else if ("boolean" == ret) ret = "false";
+			else ret = "new " + ret + "();";
+			string code = " {\n" + ts + "\treturn " + ret + "\n" + ts + "}\n";
+			return code;
+		}
 	}
 }

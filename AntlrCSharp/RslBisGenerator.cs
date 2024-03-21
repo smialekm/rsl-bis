@@ -153,7 +153,8 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         string notionName = ObtainName(context.notion());
         // 1. Create ‘DataItem’ (‘parameter’; type as ‘notion’); add ‘DataItem’ to ‘ConditionCO.invoked’ ('UCOperation');
         // attach ‘DataAggregate’ to ‘ConditionCO’ (as ‘data’)
-        CodeModel.Parameter di = new CodeModel.Parameter() { type = notionName};
+        CodeModel.Parameter di = new CodeModel.Parameter() {type = notionName};
+        if (CurrentUCC.attrs.Contains(da)) di.isAttribute = true;
         ConditionCO.invoked.parameters.Add(di);
         ConditionCO.data.Add(da);
         // 2. Create ‘ServiceInterface’ (if does not exist) based on ‘notion’; attach it to ‘CurrentUCC’
@@ -251,6 +252,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             foreach (DataAggregate xd in CurrentDAD)
                 if (!sop.parameters.Exists(di => xd.name == di.type)){
                     CodeModel.Parameter di = new CodeModel.Parameter() {type = xd.name};
+                    if (CurrentUCC.attrs.Contains(xd)) di.isAttribute = true;
                     sop.parameters.Add(di);
                 }
             foreach (DataAggregate xd in InheritedDAD)
@@ -304,7 +306,11 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         POperation pop = new POperation(){name = "show! " + notionName, pres = vf.presenter};
         // 6. For each ‘DataAggregate’ in ‘CurrentDAP’ add a ‘DataItem’ (‘parameter’; type as ‘DataAggregate’ name);
         // attach the ‘DataItems’ to the ‘POperation’
-        foreach (DataAggregate da in CurrentDAP) pop.parameters.Add(new CodeModel.Parameter(){ type = da.name});
+        foreach (DataAggregate da in CurrentDAP) {
+            CodeModel.Parameter par = new CodeModel.Parameter(){type = da.name};
+            if (CurrentUCC.attrs.Contains(da)) par.isAttribute = true;
+            pop.parameters.Add(par);
+        }
         POperation ppop = vf.presenter.methods.Find(x => pop.Equals(x)); // TODO - implement POperation.Equals
         if (null != ppop) pop = ppop;
         else vf.presenter.methods.Add(pop);
@@ -341,6 +347,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             result.ViewModel.items.Add(da);
         }
         CurrentDAD.Add(da);
+        if (!CurrentUCC.attrs.Contains(da)) CurrentUCC.attrs.Add(da);
         if (!CurrentVF.data.Contains(da)) {
             CurrentVF.data.Add(da);
             CurrentViewAggregate.fields.Add(new DataItem()
@@ -396,7 +403,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
                 type = eu.name;
             }
             // 3. Create ‘DataItem’ (‘parameter’; type as ‘Enumeration’); add it to 'UCOperation’
-            ucop.parameters.Add(new CodeModel.Parameter(){ type = type});
+            ucop.parameters.Add(new CodeModel.Parameter(){type = type});
         } else {
             ucop = returnTo;
             eu.elements.Add(en);
@@ -465,7 +472,11 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         UCOperation ucop = new UCOperation(){name = ucopName, uc = CurrentUCC};
         // 5. For each ‘DataAggregate’ in ‘CurrentDAD’ create a ‘DataItem’ (‘parameters’; type as ‘DataAggregate’ name);
         //    add the ‘DataItems’ to the ‘UCOperation’
-        foreach (DataAggregate da in CurrentDAD) ucop.parameters.Add(new CodeModel.Parameter(){ type = da.name});
+        foreach (DataAggregate da in CurrentDAD) {
+            CodeModel.Parameter par = new CodeModel.Parameter(){type = da.name};
+            if (CurrentUCC.attrs.Contains(da)) par.isAttribute = true;
+            ucop.parameters.Add(par);
+        }
         // 6. Add ‘UCOperation’ to the ‘CurrentUCC’; attach it to ‘COperation’ (as ‘invoked’)
         CurrentUCC.methods.Add(ucop); cop.invoked = ucop;
         // 7. Set ‘UCOperation’ as ‘CurrentUCO’
@@ -489,7 +500,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         // 1. Attach all ‘DataAggregate’s in ‘InheritedDAD’ to ‘COperation’ and ‘UCOperartion’ 
         COperation cop = trg.action;
         cop.data.AddRange(InheritedDAD);
-        foreach (DataAggregate da in InheritedDAD) CurrentUCO.parameters.Add(new CodeModel.Parameter(){type = da.name});
+        foreach (DataAggregate da in InheritedDAD) CurrentUCO.parameters.Add(new CodeModel.Parameter(){type = da.name, isAttribute = true});
         // 2. If ‘ConditionCO’ not empty -> attach ‘ConditionCO’ to ‘Trigger’ as ‘condition’
         if (null != ConditionCO) trg.condition = ConditionCO;
         // 3. If ‘CurrentUCC.name’ is in ‘UcNameToViewFunction’ -> for each matching ‘ViewFunction’ in ‘UcNameToViewFunction’ ->
@@ -508,6 +519,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             }
             // add ‘Trigger’ (copy if necessary);
             Trigger newtrg = new Trigger(){name = trg.name, action = newcop, condition = condcop};
+            vf.triggers.Add(trg);
             // attach ‘CurrentUCC’ to ‘ControllerFunction’ attached to ‘ViewFunction’ (if necessary);
             if (!vf.controller.useCases.Contains(CurrentUCC)) vf.controller.useCases.Add(CurrentUCC);
             // attach matching (‘CurrentUCC.name’ & ‘ViewFunction.name’) ‘UCOperation’ from ‘UcVFToUCOperation’ to ‘COperation’ as ‘return’;
@@ -574,6 +586,8 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             CodeModel.Parameter di;
             if ("execute" != verb) {
                 di = new CodeModel.Parameter() {type = notionName};
+                DataAggregate da = CurrentUCC.attrs.Find(da => da.name == notionName);
+                if (null != da) di.isAttribute = true;
                 sop.parameters.Add(di);
             }
             // 4. For each ‘DataAggregate’ in ‘InheritedDAD’ create a ‘DataItem’ (‘parameter’; type as ‘DataAggregate’ name);
@@ -581,12 +595,13 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             if ("execute" != verb)
                 foreach (DataAggregate xd in CurrentDAD)
                     if (!sop.parameters.Exists(di => xd.name == di.type)){
-                        di = new CodeModel.Parameter() { type = xd.name};
+                        di = new CodeModel.Parameter() {type = xd.name};
+                        if (CurrentUCC.attrs.Contains(xd)) di.isAttribute = true;
                         sop.parameters.Add(di);
                     }
             foreach (DataAggregate xd in InheritedDAD)
                 if (!sop.parameters.Exists(di => xd.name == di.type)){
-                    di = new CodeModel.Parameter() { type = xd.name, isAttribute = true};
+                    di = new CodeModel.Parameter() {type = xd.name, isAttribute = true};
                     sop.parameters.Add(di);
                 }
             si.signatures.Add(sop);
@@ -603,7 +618,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
                 da.enumer = en;
             }
             sop.returnType = en.name;
-        } else sop.returnType = "short";
+        } else sop.returnType = "bigint";
         // 6. Create ‘Call’ etc.
         CreateCall(sop);
     }

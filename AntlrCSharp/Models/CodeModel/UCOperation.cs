@@ -30,9 +30,10 @@ namespace CodeModel {
             if (initial){
             //   CODE: if (null != returnTo) this.returnTo = returnTo;
                 code += ts + "\tif (undefined != this.returnTo) this.returnTo = returnTo;\n";
-            //   CODE: this.clientType = clientType;
-                code += string.Join("", parameters.Select( p => ts + "\tthis." + p.ToVarCode() + " = " + p.ToVarCode() + ";\n" ));
             }
+            //   CODE: this.clientType = clientType;
+            code += string.Join("", parameters.Select( p => p.type.Contains("@") ? "" : ts + "\t" + p.ToVarCode() + " = " + p.ToCode(0,true) + ";\n" ));
+
             if (string.IsNullOrEmpty(returnType))
                 foreach (Instruction instr in instructions)
                     code += instr.ToCode(tabs + 1) + "\n";

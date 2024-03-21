@@ -27,6 +27,8 @@ namespace CodeModel{
 		}
 
 		public string GetReturnTypeElemName(){
+			List<string> types = new List<string>(){"bigint", "boolean"};
+			if (types.Contains(returnType)) return returnType;
 			return Utils.ToPascalCase(returnType.Replace("!", ""));
 		}
 

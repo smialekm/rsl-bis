@@ -34,7 +34,7 @@ namespace CodeModel {
                 if (null != cop.returnType && "boolean" != cop.returnType) dataObjects.Add(cop.GetReturnTypeElemName());
                 foreach (Parameter par in cop.parameters) {
                     string name = par.ToTypeCode();
-                    if (!dataObjects.Contains(name) && "result" != name) dataObjects.Add(name);
+                    if (!dataObjects.Contains(name)) dataObjects.Add(name);
                 }
             }
             code += string.Join(", ", dataObjects);

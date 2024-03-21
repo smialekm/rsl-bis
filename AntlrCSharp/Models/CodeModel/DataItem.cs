@@ -30,16 +30,17 @@ namespace CodeModel {
 			string ts = Utils.GetTabString(tabs);
 			string code = "";
 			if (TypeKind.Primitive == typeKind) {
-				string itemType = "text";
-				// TODO switch
+				string itemType = "text"; // TODO switch (other item types)
+				bool isNotString = "text" != type;
 				code = ts + "<label>" + name + "</label>\n";
 				code += ts + "<input\n";
 				code += ts + "\ttype=\"" + itemType + "\"\n";
-				code += ts + "\tvalue={viewState." + parentPath + "." + GetVarName() + "}\n";
+				code += ts + "\tvalue={viewState." + parentPath + "." + GetVarName() + (isNotString ? ".toString()" : "") + "}\n";
 				code += ts + "\tonChange={(e) => {\n";
-				code += ts + "\t\tviewState." + parentPath + "." + GetVarName() + " = e.target.value;\n";
+				code += ts + "\t\tviewState." + parentPath + "." + GetVarName() + " = " + 
+								(isNotString ? GetCodeType(true) + "(" : "") + "e.target.value" + (isNotString ? ")" : "") + ";\n";
 				code += ts + "\t\tupdateView(\"" + parentPath.Replace(".", "_") + "_" + name + "\")\n";
-				code += ts + "\t}\n";
+				code += ts + "\t}}\n";
 				code += ts + "/>\n";
 			} else if (null != baseType){
 				if (TypeKind.Simple == typeKind) {
@@ -62,21 +63,34 @@ namespace CodeModel {
 				else code += (TypeKind.Simple == typeKind) ? "new " + typeString + "()" : "[]";
 			}
 			else {
+				code += GetCodeType() + " = ";
 				switch (type) {
-					case "integer": code += "bigint = BigInt(0)";
+					case "integer": code += "BigInt(0)";
 					break;
-					case "float": code += "number = 0";
+					case "float": code += "0";
 					break;
-					case "text": code += "string = \"\"";
+					case "text": code += "\"\"";
 					break;
-					case "boolean": code += "boolean = false";
+					case "boolean": code += "false";
 					break;
 					case "time":
-					case "date": code += "Date";
+					case "date": code += "new Date()";
 					break;
 				}
 			}
 			return code + ";";
+		}
+
+		public string GetCodeType(bool forConstructor = false){
+			switch (type) {
+				case "integer": return forConstructor ? "BigInt" : "bigint";
+				case "float": return forConstructor ? "Number" : "number";
+				case "text": return forConstructor ? "String" : "string";
+				case "boolean": return forConstructor ? "Boolean" : "boolean";
+				case "time":
+				case "date": return "Date";
+			}
+			return "";
 		}
 	}
 

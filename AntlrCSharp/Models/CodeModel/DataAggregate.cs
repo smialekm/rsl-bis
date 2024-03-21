@@ -44,7 +44,8 @@ namespace CodeModel {
 			code += ts + "\t\t{viewState." + parentPath + " &&\n";
 			code += ts + "\t\t viewState." + parentPath + ".map((value,index) => (\n";
 			code += ts + "\t\t\t<tr key={index}>\n";
-			code += string.Join("", fields.Select(f => (TypeKind.Primitive == f.typeKind) ? ts + "\t\t\t\t<td>{value." + f.name + "}</td>\n" : ""));
+			code += string.Join("", fields.Select(f => (TypeKind.Primitive == f.typeKind) ? ts + "\t\t\t\t<td>{value." + f.name + 
+									("text" != f.type ? ".toString()" : "") + "}</td>\n" : ""));
 			code += ts + "\t\t\t</tr>\n" + ts + "\t\t))}\n";
 			code += ts + "\t</tbody>\n";
 			code += ts + "</table>\n";

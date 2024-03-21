@@ -13,7 +13,8 @@ public class IntermediaryRepresentation {
     public ViewModel ViewModel {get; set;} = new ViewModel();
 
     private string GetImports(){
-            string code = "import { useReducer } from \"react\";\n";
+            string code = "import React from \"react\";\n";
+            code += "import { useReducer } from \"react\";\n";
             code += "import { AppState, ScreenId } from \"./viewmodel/ViewModel\";\n";
             foreach (ViewFunction vf in ViewFunctions)
                 code += "import " + vf.GetElemName() + " from \"./view/" + vf.GetElemName() + "\";\n";

@@ -27,10 +27,10 @@ namespace CodeModel {
                     string name = var.GetElemName();
                     if (!dataObjects.Contains(name)) dataObjects.Add(name);
                 }
-                foreach (Parameter par in cop.parameters) {
-                    string name = par.ToTypeCode();
-                    if (!dataObjects.Contains(name) && "result" != name) dataObjects.Add(name);
-                }
+                //foreach (Parameter par in cop.parameters) {
+                //    string name = par.ToTypeCode();
+                //    if (!dataObjects.Contains(name)) dataObjects.Add(name);
+                //}
             }
             string code = "import { " + string.Join(", ", dataObjects);
             code += " } from \"../../viewmodel/ViewModel\";\n";

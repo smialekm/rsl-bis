@@ -25,7 +25,8 @@ namespace CodeModel {
         }
 
         private string GetImports(){
-            string code = "import { useReducer } from \"react\";\n";
+            string code = "import React from \"react\";\n";
+            code += "import { useReducer } from \"react\";\n";
             code += "import { " + GetElemName().Substring(1) + "State } from \"../viewmodel/ViewModel\";\n";
             code += "import { " + controller.GetElemName() + " } from \"./controllers/" + controller.GetElemName() + "\";\n";
             foreach (UseCaseClass ucc in controller.useCases)
@@ -52,9 +53,9 @@ namespace CodeModel {
             string windowName = GetElemName().Substring(1);
             code += ts + "\tconst emptyState: " + windowName + "State = new " + windowName + "State();\n";
             //   CODE: const [viewState, viewUpdate] = useReducer(updateClientListWnd, emptyState);
-            code += ts + "\tconst [viewState, viewUpdate] = useReducer(update" + windowName + ", emptyState);\n\n";
+            code += ts + "\tconst [viewState, updateView] = useReducer(update" + windowName + ", emptyState);\n\n";
             //   CODE: pCLW.injectDataHandles(clwData, clwUpdateView);
-            code += ts + "\t" + presenter.GetVarName() + ".injectStateHandle(viewState, viewUpdate);\n\n"; 
+            code += ts + "\t" + presenter.GetVarName() + ".injectStateHandle(viewState, updateView);\n\n"; 
             //   CODE: if (!isActive) return;
             code += ts + "\tif (!isActive) return;\n\n";
             //   CODE: const [selectAdd, selectBack] = CClientListWnd(viewState, ucSCL);
