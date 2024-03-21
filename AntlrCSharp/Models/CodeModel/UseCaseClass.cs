@@ -7,6 +7,7 @@
 ///////////////////////////////////////////////////////////
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 namespace CodeModel {
 	public class UseCaseClass : ClassFileGenerator {
@@ -14,6 +15,7 @@ namespace CodeModel {
 		public List<PresenterClass> presenters = new List<PresenterClass>();
 		public List<ServiceInterface> services = new List<ServiceInterface>();
         public List<DataAggregate> attrs = new List<DataAggregate>();
+        public List<UseCaseClass> invoked = new List<UseCaseClass>();
 
 		public UseCaseClass(){}
 
@@ -33,7 +35,7 @@ namespace CodeModel {
 
         private string GetImports(){
             List<string> dataObjects = new List<string>();
-            List<string> types = new List<string>(){"bigint", "boolean"};
+            List<string> types = new List<string>(){"Bigint", "Boolean"};
             foreach (UCOperation cop in methods){
                 foreach (Instruction instr in cop.instructions){
                     if (instr is Call call && null != call.operation.returnType) {
@@ -48,16 +50,20 @@ namespace CodeModel {
                     string name = par.ToTypeCode();
                     if (!dataObjects.Contains(name) && !types.Contains(name)) dataObjects.Add(name);
                 }
+                foreach (DataAggregate attr in attrs) {
+                    string name = attr.GetElemName();
+                    if (!dataObjects.Contains(name) && !types.Contains(name)) dataObjects.Add(name);
+                }
             }
             string code = "import { " + string.Join(", ", dataObjects);
             code += " } from \"../viewmodel/ViewModel\";\n";
 
             foreach (PresenterClass presenter in presenters)
                 code += "import { " + presenter.GetElemName() + " } from \"../view/presenters/" + presenter.GetElemName() + "\";\n";
-            // foreach (DataAggregate attr in attrs)
-            //    code += "import { " + attr.GetElemName() + " } from \"../viewmodel/ViewModel\";\n";
             foreach (ServiceInterface service in services)
                 code += "import { " + service.GetElemName() + " } from \"../services/" + service.GetElemName() + "\";\n";
+            foreach (UseCaseClass inv in invoked)
+                code += "import { " + inv.GetElemName() + " } from \"./" + inv.GetElemName() + "\";\n";
             return code + "\n";
         }
 
@@ -72,6 +78,8 @@ namespace CodeModel {
             //   CODE: iCl: IClients;
             code += 0 == services.Count ? "" :
                     string.Join("", services.Select(s => "\t" + ts + s.GetVarName() + ": " + s.GetElemName() + ";\n")) + "\n";
+            code += 0 == invoked.Count ? "" :
+                    string.Join("", invoked.Select(s => "\t" + ts + s.GetVarName() + ": " + s.GetElemName() + ";\n")) + "\n";
             //   CODE: returnTo: Function = new Function();
             code += ts + "\treturnTo?: Function;\n\n";
             //   CODE: clientType: ClientType;

@@ -10,7 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 namespace CodeModel {
-	public class UCOperation : Operation {
+	public class UCOperation : UCCallableOperation {
 		public List<Instruction> instructions = new List<Instruction>();
 		public UseCaseClass uc = null;
         public bool initial = false;

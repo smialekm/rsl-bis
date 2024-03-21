@@ -11,7 +11,7 @@ using System.Linq;
 namespace CodeModel {
 	public class ControllerFunction : FileGenerator {
 		public List<COperation> functions = new List<COperation>();
-		public List<UseCaseClass> useCases = new List<UseCaseClass>();
+		public UseCaseClass useCase = null;
 
 		public ControllerFunction(){}
 
@@ -35,8 +35,7 @@ namespace CodeModel {
             string code = "import { " + string.Join(", ", dataObjects);
             code += " } from \"../../viewmodel/ViewModel\";\n";
             
-            foreach (UseCaseClass ucc in useCases)
-                code += "import { " + ucc.GetElemName() + " } from \"../../usecases/" + ucc.GetElemName() + "\";\n";
+            code += "import { " + useCase.GetElemName() + " } from \"../../usecases/" + useCase.GetElemName() + "\";\n";
             return code + "\n";
         }
 
@@ -46,9 +45,9 @@ namespace CodeModel {
             // export function CCLientListForm(
             code += ts + "export function " + GetElemName() + "(\n";
             //   state: ClientListFormData,
-            code += ts + "\tstate: " + Utils.ToPascalCase(name) + "State,\n\t" + ts;
+            code += ts + "\tstate: " + Utils.ToPascalCase(name) + "State,\n";
             //   showClientList: UCShowClientList
-            code += string.Join(",\n\t" + ts, useCases.Select(x => x.GetVarName() + ": " + x.GetElemName()));
+            code += ts + "\t" + useCase.GetVarName() + ": " + useCase.GetElemName();
             // ) {
             code += "\n) {\n" + ts;
             //   >>>sub-functions<<<

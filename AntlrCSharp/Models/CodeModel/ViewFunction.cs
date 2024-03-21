@@ -29,8 +29,7 @@ namespace CodeModel {
             code += "import { useReducer } from \"react\";\n";
             code += "import { " + GetElemName().Substring(1) + "State } from \"../viewmodel/ViewModel\";\n";
             code += "import { " + controller.GetElemName() + " } from \"./controllers/" + controller.GetElemName() + "\";\n";
-            foreach (UseCaseClass ucc in controller.useCases)
-                code += "import { " + ucc.GetElemName() + " } from \"../usecases/" + ucc.GetElemName() + "\";\n";
+            code += "import { " + controller.useCase.GetElemName() + " } from \"../usecases/" + controller.useCase.GetElemName() + "\";\n";
             code += "import { " + presenter.GetElemName() + ", update" + presenter.GetElemName().Substring(1) + 
                     " } from \"./presenters/" + presenter.GetElemName() + "\";\n\n";
             return code;
@@ -46,7 +45,7 @@ namespace CodeModel {
             //   CODE:   pCLW: PClientListWnd,
             code += ts + "\t" + presenter.GetVarName() + ": " + presenter.GetElemName() + ",\n";
             //   ucSCL: UCShowClientList
-            code += string.Join(",\n", controller.useCases.Select(u => ts + "\t" + u.GetVarName() + ": " + u.GetElemName())) + "\n";
+            code += ts + "\t" + controller.useCase.GetVarName() + ": " + controller.useCase.GetElemName() + "\n";
             // CODE: ) {
             code += ts + ") {\n";
             //   CODE: const emptyState: ClientListWndState = new ClientListWndState();
@@ -60,7 +59,7 @@ namespace CodeModel {
             code += ts + "\tif (!isActive) return;\n\n";
             //   CODE: const [selectAdd, selectBack] = CClientListWnd(viewState, ucSCL);
             code += ts + "\tconst [" + string.Join(", ", controller.functions.Select(f => f.GetElemName())) + "] = " +
-                    controller.GetElemName() + "(viewState, " + string.Join(",", controller.useCases.Select(u => u.GetVarName())) + ");\n";
+                    controller.GetElemName() + "(viewState, " + controller.useCase.GetVarName() + ");\n";
             //   CODE:   return (
             code += ts + "\treturn (\n";
             //     CODE: <div className="ClientListWnd">

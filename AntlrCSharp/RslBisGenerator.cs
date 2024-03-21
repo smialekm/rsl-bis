@@ -284,7 +284,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         if (null == vf) {
             // 2. If (does not exist) -> create ‘ControllerFunction’; attach it to ‘ViewFunction’; attach ‘CurrentUCC’ to the ‘ControllerFunction’
             ControllerFunction cf = new ControllerFunction(){name = notionName};
-            if (!cf.useCases.Contains(CurrentUCC)) cf.useCases.Add(CurrentUCC);
+            cf.useCase = CurrentUCC;
             // 3. If (does not exist) -> create ‘PresenterClass’; attach it to ‘ViewFunction’; attach it to the ‘CurrentUCC’
             PresenterClass pc = new PresenterClass(){name = notionName};
             CurrentUCC.presenters.Add(pc);
@@ -413,14 +413,28 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             // add ‘Trigger.action’ (copy and attach if necessary) to ‘ControllerFuntion’ attached to ‘CurrentVF’;
             Trigger trg = UcNameToTrigger[ucName];
             COperation cop = trg.action;
-            COperation newcop = new COperation(){invoked = cop.invoked, name = cop.name};
+            UCOperation baseUcop = cop.invoked;
+            UCOperation proxyUcop = new UCOperation(){name = baseUcop.name, initial = true, uc = CurrentUCC};
+            foreach (DataAggregate par in cop.data)
+                proxyUcop.parameters.Add(new CodeModel.Parameter(){type = par.name});
+            CurrentUCC.methods.Add(proxyUcop);
+            Call call = new Call(){operation = baseUcop};
+            proxyUcop.instructions.Add(call);
+            COperation newcop = new COperation(){invoked = proxyUcop, name = cop.name};
             newcop.data.AddRange(cop.data);
             CurrentVF.controller.functions.Add(newcop);
             // add ‘Trigger.condition’ (if not empty, copy and attach if necessary) to ‘ControllerFuntion’ attached to ‘CurrentVF’;
             COperation condcop = trg.condition;
             COperation newCondcop = null;
             if (null != condcop){
-                newCondcop = new COperation(){invoked = condcop.invoked, name = condcop.name,
+                UCOperation baseCUcop = condcop.invoked;
+                UCOperation proxyCUcop = new UCOperation(){name = baseCUcop.name + " " + ucName, uc = CurrentUCC, returnType = "boolean"};
+                foreach (DataAggregate par in cop.data)
+                    proxyCUcop.parameters.Add(new CodeModel.Parameter(){type = par.name});
+                CurrentUCC.methods.Add(proxyCUcop);
+                Call condCall = new Call(){operation = baseCUcop};
+                proxyCUcop.instructions.Add(condCall);
+                newCondcop = new COperation(){invoked = proxyCUcop, name = condcop.name,
                                                   returnType = condcop.returnType};
                 newCondcop.data.AddRange(condcop.data);
                 CurrentVF.controller.functions.Add(newCondcop);
@@ -429,8 +443,8 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             Trigger newtrg = new Trigger(){name = trg.name, action = newcop, condition = newCondcop};
             CurrentVF.triggers.Add(newtrg);
             // attach ‘Trigger.action.invoked.uc’ to ‘ControllerFuntion’ attached to ‘CurrentVF’ (if necessary);
-            if (!CurrentVF.controller.useCases.Contains(cop.invoked.uc))
-                CurrentVF.controller.useCases.Add(cop.invoked.uc);
+            if (!CurrentVF.controller.useCase.invoked.Contains(cop.invoked.uc))
+                CurrentVF.controller.useCase.invoked.Add(cop.invoked.uc);
             // attach ‘UCOperation’ to ‘Trigger.action’ as ‘returnTo’
             newcop.returnTo = ucop;
         // 5. else -> add use case ‘name’-to-‘CurrentVF’ to ‘UcNameToViewFunction’;
@@ -488,7 +502,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         // 9. else -> Add the ‘COperation’ to ‘ControllerFuntion’ attached to ‘CurrentVF’; attach ‘CurrentUCC’ to ‘ControllerFunction’
         } else {
             CurrentVF.controller.functions.Add(cop);
-            if (!CurrentVF.controller.useCases.Contains(CurrentUCC)) CurrentVF.controller.useCases.Add(CurrentUCC);
+            // if (!CurrentVF.controller.useCase.invoked.Contains(CurrentUCC)) CurrentVF.controller.useCase.invoked.Add(CurrentUCC);
         }
 
         SetLastPredicateTypes(PredicateType.Select);
@@ -507,21 +521,36 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         if (UcNameToVF.ContainsKey(CurrentUCC.name)) foreach (ViewFunction vf in UcNameToVF[CurrentUCC.name]){
             // add ‘COperation’ (copy and attach if necessary) and ‘ConditionCO’ (if not empty, copy and attach if necessary)
             //    to ‘ControllerFuntion’ attached to ‘ViewFunction’;
-            COperation newcop = new COperation(){invoked = cop.invoked, name = cop.name};
+            UseCaseClass invokingUC = vf.controller.useCase;
+            UCOperation baseUcop = cop.invoked;
+            UCOperation proxyUcop = new UCOperation(){name = baseUcop.name, initial = true, uc = invokingUC};
+            foreach (DataAggregate par in cop.data)
+                proxyUcop.parameters.Add(new CodeModel.Parameter(){type = par.name});
+            invokingUC.methods.Add(proxyUcop);
+            Call call = new Call(){operation = baseUcop};
+            proxyUcop.instructions.Add(call);
+            COperation newcop = new COperation(){invoked = proxyUcop, name = cop.name};
             newcop.data.AddRange(cop.data);
             vf.controller.functions.Add(newcop);
             COperation condcop = null;
             if (null != ConditionCO){
-                condcop = new COperation(){invoked = ConditionCO.invoked, name = ConditionCO.name,
+                UCOperation baseCUcop = ConditionCO.invoked;
+                UCOperation proxyCUcop = new UCOperation(){name = baseCUcop.name + " " + CurrentUCC.name, uc = invokingUC, returnType = "boolean"};
+                foreach (DataAggregate par in cop.data)
+                    proxyCUcop.parameters.Add(new CodeModel.Parameter(){type = par.name});
+                invokingUC.methods.Add(proxyCUcop);
+                Call condCall = new Call(){operation = baseCUcop};
+                proxyCUcop.instructions.Add(condCall);
+                condcop = new COperation(){invoked = proxyCUcop, name = ConditionCO.name,
                                                   returnType = ConditionCO.returnType};
                 condcop.data.AddRange(ConditionCO.data);
                 vf.controller.functions.Add(condcop);
             }
             // add ‘Trigger’ (copy if necessary);
-            Trigger newtrg = new Trigger(){name = trg.name, action = newcop, condition = condcop};
-            vf.triggers.Add(trg);
+            Trigger newTrg = new Trigger(){name = trg.name, action = newcop, condition = condcop};
+            vf.triggers.Add(newTrg);
             // attach ‘CurrentUCC’ to ‘ControllerFunction’ attached to ‘ViewFunction’ (if necessary);
-            if (!vf.controller.useCases.Contains(CurrentUCC)) vf.controller.useCases.Add(CurrentUCC);
+            if (!invokingUC.invoked.Contains(CurrentUCC)) invokingUC.invoked.Add(CurrentUCC);
             // attach matching (‘CurrentUCC.name’ & ‘ViewFunction.name’) ‘UCOperation’ from ‘UcVFToUCOperation’ to ‘COperation’ as ‘return’;
             UcVFToUCOperation.TryGetValue((CurrentUCC.name, vf.name), out newcop.returnTo);
             // remove ‘UcNameToViewFunction’ and ‘UcVFToUCOperation’ entries
@@ -938,5 +967,6 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     private void WriteErrorMessage(Exception e, string altlabel = null){
         string label = altlabel ?? CurrentLabel ?? "precondition";
         Console.WriteLine(">>>>> Error: " + e.Message + " in use case \"" + CurrentUCC.name + "\", sentence - " + label);
+        Console.WriteLine(e.ToString());
     }
 }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.XPath;
+using Antlr4.Runtime.Atn;
 using CodeModel;
 
 public class IntermediaryRepresentation {
@@ -32,10 +33,16 @@ public class IntermediaryRepresentation {
         code += string.Join("", PresenterClasses.Select(pc => "const " + pc.GetVarName() + ": " + pc.GetElemName() + " = new " + pc.GetElemName() + "();\n")) + "\n";
         code += string.Join("", ServiceInterfaces.Select(si => "const " + si.GetVarName() + ": " + si.GetElemName() + " = new " + si.GetSvcName() + "();\n")) + "\n";
 
+        UseCaseClass startClass = null;
         foreach (UseCaseClass ucc in UseCaseClasses){
+            if ("Start" == ucc.name) startClass = ucc;
             code += "const " + ucc.GetVarName() + ": " + ucc.GetElemName() + " = new " + ucc.GetElemName() + "(";
             code += ucc.GetParams() + ");\n";
         }
+
+        foreach (UseCaseClass ucc in UseCaseClasses)
+            foreach (UseCaseClass inv in ucc.invoked)
+                code += ucc.GetVarName() + "." + inv.GetVarName() + " = " + inv.GetVarName() + ";\n";
 
         code += "\nfunction switchView(state: AppState, action: ScreenId) {\n";
         code += "\tlet newState = { ...state };\n";
@@ -55,16 +62,16 @@ public class IntermediaryRepresentation {
 
         code += string.Join("", PresenterClasses.Select(pc => "\t" + pc.GetVarName() + ".injectGlobalUpdateView(globalUpdateView);\n")) + "\n";
 
+        code += "\n\tif (state.screen === ScreenId.START) start.selectApplication();\n\n";
+
+
         code += "\treturn (\n";
         code += "\t\t<div className=\"App\">\n";
-        code += "\t\t\t{start.selectApplication()}\n";
         foreach (ViewFunction vf in ViewFunctions){
           code += "\t\t\t{" + vf.GetElemName() + "(state.screen === ScreenId." + vf.GetElemName().ToUpper().Substring(1) + ", ";
           code += vf.presenter.GetVarName();
-          if (0 < vf.controller.useCases.Count) {
-            code += ", ";
-            code += string.Join(", ", vf.controller.useCases.Select(uc => uc.GetVarName()));
-          }
+          if (null != vf.controller.useCase)
+            code += ", " + vf.controller.useCase.GetVarName();
           code += ")}\n";
         }
         
