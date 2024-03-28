@@ -62,7 +62,7 @@ public class IntermediaryRepresentation {
 
         code += string.Join("", PresenterClasses.Select(pc => "\t" + pc.GetVarName() + ".injectGlobalUpdateView(globalUpdateView);\n")) + "\n";
 
-        code += "\n\tif (state.screen === ScreenId.START) start.selectApplication();\n\n";
+        code += "\tif (state.screen === ScreenId.START) start.selectApplication();\n\n";
 
 
         code += "\treturn (\n";

@@ -45,7 +45,18 @@ namespace CodeModel {
 
         public override string ToCode(int tabs){
 		    string ts = Utils.GetTabString(tabs);
-            string code = GetImports();
+            string code = "";
+            if ("presentation dispatcher" == name){
+                code += "import { ScreenId } from \"../../viewmodel/ViewModel\";\n";
+                code += "import { Dispatch } from \"react\";\n\n";
+                code += "export class PresentationDispatcher {\n";
+                code += "\tgUpdateView!: Dispatch<ScreenId>;\n";
+                code += "\tinjectGlobalUpdateView(guv: Dispatch<ScreenId>) {\n";
+                code += "\t\tthis.gUpdateView = guv;\n";
+                code += "\t}\n}\n";
+                return code;
+            }
+            code = GetImports();
             // export function updateClwView(state: ClientListWndData, action: string) {
             code += ts + "export function update" + Utils.ToPascalCase(name) + "(";
             code += "state: " + Utils.ToPascalCase(name) + "State, action: string) {\n";
@@ -75,7 +86,7 @@ namespace CodeModel {
         }
 
         protected override string GetFileName(){
-            return "P " + name;
+            return ("presentation dispatcher" == name ? "" : "P ") + name;
         }
     }
 }

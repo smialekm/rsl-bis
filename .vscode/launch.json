@@ -10,7 +10,7 @@
         "preLaunchTask": "dotnet: build",
         "program": "${workspaceFolder}/AntlrCSharp/bin/Debug/netcoreapp3.1/AntlrCSharp.dll",
         "args": [
-            "C:\\Users\\smial\\MyRepos\\rsl-bis-app\\src\\input.txt",
+            "C:\\Users\\smial\\MyRepos\\rsl-bis-app\\input\\",
             "C:\\Users\\smial\\MyRepos\\rsl-bis-app\\src\\"
         ],
         "cwd": "${workspaceFolder}",
@@ -23,7 +23,7 @@
         "request": "launch",
         "program": "${workspaceFolder}/AntlrCSharp/bin/Debug/netcoreapp3.1/AntlrCSharp.dll",
         "args": [
-            "C:\\Users\\smial\\MyRepos\\rsl-bis-app\\src\\input.txt",
+            "C:\\Users\\smial\\MyRepos\\rsl-bis-app\\input\\",
             "C:\\Users\\smial\\MyRepos\\rsl-bis-app\\src\\"
         ],
         "cwd": "${workspaceFolder}",

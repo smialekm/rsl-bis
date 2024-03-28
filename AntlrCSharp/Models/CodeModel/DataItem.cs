@@ -41,7 +41,7 @@ namespace CodeModel {
 								(isNotString ? GetCodeType(true) + "(" : "") + "e.target.value" + (isNotString ? ")" : "") + ";\n";
 				code += ts + "\t\tupdateView(\"" + parentPath.Replace(".", "_") + "_" + name + "\")\n";
 				code += ts + "\t}}\n";
-				code += ts + "/>\n";
+				code += ts + "/> <br />\n";
 			} else if (null != baseType){
 				if (TypeKind.Simple == typeKind) {
 					code = ts + "<h" + hLevel + ">" + name + "</h" + hLevel + ">\n";

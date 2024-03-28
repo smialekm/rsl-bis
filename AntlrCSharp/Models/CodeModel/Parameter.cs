@@ -15,7 +15,8 @@ namespace CodeModel {
 
 		public string ToCode(int i = 0, bool var = false){
 			string code;
-			if (type.Contains("@")) code = "result";
+			if ("any" == type) return "this: any";
+			else if (type.Contains("@")) code = "result";
 			else code = Utils.ToCamelCase(type.Replace("!", "")) + (i>0 ? i.ToString() : "");
 			if (!var) code += ": " + ToTypeCode();
 			return code;

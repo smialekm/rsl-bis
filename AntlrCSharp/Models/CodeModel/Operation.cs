@@ -26,6 +26,10 @@ namespace CodeModel{
 			return GetParametersCode(true);
 		}
 
+		public string GetBareParametersCode(){
+			return GetParametersCode(true,true);
+		}
+
 		public string GetReturnTypeElemName(){
 			List<string> types = new List<string>(){"bigint", "boolean"};
 			if (types.Contains(returnType)) return returnType;

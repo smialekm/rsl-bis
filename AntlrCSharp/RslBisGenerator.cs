@@ -403,6 +403,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
                 type = eu.name;
             }
             // 3. Create ‘DataItem’ (‘parameter’; type as ‘Enumeration’); add it to 'UCOperation’
+            ucop.parameters.Add(new CodeModel.Parameter(){type = "any"});
             ucop.parameters.Add(new CodeModel.Parameter(){type = type});
         } else {
             ucop = returnTo;
@@ -414,7 +415,7 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             Trigger trg = UcNameToTrigger[ucName];
             COperation cop = trg.action;
             UCOperation baseUcop = cop.invoked;
-            UCOperation proxyUcop = new UCOperation(){name = baseUcop.name, initial = true, uc = CurrentUCC};
+            UCOperation proxyUcop = new UCOperation(){name = baseUcop.name, invoking = true, uc = CurrentUCC};
             foreach (DataAggregate par in cop.data)
                 proxyUcop.parameters.Add(new CodeModel.Parameter(){type = par.name});
             CurrentUCC.methods.Add(proxyUcop);
@@ -523,9 +524,12 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             //    to ‘ControllerFuntion’ attached to ‘ViewFunction’;
             UseCaseClass invokingUC = vf.controller.useCase;
             UCOperation baseUcop = cop.invoked;
-            UCOperation proxyUcop = new UCOperation(){name = baseUcop.name, initial = true, uc = invokingUC};
-            foreach (DataAggregate par in cop.data)
-                proxyUcop.parameters.Add(new CodeModel.Parameter(){type = par.name});
+            UCOperation proxyUcop = new UCOperation(){name = baseUcop.name, invoking = true, uc = invokingUC};
+            foreach (DataAggregate parDa in cop.data) {
+                CodeModel.Parameter par = new CodeModel.Parameter(){type = parDa.name};
+                if (invokingUC.attrs.Contains(parDa)) par.isAttribute = true;
+                proxyUcop.parameters.Add(par);
+            }
             invokingUC.methods.Add(proxyUcop);
             Call call = new Call(){operation = baseUcop};
             proxyUcop.instructions.Add(call);
@@ -536,8 +540,11 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
             if (null != ConditionCO){
                 UCOperation baseCUcop = ConditionCO.invoked;
                 UCOperation proxyCUcop = new UCOperation(){name = baseCUcop.name + " " + CurrentUCC.name, uc = invokingUC, returnType = "boolean"};
-                foreach (DataAggregate par in cop.data)
-                    proxyCUcop.parameters.Add(new CodeModel.Parameter(){type = par.name});
+                foreach (DataAggregate parDa in cop.data) {
+                    CodeModel.Parameter par = new CodeModel.Parameter(){type = parDa.name};
+                    if (invokingUC.attrs.Contains(parDa)) par.isAttribute = true;
+                    proxyUcop.parameters.Add(par);
+                }
                 invokingUC.methods.Add(proxyCUcop);
                 Call condCall = new Call(){operation = baseCUcop};
                 proxyCUcop.instructions.Add(condCall);

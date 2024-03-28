@@ -35,9 +35,11 @@ namespace CodeModel {
 			} else if (operation is POperation pop)
 				code += "this." + pop.pres.GetVarName();
 			else if (operation is UCOperation ucop)
-				code += "this." + ucop.uc.GetVarName();
+				code += "this." + ucop.uc.GetVarName() + "?";
 			else throw new System.Exception("Critical compilation failure");
-			code += "." + operation.GetElemName() + operation.GetVarParametersCode();
+			code += "." + operation.GetElemName();
+			code += operation is UCOperation ? "(" + operation.GetBareParametersCode() + 
+					(0 < operation.parameters.Count ? ", " : "") + "returnTo, this)" : operation.GetVarParametersCode();
 			if (var) code += null == value ? "" : " == " + value.parent.GetElemName() + "." + value.GetElemName();
 			else code += ";";
             return code;

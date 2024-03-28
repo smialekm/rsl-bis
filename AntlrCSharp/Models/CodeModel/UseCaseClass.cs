@@ -35,7 +35,7 @@ namespace CodeModel {
 
         private string GetImports(){
             List<string> dataObjects = new List<string>();
-            List<string> types = new List<string>(){"Bigint", "Boolean"};
+            List<string> types = new List<string>(){"Bigint", "Boolean", "Any"};
             foreach (UCOperation cop in methods){
                 foreach (Instruction instr in cop.instructions){
                     if (instr is Call call && null != call.operation.returnType) {
@@ -79,9 +79,10 @@ namespace CodeModel {
             code += 0 == services.Count ? "" :
                     string.Join("", services.Select(s => "\t" + ts + s.GetVarName() + ": " + s.GetElemName() + ";\n")) + "\n";
             code += 0 == invoked.Count ? "" :
-                    string.Join("", invoked.Select(s => "\t" + ts + s.GetVarName() + ": " + s.GetElemName() + ";\n")) + "\n";
+                    string.Join("", invoked.Select(s => "\t" + ts + s.GetVarName() + ": " + s.GetElemName() + " | undefined;\n")) + "\n";
             //   CODE: returnTo: Function = new Function();
-            code += ts + "\treturnTo?: Function;\n\n";
+            code += ts + "\treturnTo?: Function;\n";
+            code += ts + "\treturnUc?: any;\n\n";
             //   CODE: clientType: ClientType;
             code += 0 == attrs.Count ? "" :
                     string.Join("", attrs.Select(a => "\t" + ts + a.GetVarName() + ": " + a.GetElemName() + 

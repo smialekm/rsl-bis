@@ -18,11 +18,12 @@ namespace AntlrCSharp
                     return;
                 }
                 string inputPath = args[0];
-                Console.WriteLine("Input from file: " + inputPath);
+                Console.WriteLine("Input from folder: " + inputPath);
                 string mainPath = args[1];
                 Console.WriteLine("Output to folder: " + mainPath);
                 
-                string input = File.ReadAllText(inputPath);
+                string input = ReadDirectoryFiles(inputPath, false) + "\n";
+                input += ReadDirectoryFiles(inputPath, true);
 
                 AntlrInputStream inputStream = new AntlrInputStream(input);
                 RslBisLexer rslBisLexer = new RslBisLexer(inputStream);
@@ -38,6 +39,8 @@ namespace AntlrCSharp
                 foreach (ControllerFunction func in result.ControllerFunctions){
                     func.ToFile(mainPath + "view\\controllers");
                 }
+                PresenterClass dispatcher = new PresenterClass(){name = "presentation dispatcher"};
+                dispatcher.ToFile(mainPath + "view\\presenters");
                 foreach (PresenterClass pc in result.PresenterClasses){
                     pc.ToFile(mainPath + "view\\presenters");
                 }
@@ -54,6 +57,16 @@ namespace AntlrCSharp
             {
                 Console.WriteLine("Error: " + ex);
             }
+        }
+
+        static string ReadDirectoryFiles(string directory, bool notions){
+            string input = "";
+            string[] dirs = Directory.GetDirectories(directory);
+            string[] files = Directory.GetFiles(directory);
+            foreach (string file in files) 
+                if ((notions && file.Contains('#')) || (!notions && !file.Contains('#'))) input += File.ReadAllText(file);
+            foreach (string dir in dirs) input += ReadDirectoryFiles(dir, notions);
+            return input;
         }
     }
 }

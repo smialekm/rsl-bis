@@ -14,6 +14,7 @@ namespace CodeModel {
 		public List<Instruction> instructions = new List<Instruction>();
 		public UseCaseClass uc = null;
         public bool initial = false;
+        public bool invoking = false;
 
 		public UCOperation(){}
 
@@ -25,14 +26,15 @@ namespace CodeModel {
 			string ts = Utils.GetTabString(tabs);
             // CODE: showClientListSelected() {
             string code = ts + GetElemName() + "(" + GetParametersCode(false, true);
-            if (initial)  code += (0 != parameters.Count ? ", " : "") + "returnTo?: Function";
+            if (initial || invoking)  code += (0 != parameters.Count ? ", " : "") + "returnTo?: Function, returnUc?: any";
             code += ")" + (!string.IsNullOrEmpty(returnType) ? ": " + returnType : "") + " {\n";
             if (initial){
             //   CODE: if (null != returnTo) this.returnTo = returnTo;
-                code += ts + "\tif (undefined != this.returnTo) this.returnTo = returnTo;\n";
+                code += ts + "\tif (undefined != returnTo) { this.returnTo = returnTo; this.returnUc = returnUc; }\n";
             }
             //   CODE: this.clientType = clientType;
-            code += string.Join("", parameters.Select( p => p.type.Contains("@") ? "" : ts + "\t" + p.ToVarCode() + " = " + p.ToCode(0,true) + ";\n" ));
+            code += string.Join("", parameters.Select( p => 
+                                (p.type.Contains("@") || "any" == p.type) ? "" : ts + "\t" + p.ToVarCode() + " = " + p.ToCode(0,true) + ";\n" ));
 
             if (string.IsNullOrEmpty(returnType))
                 foreach (Instruction instr in instructions)

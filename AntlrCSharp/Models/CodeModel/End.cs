@@ -15,7 +15,7 @@ namespace CodeModel {
         public override string ToCode(int tabs = 0){
             string ts = Utils.GetTabString(tabs);
             string code = ts + "if (undefined != this.returnTo)\n";
-            code += ts + "\tthis.returnTo(" + value.parent.GetElemName() + "." + value.GetElemName() + ");";
+            code += ts + "\tthis.returnTo.call(this.returnUc, " + value.parent.GetElemName() + "." + value.GetElemName() + ");";
             return code;
         }
     }
