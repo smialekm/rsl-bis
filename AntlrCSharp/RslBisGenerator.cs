@@ -307,7 +307,8 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         // 6. For each ‘DataAggregate’ in ‘CurrentDAP’ add a ‘DataItem’ (‘parameter’; type as ‘DataAggregate’ name);
         // attach the ‘DataItems’ to the ‘POperation’
         foreach (DataAggregate da in CurrentDAP) {
-            CodeModel.Parameter par = new CodeModel.Parameter(){type = da.name};
+            DataItem baseDI = CurrentViewAggregate.fields.Find(di => di.type == da.name);
+            CodeModel.Parameter par = new CodeModel.Parameter(){type = da.name, baseDataItem = baseDI};
             if (CurrentUCC.attrs.Contains(da)) par.isAttribute = true;
             pop.parameters.Add(par);
         }
@@ -351,7 +352,11 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
         if (!CurrentVF.data.Contains(da)) {
             CurrentVF.data.Add(da);
             CurrentViewAggregate.fields.Add(new DataItem()
-                {name = da.name, type = da.name, typeKind = TypeKind.Simple, baseType = da});
+                {name = da.name, type = da.name, typeKind = TypeKind.Simple, baseType = da, editableStateItem = true});
+        } else {
+            DataItem editableDi = CurrentViewAggregate.fields.Find(di => di.name == notionName);
+            if (null != editableDi) editableDi.editableStateItem = true;
+            else throw new Exception("Critical error");
         }
         CurrentVF.editable.Add(da);
         // 2. Append ‘label’-to-‘CurrentVF’ to ‘LabelToVF’

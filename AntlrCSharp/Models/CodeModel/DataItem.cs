@@ -14,6 +14,7 @@ namespace CodeModel {
 		public string type;
 		public TypeKind? typeKind = null;
 		public DataAggregate baseType = null;
+		public bool editableStateItem = false;
 
 		public DataItem(){}
 
@@ -23,6 +24,14 @@ namespace CodeModel {
 
 		public string GetVarName(){
 			return Utils.ToCamelCase(name);
+		}
+
+		public string GetTypeVarName(){
+			return Utils.ToCamelCase(type);
+		}
+
+		public string GetTypeName(){
+			return Utils.ToPascalCase(type);
 		}
 
 		public string ToHtml(string parentPath, bool editable, int tabs = 0, int hLevel = 4){
@@ -47,20 +56,26 @@ namespace CodeModel {
 					code = ts + "<h" + hLevel + ">" + name + "</h" + hLevel + ">\n";
 					code += baseType.ToHtml(editable, tabs, hLevel, parentPath + "." + GetVarName());
 				} else if (TypeKind.Multiple == typeKind) {
-					code = baseType.ToHtmlTable(tabs, parentPath + "." + GetVarName());
+					code = baseType.ToHtmlTable(editable, parentPath + "." + GetVarName(), tabs);
 				} else throw new System.Exception("Critical error");
 			}
 			return code;
 		}
 
-		public string ToCode(int tabs = 0){
+		public string ToCode(int tabs = 0, bool forceSimple = false){
 			string ts = Utils.GetTabString(tabs);
-			string code = ts + Utils.ToCamelCase(name) + ": ";
+			string code = ts + (forceSimple ? GetTypeVarName() : GetVarName()) + ": ";
 			if (TypeKind.Primitive != typeKind) {
-				string typeString = Utils.ToPascalCase(type) + (TypeKind.Simple == typeKind ? "" : "[]");
+				string typeString = Utils.ToPascalCase(type) + (TypeKind.Simple == typeKind || forceSimple ? "" : "[]");
 				code += typeString + " = ";
 				if ("ScreenId" == typeString) code += typeString + ".START";
-				else code += (TypeKind.Simple == typeKind) ? "new " + typeString + "()" : "[]";
+				else code += (TypeKind.Simple == typeKind || forceSimple) ? "new " + typeString + "()" : "[]";
+				if (editableStateItem && baseType.fields.Exists(di => TypeKind.Multiple == di.typeKind)) {
+					code += ";\n" + code.Replace(Utils.ToCamelCase(name), Utils.ToCamelCase("base " + name));
+					foreach (DataItem di in baseType.fields)
+						if (TypeKind.Multiple == di.typeKind)
+							code += ";\n" + di.ToCode(tabs,true).Replace(":", "?:").Replace(";","");
+				}
 			}
 			else {
 				code += GetCodeType() + " = ";

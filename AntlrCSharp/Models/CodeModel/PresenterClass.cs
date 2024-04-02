@@ -35,6 +35,12 @@ namespace CodeModel {
                 foreach (Parameter par in cop.parameters) {
                     string name = par.ToTypeCode();
                     if (!dataObjects.Contains(name)) dataObjects.Add(name);
+                    if (par.baseDataItem.editableStateItem && par.baseDataItem.baseType.fields.Exists(di => TypeKind.Multiple == di.typeKind))
+					    foreach (DataItem di in par.baseDataItem.baseType.fields)
+						    if (TypeKind.Multiple == di.typeKind) {
+                                name = di.GetTypeName();
+                                if (!dataObjects.Contains(name)) dataObjects.Add(name);
+                            }
                 }
             }
             code += string.Join(", ", dataObjects);

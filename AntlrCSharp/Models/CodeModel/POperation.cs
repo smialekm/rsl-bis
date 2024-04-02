@@ -19,8 +19,16 @@ namespace CodeModel {
         public override string ToCode(int tabs){
 			string ts = Utils.GetTabString(tabs);
             string code = ts + GetElemName() + GetParametersCode() + "{\n";
-            foreach (Parameter da in parameters)
-                code += ts + "\tthis.state." + da.ToVarCode() + " = " + da.ToVarCode() + ";\n";
+            foreach (Parameter par in parameters) {
+                bool hasMultipleItems = par.baseDataItem.editableStateItem && par.baseDataItem.baseType.fields.Exists(di => TypeKind.Multiple == di.typeKind);
+                code += ts + "\tthis.state." + (hasMultipleItems ? "base" + par.ToTypeCode() : par.ToVarCode()) + " = " + par.ToVarCode() + ";\n";
+                if (hasMultipleItems) {
+                    code +=  ts + "\tthis.state." + par.ToVarCode() + " = new " + par.ToTypeCode() + "();\n";
+                    foreach (DataItem di in par.baseDataItem.baseType.fields)
+						if (TypeKind.Multiple == di.typeKind)
+                            code += ts + "\tthis.state." + di.GetTypeVarName() + " = new " + di.GetTypeName() + "();\n";
+                }
+            }
             code += ts + "\tthis.gUpdateView?.(ScreenId." + pres.GetElemName().ToUpper().Substring(1) + ");\n" + ts + "}";
             return code;
         }

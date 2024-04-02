@@ -34,16 +34,43 @@ namespace CodeModel {
 			return code;
         }
 
-		public string ToHtmlTable(int tabs = 0, string parentPath = null) {
+		public string ToHtmlTable(bool editable, string parentPath, int tabs = 0) {
  			string ts = Utils.GetTabString(tabs);
 			string code = ts + "<table className=\"table table-striped table-bordered\">\n";
-			code += ts + "\t<thead>\n" + ts + "\t\t<tr>\n";
+			code += ts + "\t<thead>\n"+ ts + "\t\t<tr>\n";
+			if (editable) code += ts + "\t\t\t<th></th>\n";
 			code += string.Join("", fields.Select(f => (TypeKind.Primitive == f.typeKind) ? ts + "\t\t\t<th>" + f.name + "</th>\n" : ""));
 			code += ts + "\t\t</tr>\n" + ts + "\t</thead>\n";
 			code += ts + "\t<tbody>\n";
-			code += ts + "\t\t{viewState." + parentPath + " &&\n";
-			code += ts + "\t\t viewState." + parentPath + ".map((value,index) => (\n";
+			string baseParentPath = editable ? "base" + parentPath[..1].ToUpper() + parentPath[1..] : parentPath;
+			code += ts + "\t\t{viewState." + baseParentPath + " &&\n";
+			code += ts + "\t\t viewState." + baseParentPath + ".map((value,index) => (\n";
 			code += ts + "\t\t\t<tr key={index}>\n";
+			if (editable) {
+				string nts = Utils.GetTabString(tabs + 4);
+				code += nts + "<td>\n" + nts + "\t<input\n";
+				code += nts + "\t\ttype=\"checkbox\"\n";
+                code += nts + "\t\tid={index.toString()}\n";
+                code += nts + "\t\tonChange={(e) => {\n";
+				nts = Utils.GetTabString(tabs + 7);
+                code += nts + "e.target.checked\n";
+                code += nts + "\t? viewState." + parentPath + ".push(\n";
+                code += nts + "\t\t\tviewState." + baseParentPath + "[index]\n";
+                code += nts + "\t\t)\n";
+                code += nts + "\t: viewState." + parentPath + ".splice(\n";
+                code += nts + "\t\t\tviewState." + parentPath + ".indexOf(\n";
+                code += nts + "\t\t\t\tviewState." + baseParentPath + "[index]\n";
+                code += nts + "\t\t\t), 1\n";
+            	code += nts + "\t\t);\n";
+				code += nts + "viewState." + GetVarName() + " =\n";
+				code += nts + "\t1 == viewState." + parentPath + ".length\n";
+                code += nts + "\t\t? viewState." +baseParentPath + "[0]\n";
+                code += nts + "\t\t: undefined;\n";
+				nts = Utils.GetTabString(tabs + 4);
+                code += nts + "\t\t}}\n";
+                code += nts + "\t/>\n";
+                code += nts + "</td>\n";
+			}
 			code += string.Join("", fields.Select(f => (TypeKind.Primitive == f.typeKind) ? ts + "\t\t\t\t<td>{value." + f.name + 
 									("text" != f.type ? ".toString()" : "") + "}</td>\n" : ""));
 			code += ts + "\t\t\t</tr>\n" + ts + "\t\t))}\n";

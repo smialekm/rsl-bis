@@ -10,6 +10,7 @@ namespace CodeModel {
 	public class Parameter {
 		public string type;
 		public bool isAttribute = false;
+		public DataItem baseDataItem = null;
 
 		public Parameter(){}
 
