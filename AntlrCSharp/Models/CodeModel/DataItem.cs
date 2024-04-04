@@ -73,11 +73,12 @@ namespace CodeModel {
 				if (editableStateItem && baseType.fields.Exists(di => TypeKind.Multiple == di.typeKind)) {
 					code += ";\n" + code.Replace(Utils.ToCamelCase(name), Utils.ToCamelCase("base " + name));
 					foreach (DataItem di in baseType.fields)
-						if (TypeKind.Multiple == di.typeKind)
-							code += ";\n" + di.ToCode(tabs,true).Replace(":", "?:").Replace(";","");
+						if (TypeKind.Multiple == di.typeKind) {
+							string codeFrg = di.ToCode(tabs,true).Replace(":", "?:");
+							code += ";\n" + codeFrg[..(codeFrg.IndexOf("=") + 2)] +"undefined";
+						}
 				}
-			}
-			else {
+			} else {
 				code += GetCodeType() + " = ";
 				switch (type) {
 					case "integer": code += "BigInt(0)";

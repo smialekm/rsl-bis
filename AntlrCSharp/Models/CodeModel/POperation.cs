@@ -26,7 +26,9 @@ namespace CodeModel {
                     code +=  ts + "\tthis.state." + par.ToVarCode() + " = new " + par.ToTypeCode() + "();\n";
                     foreach (DataItem di in par.baseDataItem.baseType.fields)
 						if (TypeKind.Multiple == di.typeKind)
-                            code += ts + "\tthis.state." + di.GetTypeVarName() + " = new " + di.GetTypeName() + "();\n";
+                            code += ts + "\tthis.state." + di.GetTypeVarName() + " = undefined;\n";
+                        else
+                            code += ts + "\tthis.state." + par.ToVarCode() + "." + di.GetVarName() + " = " + par.ToVarCode() + "." + di.GetVarName() + ";\n";
                 }
             }
             code += ts + "\tthis.gUpdateView?.(ScreenId." + pres.GetElemName().ToUpper().Substring(1) + ");\n" + ts + "}";
