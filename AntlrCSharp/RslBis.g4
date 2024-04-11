@@ -212,19 +212,19 @@ actor:
     ;
 
 notion:
-    STRING+
+    (STRING | CHAR)+
     ;
 
 value:
-    STRING+
+    (STRING | CHAR)+
     ;
 
 name:
-    STRING+
+    (STRING | CHAR)+
     ;
 
 uilabel:
-    STRING+
+    (STRING | CHAR)+
     ;
 
 label:

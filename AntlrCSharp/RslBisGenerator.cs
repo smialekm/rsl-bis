@@ -42,15 +42,15 @@ public class RslBisGenerator : RslBisBaseVisitor<IntermediaryRepresentation> {
     }
 
     private static string ObtainName(ParserRuleContext context){
-        ITerminalNode[] strings;
-        if (context is RslBisParser.NameContext nameContext) strings = nameContext.STRING();
-        else if (context is RslBisParser.NotionContext notionContext) strings = notionContext.STRING();
-        else if (context is RslBisParser.ValueContext valueContext) strings = valueContext.STRING();
-        else if (context is RslBisParser.UilabelContext uiContext) strings = uiContext.STRING();
-        else if (context is RslBisParser.DatatypeContext dataContext) return dataContext.GetText();
-        else if (context is RslBisParser.MultnotionContext multContext) return multContext.GetText();
-        else if (context is RslBisParser.TriggertypeContext trgContext) return trgContext.GetText();
-        else if (context is RslBisParser.ViewtypeContext vContext) return vContext.GetText();
+        IList<IParseTree> strings;
+        if (context is RslBisParser.NameContext) strings = context.children;
+        else if (context is RslBisParser.NotionContext) strings = context.children;
+        else if (context is RslBisParser.ValueContext) strings = context.children;
+        else if (context is RslBisParser.UilabelContext) strings = context.children;
+        else if (context is RslBisParser.DatatypeContext) return context.GetText();
+        else if (context is RslBisParser.MultnotionContext) return context.GetText();
+        else if (context is RslBisParser.TriggertypeContext) return context.GetText();
+        else if (context is RslBisParser.ViewtypeContext) return context.GetText();
         else return null;     
         return string.Join(" ", strings.ToList().Select(x => x.GetText()));
     }

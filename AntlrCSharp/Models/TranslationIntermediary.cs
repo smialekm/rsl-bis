@@ -62,7 +62,9 @@ public class IntermediaryRepresentation {
 
         code += string.Join("", PresenterClasses.Select(pc => "\t" + pc.GetVarName() + ".injectGlobalUpdateView(globalUpdateView);\n")) + "\n";
 
-        code += "\tif (state.screen === ScreenId.START) start.selectApplication();\n\n";
+        UCOperation startUCOperation = UseCaseClasses.Find(ucc => "Start" == ucc.name)?.methods.Find(m => m.initial);
+
+        code += "\tif (state.screen === ScreenId.START) start." + (null != startUCOperation ? startUCOperation.GetElemName() : "selectApplication") + "();\n\n";
 
 
         code += "\treturn (\n";
@@ -79,6 +81,8 @@ public class IntermediaryRepresentation {
 
         if (!Directory.Exists(path)) Directory.CreateDirectory(path);
 			  File.WriteAllText(path + "\\" + "App.tsx", code);
+        
+        if (null == startUCOperation) throw new System.Exception("Missing \"Start\" use case");
     }
 }
 
